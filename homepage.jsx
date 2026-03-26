@@ -1,519 +1,349 @@
 import { useState, useEffect, useRef } from "react";
 
-// ─── DOCS DATA ────────────────────────────────────────────────────────────────
+// ─── DOCS: load từ /docs/**/*.md via Vite glob ────────────────────────────────
+const MD_FILES = import.meta.glob("/docs/**/*.md", { query: "?raw", import: "default", eager: true });
+
+function getDocContent(fileId) {
+  if (!fileId) return null;
+  return MD_FILES[`/docs/${fileId}`] ?? null;
+}
+
+// ─── DOCS TREE: phase → week → files ──────────────────────────────────────────
 const DOCS_TREE = [
   {
     id: "phase-1", label: "Phase 1 — Foundation", weeks: "Week 1–16",
-    files: [
-      { id: "p1-overview", label: "Overview & Mục tiêu" },
-      { id: "p1-w1", label: "Week 1 — Problem Framing" },
-      { id: "p1-w2", label: "Week 2 — Regulatory Landscape" },
-      { id: "p1-w3", label: "Week 3 — Data Landscape" },
-      { id: "p1-w4", label: "Week 4 — Damage Model" },
-      { id: "p1-w5", label: "Week 5 — Decision Architecture" },
-      { id: "p1-w6", label: "Week 6 — Threshold Design" },
-      { id: "p1-w7", label: "Week 7 — KPI Tree" },
-      { id: "p1-w8", label: "Week 8 — Workflow Modeling" },
-      { id: "p1-w9", label: "Week 9 — Human-AI Interaction" },
-      { id: "p1-w10", label: "Week 10 — Tech Stack & DPIA 🔰" },
-      { id: "p1-w11", label: "Week 11 — Internal Proposal" },
-      { id: "p1-w12", label: "Week 12 — MVP Build v1" },
-      { id: "p1-w16", label: "Week 16 — C-Level Presentation" },
+    folders: [
+      { id: "phase-1/week-01", label: "Week 01", files: [
+        { id: "phase-1/week-01/w01-01-use-case-shortlist.md", label: "w01-01-use-case-shortlist" },
+        { id: "phase-1/week-01/w01-02-problem-brief.md", label: "w01-02-problem-brief" },
+        { id: "phase-1/week-01/w01-03-market-context.md", label: "w01-03-market-context" },
+        { id: "phase-1/week-01/w01-04-decision-frequency.md", label: "w01-04-decision-frequency" },
+        { id: "phase-1/week-01/w01-05-stakeholder-map.md", label: "w01-05-stakeholder-map" },
+      ]},
+      { id: "phase-1/week-02", label: "Week 02", files: [
+        { id: "phase-1/week-02/w02-01-regulatory-mapping.md", label: "w02-01-regulatory-mapping" },
+        { id: "phase-1/week-02/w02-02-compliance-gap-analysis.md", label: "w02-02-compliance-gap-analysis" },
+        { id: "phase-1/week-02/w02-03-pdpd-impact-bank-x.md", label: "w02-03-pdpd-impact-bank-x" },
+      ]},
+      { id: "phase-1/week-03", label: "Week 03", files: [
+        { id: "phase-1/week-03/w03-01-data-landscape-bank-x.md", label: "w03-01-data-landscape-bank-x" },
+        { id: "phase-1/week-03/w03-02-data-quality-scorecard.md", label: "w03-02-data-quality-scorecard" },
+        { id: "phase-1/week-03/w03-03-feature-availability-matrix.md", label: "w03-03-feature-availability-matrix" },
+      ]},
+      { id: "phase-1/week-04", label: "Week 04", files: [
+        { id: "phase-1/week-04/w04-01-damage-model-bank-x.md", label: "w04-01-damage-model-bank-x" },
+        { id: "phase-1/week-04/w04-02-break-even-analysis.md", label: "w04-02-break-even-analysis" },
+        { id: "phase-1/week-04/w04-03-budget-estimate-v0.md", label: "w04-03-budget-estimate-v0" },
+      ]},
+      { id: "phase-1/week-05", label: "Week 05", files: [
+        { id: "phase-1/week-05/w05-01-decision-architecture.md", label: "w05-01-decision-architecture" },
+        { id: "phase-1/week-05/w05-02-decision-state-spec.md", label: "w05-02-decision-state-spec" },
+        { id: "phase-1/week-05/w05-03-escalation-tree-v1.md", label: "w05-03-escalation-tree-v1" },
+      ]},
+      { id: "phase-1/week-06", label: "Week 06", files: [
+        { id: "phase-1/week-06/w06-01-threshold-framework.md", label: "w06-01-threshold-framework" },
+        { id: "phase-1/week-06/w06-02-cost-of-error-table.md", label: "w06-02-cost-of-error-table" },
+        { id: "phase-1/week-06/w06-03-approval-rate-curve.md", label: "w06-03-approval-rate-curve" },
+      ]},
+      { id: "phase-1/week-07", label: "Week 07", files: [
+        { id: "phase-1/week-07/w07-01-kpi-tree.md", label: "w07-01-kpi-tree" },
+        { id: "phase-1/week-07/w07-02-metric-conflict-memo.md", label: "w07-02-metric-conflict-memo" },
+        { id: "phase-1/week-07/w07-03-guardrail-definitions.md", label: "w07-03-guardrail-definitions" },
+      ]},
+      { id: "phase-1/week-08", label: "Week 08", files: [
+        { id: "phase-1/week-08/w08-01-workflow-as-is.md", label: "w08-01-workflow-as-is" },
+        { id: "phase-1/week-08/w08-02-workflow-to-be.md", label: "w08-02-workflow-to-be" },
+        { id: "phase-1/week-08/w08-03-integration-point-map.md", label: "w08-03-integration-point-map" },
+      ]},
+      { id: "phase-1/week-09", label: "Week 09", files: [
+        { id: "phase-1/week-09/w09-01-user-interview-notes.md", label: "w09-01-user-interview-notes" },
+        { id: "phase-1/week-09/w09-02-ux-wireframes-v1.md", label: "w09-02-ux-wireframes-v1" },
+        { id: "phase-1/week-09/w09-03-override-governance.md", label: "w09-03-override-governance" },
+      ]},
+      { id: "phase-1/week-10", label: "Week 10", files: [
+        { id: "phase-1/week-10/w10-01-tech-stack-bank-x.md", label: "w10-01-tech-stack-bank-x" },
+        { id: "phase-1/week-10/w10-02-data-flow-diagram.md", label: "w10-02-data-flow-diagram" },
+        { id: "phase-1/week-10/w10-03-dpia-report-v1.md", label: "w10-03-dpia-report-v1" },
+        { id: "phase-1/week-10/w10-04-pdpd-compliance-checklist.md", label: "w10-04-pdpd-compliance-checklist" },
+      ]},
+      { id: "phase-1/week-11", label: "Week 11", files: [
+        { id: "phase-1/week-11/w11-01-executive-summary.md", label: "w11-01-executive-summary" },
+        { id: "phase-1/week-11/w11-02-problem-statement.md", label: "w11-02-problem-statement" },
+        { id: "phase-1/week-11/w11-03-proposed-solution.md", label: "w11-03-proposed-solution" },
+        { id: "phase-1/week-11/w11-04-impact-and-roi.md", label: "w11-04-impact-and-roi" },
+        { id: "phase-1/week-11/w11-05-stakeholder-map.md", label: "w11-05-stakeholder-map" },
+        { id: "phase-1/week-11/w11-06-implementation-roadmap.md", label: "w11-06-implementation-roadmap" },
+        { id: "phase-1/week-11/w11-07-risks-and-mitigation.md", label: "w11-07-risks-and-mitigation" },
+      ]},
+      { id: "phase-1/week-12", label: "Week 12", files: [
+        { id: "phase-1/week-12/w12-01-working-demo-v1.md", label: "w12-01-working-demo-v1" },
+        { id: "phase-1/week-12/w12-02-demo-script.md", label: "w12-02-demo-script" },
+        { id: "phase-1/week-12/w12-04-audit-log-v1.md", label: "w12-04-audit-log-v1" },
+      ]},
+      { id: "phase-1/week-13", label: "Week 13", files: [
+        { id: "phase-1/week-13/w13-01-usability-test-report.md", label: "w13-01-usability-test-report" },
+        { id: "phase-1/week-13/w13-02-stakeholder-feedback-log.md", label: "w13-02-stakeholder-feedback-log" },
+        { id: "phase-1/week-13/w13-03-champion-confirmation.md", label: "w13-03-champion-confirmation" },
+        { id: "phase-1/week-13/w13-04-demo-v1-1-notes.md", label: "w13-04-demo-v1-1-notes" },
+        { id: "phase-1/week-13/w13-05-c-level-presentation.md", label: "w13-05-c-level-presentation" },
+      ]},
+      { id: "phase-1/week-14", label: "Week 14", files: [
+        { id: "phase-1/week-14/w14-01-failure-test-log.md", label: "w14-01-failure-test-log" },
+        { id: "phase-1/week-14/w14-02-risk-matrix.md", label: "w14-02-risk-matrix" },
+        { id: "phase-1/week-14/w14-03-incident-response-draft.md", label: "w14-03-incident-response-draft" },
+      ]},
+      { id: "phase-1/week-15", label: "Week 15", files: [
+        { id: "phase-1/week-15/w15-01-proposal-v2-final.md", label: "w15-01-proposal-v2-final" },
+        { id: "phase-1/week-15/w15-02-objection-handling.md", label: "w15-02-objection-handling" },
+      ]},
+      { id: "phase-1/week-16", label: "Week 16", files: [
+        { id: "phase-1/week-16/w16-01-c-level-presentation.md", label: "w16-01-c-level-presentation" },
+        { id: "phase-1/week-16/w16-02-meeting-notes-decisions.md", label: "w16-02-meeting-notes-decisions" },
+        { id: "phase-1/week-16/w16-03-phase-0-approval.md", label: "w16-03-phase-0-approval" },
+        { id: "phase-1/week-16/w16-04-phase-0-plan.md", label: "w16-04-phase-0-plan" },
+      ]},
     ]
   },
   {
     id: "phase-2", label: "Phase 2 — MLOps & Workflow", weeks: "Week 17–32",
-    files: [
-      { id: "p2-overview", label: "Overview & Mục tiêu" },
-      { id: "p2-w17", label: "Week 17 — Multi-role Architecture" },
-      { id: "p2-w18", label: "Week 18 — State Machine" },
-      { id: "p2-w20", label: "Week 20 — Integration Build" },
-      { id: "p2-w23", label: "Week 23 — Governance Layer" },
-      { id: "p2-w24", label: "Week 24 — Stress Test Scenarios" },
-      { id: "p2-w26", label: "Week 26 — MLOps & Champion-Challenger 🔰" },
-      { id: "p2-w27", label: "Week 27 — Internal Validation" },
-      { id: "p2-w32", label: "Week 32 — Buffer & Health Week" },
+    folders: [
+      { id: "phase-2/week-17", label: "Week 17", files: [
+        { id: "phase-2/week-17/w17-01-role-architecture-bank-x.md", label: "w17-01-role-architecture-bank-x" },
+        { id: "phase-2/week-17/w17-02-permission-matrix.md", label: "w17-02-permission-matrix" },
+        { id: "phase-2/week-17/w17-03-maker-checker-spec.md", label: "w17-03-maker-checker-spec" },
+      ]},
+      { id: "phase-2/week-18", label: "Week 18", files: [
+        { id: "phase-2/week-18/w18-01-state-machine-v2.md", label: "w18-01-state-machine-v2" },
+        { id: "phase-2/week-18/w18-02-integration-retry-spec.md", label: "w18-02-integration-retry-spec" },
+        { id: "phase-2/week-18/w18-03-idempotency-design.md", label: "w18-03-idempotency-design" },
+      ]},
+      { id: "phase-2/week-19", label: "Week 19", files: [
+        { id: "phase-2/week-19/w19-01-roi-model-v2-bank-x.md", label: "w19-01-roi-model-v2-bank-x" },
+        { id: "phase-2/week-19/w19-02-assumptions-log-updated.md", label: "w19-02-assumptions-log-updated" },
+      ]},
+      { id: "phase-2/week-20", label: "Week 20", files: [
+        { id: "phase-2/week-20/w20-01-api-connections-v1.md", label: "w20-01-api-connections-v1" },
+        { id: "phase-2/week-20/w20-02-integration-test-report.md", label: "w20-02-integration-test-report" },
+      ]},
+      { id: "phase-2/week-21", label: "Week 21", files: [
+        { id: "phase-2/week-21/w21-01-workflow-demo-v2.md", label: "w21-01-workflow-demo-v2" },
+        { id: "phase-2/week-21/w21-02-role-based-access-demo.md", label: "w21-02-role-based-access-demo" },
+        { id: "phase-2/week-21/w21-03-audit-trail-v2.md", label: "w21-03-audit-trail-v2" },
+      ]},
+      { id: "phase-2/week-22", label: "Week 22", files: [
+        { id: "phase-2/week-22/w22-01-test-report-v2.md", label: "w22-01-test-report-v2" },
+        { id: "phase-2/week-22/w22-02-issue-log.md", label: "w22-02-issue-log" },
+        { id: "phase-2/week-22/w22-03-demo-v2-1.md", label: "w22-03-demo-v2-1" },
+      ]},
+      { id: "phase-2/week-23", label: "Week 23", files: [
+        { id: "phase-2/week-23/w23-01-governance-pack-bank-x.md", label: "w23-01-governance-pack-bank-x" },
+        { id: "phase-2/week-23/w23-02-bias-assessment.md", label: "w23-02-bias-assessment" },
+        { id: "phase-2/week-23/w23-03-sbv-compliance-checklist.md", label: "w23-03-sbv-compliance-checklist" },
+        { id: "phase-2/week-23/w23-04-model-card-v1.md", label: "w23-04-model-card-v1" },
+      ]},
+      { id: "phase-2/week-24", label: "Week 24", files: [
+        { id: "phase-2/week-24/w24-01-failure-scenario-log.md", label: "w24-01-failure-scenario-log" },
+        { id: "phase-2/week-24/w24-02-runbook-v1.md", label: "w24-02-runbook-v1" },
+        { id: "phase-2/week-24/w24-03-mitigation-per-scenario.md", label: "w24-03-mitigation-per-scenario" },
+      ]},
+      { id: "phase-2/week-25", label: "Week 25", files: [
+        { id: "phase-2/week-25/w25-01-scale-assessment-doc.md", label: "w25-01-scale-assessment-doc" },
+        { id: "phase-2/week-25/w25-02-bottleneck-memo.md", label: "w25-02-bottleneck-memo" },
+        { id: "phase-2/week-25/w25-03-infrastructure-recommendation.md", label: "w25-03-infrastructure-recommendation" },
+      ]},
+      { id: "phase-2/week-26", label: "Week 26", files: [
+        { id: "phase-2/week-26/w26-01-mlops-orchestration-plan.md", label: "w26-01-mlops-orchestration-plan" },
+        { id: "phase-2/week-26/w26-02-drift-monitoring-spec.md", label: "w26-02-drift-monitoring-spec" },
+      ]},
+      { id: "phase-2/week-27", label: "Week 27", files: [
+        { id: "phase-2/week-27/w27-01-phase-0-results-report.md", label: "w27-01-phase-0-results-report" },
+        { id: "phase-2/week-27/w27-02-stakeholder-validation-notes.md", label: "w27-02-stakeholder-validation-notes" },
+        { id: "phase-2/week-27/w27-03-go-no-go-recommendation.md", label: "w27-03-go-no-go-recommendation" },
+        { id: "phase-2/week-27/w27-04-phase-1-deployment-plan-draft.md", label: "w27-04-phase-1-deployment-plan-draft" },
+      ]},
+      { id: "phase-2/week-28", label: "Week 28", files: [
+        { id: "phase-2/week-28/w28-01-product-roadmap.md", label: "w28-01-product-roadmap" },
+        { id: "phase-2/week-28/w28-02-prioritization-matrix.md", label: "w28-02-prioritization-matrix" },
+        { id: "phase-2/week-28/w28-03-resource-request-update.md", label: "w28-03-resource-request-update" },
+      ]},
+      { id: "phase-2/week-29", label: "Week 29", files: [
+        { id: "phase-2/week-29/w29-01-phase-1-deployment-plan.md", label: "w29-01-phase-1-deployment-plan" },
+        { id: "phase-2/week-29/w29-02-change-management-plan.md", label: "w29-02-change-management-plan" },
+        { id: "phase-2/week-29/w29-03-training-plan.md", label: "w29-03-training-plan" },
+        { id: "phase-2/week-29/w29-04-communication-plan.md", label: "w29-04-communication-plan" },
+        { id: "phase-2/week-29/w29-05-success-criteria.md", label: "w29-05-success-criteria" },
+      ]},
+      { id: "phase-2/week-30", label: "Week 30", files: [
+        { id: "phase-2/week-30/w30-01-internal-case-study-v1.md", label: "w30-01-internal-case-study-v1" },
+        { id: "phase-2/week-30/w30-02-c-level-progress-report.md", label: "w30-02-c-level-progress-report" },
+        { id: "phase-2/week-30/w30-03-phase-1-approval-request.md", label: "w30-03-phase-1-approval-request" },
+      ]},
+      { id: "phase-2/week-31", label: "Week 31", files: [
+        { id: "phase-2/week-31/w31-01-phase-1-approval.md", label: "w31-01-phase-1-approval" },
+        { id: "phase-2/week-31/w31-02-final-deployment-checklist.md", label: "w31-02-final-deployment-checklist" },
+        { id: "phase-2/week-31/w31-03-training-materials-v1.md", label: "w31-03-training-materials-v1" },
+      ]},
+      { id: "phase-2/week-32", label: "Week 32", files: [
+        { id: "phase-2/week-32/w32-01-tech-debt-cleanup-log.md", label: "w32-01-tech-debt-cleanup-log" },
+        { id: "phase-2/week-32/w32-02-updated-documentation.md", label: "w32-02-updated-documentation" },
+        { id: "phase-2/week-32/w32-03-phase-3-readiness-checklist.md", label: "w32-03-phase-3-readiness-checklist" },
+      ]},
     ]
   },
   {
     id: "phase-3", label: "Phase 3 — Deployment", weeks: "Week 33–48",
-    files: [
-      { id: "p3-overview", label: "Overview & Mục tiêu" },
-      { id: "p3-w35", label: "Week 35 — Audit Trail Design" },
-      { id: "p3-w36", label: "Week 36 — Compliance Simulation" },
-      { id: "p3-w37", label: "Week 37–40 — Shadow Testing" },
-      { id: "p3-w41", label: "Week 41 — Limited Deployment" },
-      { id: "p3-w45", label: "Week 45 — Full Deployment" },
-      { id: "p3-w47", label: "Week 47 — Impact & Feedback Loop 🔰" },
+    folders: [
+      { id: "phase-3/week-33", label: "Week 33", files: [
+        { id: "phase-3/week-33/w33-01-build-vs-buy-analysis.md", label: "w33-01-build-vs-buy-analysis" },
+        { id: "phase-3/week-33/w33-02-vendor-comparison-matrix.md", label: "w33-02-vendor-comparison-matrix" },
+        { id: "phase-3/week-33/w33-03-inhouse-advantages-doc.md", label: "w33-03-inhouse-advantages-doc" },
+      ]},
+      { id: "phase-3/week-34", label: "Week 34", files: [
+        { id: "phase-3/week-34/w34-01-training-curriculum.md", label: "w34-01-training-curriculum" },
+        { id: "phase-3/week-34/w34-02-user-guides-per-role.md", label: "w34-02-user-guides-per-role" },
+        { id: "phase-3/week-34/w34-03-change-management-playbook.md", label: "w34-03-change-management-playbook" },
+        { id: "phase-3/week-34/w34-04-faq-document.md", label: "w34-04-faq-document" },
+      ]},
+      { id: "phase-3/week-35", label: "Week 35", files: [
+        { id: "phase-3/week-35/w35-01-audit-trail-spec.md", label: "w35-01-audit-trail-spec" },
+        { id: "phase-3/week-35/w35-02-sbv-export-format.md", label: "w35-02-sbv-export-format" },
+        { id: "phase-3/week-35/w35-03-replay-functionality-spec.md", label: "w35-03-replay-functionality-spec" },
+        { id: "phase-3/week-35/w35-04-retention-policy.md", label: "w35-04-retention-policy" },
+      ]},
+      { id: "phase-3/week-36", label: "Week 36", files: [
+        { id: "phase-3/week-36/w36-01-compliance-simulation-doc.md", label: "w36-01-compliance-simulation-doc" },
+        { id: "phase-3/week-36/w36-02-playbook-per-scenario.md", label: "w36-02-playbook-per-scenario" },
+        { id: "phase-3/week-36/w36-03-pdpd-response-templates.md", label: "w36-03-pdpd-response-templates" },
+      ]},
+      { id: "phase-3/week-37", label: "Week 37", files: [
+        { id: "phase-3/week-37/w37-01-shadow-testing-environment.md", label: "w37-01-shadow-testing-environment" },
+        { id: "phase-3/week-37/w37-02-daily-monitoring-dashboard.md", label: "w37-02-daily-monitoring-dashboard" },
+        { id: "phase-3/week-37/w37-03-credit-officer-briefing-materials.md", label: "w37-03-credit-officer-briefing-materials" },
+        { id: "phase-3/week-37/w37-04-daily-results-log.md", label: "w37-04-daily-results-log" },
+      ]},
+      { id: "phase-3/week-38", label: "Week 38", files: [
+        { id: "phase-3/week-38/w38-01-week-2-shadow-testing-report.md", label: "w38-01-week-2-shadow-testing-report" },
+        { id: "phase-3/week-38/w38-02-issue-log.md", label: "w38-02-issue-log" },
+        { id: "phase-3/week-38/w38-03-model-performance-vs-baseline.md", label: "w38-03-model-performance-vs-baseline" },
+        { id: "phase-3/week-38/w38-04-iteration-log.md", label: "w38-04-iteration-log" },
+      ]},
+      { id: "phase-3/week-39", label: "Week 39", files: [
+        { id: "phase-3/week-39/w39-01-mid-point-analysis.md", label: "w39-01-mid-point-analysis" },
+        { id: "phase-3/week-39/w39-02-go-no-go-limited-deployment.md", label: "w39-02-go-no-go-limited-deployment" },
+        { id: "phase-3/week-39/w39-03-adjustments-needed.md", label: "w39-03-adjustments-needed" },
+      ]},
+      { id: "phase-3/week-40", label: "Week 40", files: [
+        { id: "phase-3/week-40/w40-01-shadow-testing-final-report.md", label: "w40-01-shadow-testing-final-report" },
+        { id: "phase-3/week-40/w40-02-ai-vs-manual-comparison.md", label: "w40-02-ai-vs-manual-comparison" },
+        { id: "phase-3/week-40/w40-03-limited-deployment-proposal.md", label: "w40-03-limited-deployment-proposal" },
+        { id: "phase-3/week-40/w40-04-updated-success-criteria.md", label: "w40-04-updated-success-criteria" },
+      ]},
+      { id: "phase-3/week-41", label: "Week 41", files: [
+        { id: "phase-3/week-41/w41-01-limited-deployment-live.md", label: "w41-01-limited-deployment-live" },
+        { id: "phase-3/week-41/w41-02-real-time-monitoring-dashboard.md", label: "w41-02-real-time-monitoring-dashboard" },
+        { id: "phase-3/week-41/w41-03-override-rate-tracking.md", label: "w41-03-override-rate-tracking" },
+        { id: "phase-3/week-41/w41-04-daily-stakeholder-updates.md", label: "w41-04-daily-stakeholder-updates" },
+      ]},
+      { id: "phase-3/week-42", label: "Week 42", files: [
+        { id: "phase-3/week-42/w42-01-weekly-performance-reports.md", label: "w42-01-weekly-performance-reports" },
+        { id: "phase-3/week-42/w42-02-user-feedback-synthesis.md", label: "w42-02-user-feedback-synthesis" },
+        { id: "phase-3/week-42/w42-03-model-adjustments.md", label: "w42-03-model-adjustments" },
+        { id: "phase-3/week-42/w42-04-stakeholder-updates.md", label: "w42-04-stakeholder-updates" },
+      ]},
+      { id: "phase-3/week-43", label: "Week 43", files: [
+        { id: "phase-3/week-43/w43-01-limited-deployment-results-report.md", label: "w43-01-limited-deployment-results-report" },
+        { id: "phase-3/week-43/w43-02-full-deployment-proposal.md", label: "w43-02-full-deployment-proposal" },
+        { id: "phase-3/week-43/w43-03-updated-roi.md", label: "w43-03-updated-roi" },
+      ]},
+      { id: "phase-3/week-44", label: "Week 44", files: [
+        { id: "phase-3/week-44/w44-01-c-level-presentation-phase-2.md", label: "w44-01-c-level-presentation-phase-2" },
+        { id: "phase-3/week-44/w44-02-full-deployment-approval.md", label: "w44-02-full-deployment-approval" },
+        { id: "phase-3/week-44/w44-03-full-deployment-plan.md", label: "w44-03-full-deployment-plan" },
+      ]},
+      { id: "phase-3/week-45", label: "Week 45", files: [
+        { id: "phase-3/week-45/w45-01-full-deployment-live.md", label: "w45-01-full-deployment-live" },
+        { id: "phase-3/week-45/w45-02-all-users-trained.md", label: "w45-02-all-users-trained" },
+        { id: "phase-3/week-45/w45-03-full-monitoring-active.md", label: "w45-03-full-monitoring-active" },
+        { id: "phase-3/week-45/w45-04-incident-response-on-call.md", label: "w45-04-incident-response-on-call" },
+      ]},
+      { id: "phase-3/week-46", label: "Week 46", files: [
+        { id: "phase-3/week-46/w46-01-stabilization-report.md", label: "w46-01-stabilization-report" },
+        { id: "phase-3/week-46/w46-02-performance-optimization-log.md", label: "w46-02-performance-optimization-log" },
+        { id: "phase-3/week-46/w46-03-user-satisfaction-survey.md", label: "w46-03-user-satisfaction-survey" },
+      ]},
+      { id: "phase-3/week-47", label: "Week 47", files: [
+        { id: "phase-3/week-47/w47-01-30-day-impact-report.md", label: "w47-01-30-day-impact-report" },
+        { id: "phase-3/week-47/w47-02-actual-vs-projected-comparison.md", label: "w47-02-actual-vs-projected-comparison" },
+        { id: "phase-3/week-47/w47-03-lessons-learned.md", label: "w47-03-lessons-learned" },
+        { id: "phase-3/week-47/w47-04-feedback-loop-schema.md", label: "w47-04-feedback-loop-schema" },
+        { id: "phase-3/week-47/w47-05-next-optimization-priorities.md", label: "w47-05-next-optimization-priorities" },
+      ]},
+      { id: "phase-3/week-48", label: "Week 48", files: [
+        { id: "phase-3/week-48/w48-01-phase-3-retrospective.md", label: "w48-01-phase-3-retrospective" },
+        { id: "phase-3/week-48/w48-02-updated-backlog-phase-4.md", label: "w48-02-updated-backlog-phase-4" },
+      ]},
     ]
   },
   {
     id: "phase-4", label: "Phase 4 — Scale & Maturity", weeks: "Week 49–60",
-    files: [
-      { id: "p4-overview", label: "Overview & Mục tiêu" },
-      { id: "p4-w49", label: "Week 49 — Scale Assessment" },
-      { id: "p4-w50", label: "Week 50 — Early Warning System" },
-      { id: "p4-w52", label: "Week 52–53 — Packaging Assessment" },
-      { id: "p4-w57", label: "Week 57 — ML Lifecycle & CI/CD 🔰" },
-      { id: "p4-w58", label: "Week 58 — PM Portfolio" },
-      { id: "p4-w60", label: "Week 60 — Retrospective & Next Plan" },
+    folders: [
+      { id: "phase-4/week-49", label: "Week 49", files: [
+        { id: "phase-4/week-49/w49-01-expansion-roadmap.md", label: "w49-01-expansion-roadmap" },
+        { id: "phase-4/week-49/w49-02-next-segment-business-case.md", label: "w49-02-next-segment-business-case" },
+        { id: "phase-4/week-49/w49-03-resource-request-for-expansion.md", label: "w49-03-resource-request-for-expansion" },
+      ]},
+      { id: "phase-4/week-50", label: "Week 50", files: [
+        { id: "phase-4/week-50/w50-01-ews-business-case.md", label: "w50-01-ews-business-case" },
+        { id: "phase-4/week-50/w50-02-data-availability-assessment.md", label: "w50-02-data-availability-assessment" },
+        { id: "phase-4/week-50/w50-03-ews-proposal.md", label: "w50-03-ews-proposal" },
+      ]},
+      { id: "phase-4/week-51", label: "Week 51", files: [
+        { id: "phase-4/week-51/w51-01-internal-presentation.md", label: "w51-01-internal-presentation" },
+        { id: "phase-4/week-51/w51-02-methodology-documentation.md", label: "w51-02-methodology-documentation" },
+        { id: "phase-4/week-51/w51-03-knowledge-sharing-sessions.md", label: "w51-03-knowledge-sharing-sessions" },
+      ]},
+      { id: "phase-4/week-52-53", label: "Week 52–53", files: [
+        { id: "phase-4/week-52-53/w52-01-ip-ownership-memo.md", label: "w52-01-ip-ownership-memo" },
+        { id: "phase-4/week-52-53/w52-02-packaging-feasibility-report.md", label: "w52-02-packaging-feasibility-report" },
+        { id: "phase-4/week-52-53/w52-03-go-no-go-saas-decision.md", label: "w52-03-go-no-go-saas-decision" },
+      ]},
+      { id: "phase-4/week-54", label: "Week 54", files: [
+        { id: "phase-4/week-54/w54-01-90-day-impact-report.md", label: "w54-01-90-day-impact-report" },
+        { id: "phase-4/week-54/w54-02-roi-validation.md", label: "w54-02-roi-validation" },
+        { id: "phase-4/week-54/w54-03-next-phase-recommendations.md", label: "w54-03-next-phase-recommendations" },
+        { id: "phase-4/week-54/w54-04-budget-request-expansion.md", label: "w54-04-budget-request-expansion" },
+      ]},
+      { id: "phase-4/week-55-56", label: "Week 55–56", files: [
+        { id: "phase-4/week-55-56/w55-01-next-segment-deployment.md", label: "w55-01-next-segment-deployment" },
+        { id: "phase-4/week-55-56/w55-02-reuse-rate-assessment.md", label: "w55-02-reuse-rate-assessment" },
+        { id: "phase-4/week-55-56/w55-03-onboarding-playbook-update.md", label: "w55-03-onboarding-playbook-update" },
+      ]},
+      { id: "phase-4/week-57", label: "Week 57", files: [
+        { id: "phase-4/week-57/w57-01-model-governance-v2.md", label: "w57-01-model-governance-v2" },
+        { id: "phase-4/week-57/w57-02-ml-lifecycle-runbook.md", label: "w57-02-ml-lifecycle-runbook" },
+      ]},
+      { id: "phase-4/week-58", label: "Week 58", files: [
+        { id: "phase-4/week-58/w58-01-ai-native-pm-case-study.md", label: "w58-01-ai-native-pm-case-study" },
+        { id: "phase-4/week-58/w58-02-methodology-documentation.md", label: "w58-02-methodology-documentation" },
+        { id: "phase-4/week-58/w58-03-personal-positioning-statement.md", label: "w58-03-personal-positioning-statement" },
+        { id: "phase-4/week-58/w58-04-portfolio-update.md", label: "w58-04-portfolio-update" },
+      ]},
+      { id: "phase-4/week-59", label: "Week 59", files: [
+        { id: "phase-4/week-59/w59-01-complete-system-documentation.md", label: "w59-01-complete-system-documentation" },
+        { id: "phase-4/week-59/w59-02-runbook-operations-team.md", label: "w59-02-runbook-operations-team" },
+        { id: "phase-4/week-59/w59-03-training-materials-v3.md", label: "w59-03-training-materials-v3" },
+        { id: "phase-4/week-59/w59-04-handover-plan.md", label: "w59-04-handover-plan" },
+      ]},
+      { id: "phase-4/week-60", label: "Week 60", files: [
+        { id: "phase-4/week-60/w60-01-retrospective-document.md", label: "w60-01-retrospective-document" },
+        { id: "phase-4/week-60/w60-02-next-60-week-plan.md", label: "w60-02-next-60-week-plan" },
+        { id: "phase-4/week-60/w60-03-saas-optionality-decision.md", label: "w60-03-saas-optionality-decision" },
+        { id: "phase-4/week-60/w60-04-personal-ai-native-pm-roadmap.md", label: "w60-04-personal-ai-native-pm-roadmap" },
+      ]},
     ]
-  }
+  },
 ];
 
-const DOCS_CONTENT = {
-  "p1-overview": `# Phase 1 — Foundation & Internal Proposal
-
-**Tuần 1–16 | Mục tiêu: Từ zero đến C-level approval**
-
----
-
-## Tổng quan
-
-Phase 1 đặt nền tảng cho toàn bộ dự án AI-Native CRDS tại Bank X. Đây là giai đoạn quan trọng nhất — không có Phase 1 tốt, mọi thứ sau sẽ build trên nền bất ổn.
-
-## Hai nhóm deliverable chính
-
-### 1. Discovery & Analysis (Week 1–10)
-Hiểu rõ context nội bộ Bank X trước khi viết 1 dòng code:
-- **Problem framing** — xác định đúng pain point, đo được bằng tiền
-- **Regulatory mapping** — NĐ13, TT13, NĐ94/2025, Basel II
-- **Data landscape** — Core Banking, CIC, eKYC quality
-- **Damage model** — PD × LGD × EAD, break-even analysis
-- **Decision architecture** — 5-7 states, SLA per state
-- **Tech stack & DPIA** — privacy by design từ ngày đầu
-
-### 2. Proposal & Demo (Week 11–16)
-Thuyết phục C-level với bằng chứng cụ thể:
-- **Internal Formal Proposal** — 7 files, C-level ready
-- **MVP Demo v1** — chạy end-to-end với synthetic data
-- **Usability testing** — 3-5 Credit Officers
-- **Stakeholder alignment** — Risk Manager + Head of Cards
-- **C-Level Presentation** — xin Phase 0 approval
-
-## Approval Gate
-
-\`\`\`
-Week 16: Phase 0 approval từ C-level
-Ask: 8 tuần shadow testing để validate
-Output: Written/email confirmation
-\`\`\`
-
-## Key Principle
-
-> Inhouse PM có lợi thế lớn nhất ở Phase 1: biết context, có access data, có relationship với stakeholders. Tận dụng tối đa.
-
-## Outputs chính
-
-| Tuần | File | Mô tả |
-|------|------|--------|
-| W1 | problem-brief.md | Internal problem statement với số nội bộ |
-| W2 | regulatory-mapping.md | Map toàn bộ regulatory constraints |
-| W3 | data-landscape-bank-x.md | Data quality + feature availability |
-| W4 | damage-model-bank-x.md | EL = PD × LGD × EAD, break-even |
-| W10 | dpia-report-v1.md | DPIA theo NĐ13 — bắt buộc |
-| W11 | Proposal v1 (7 files) | C-level ready proposal pack |
-| W12 | MVP Demo v1 | Working demo với synthetic data |
-| W16 | Phase 0 Approval | Written confirmation từ C-level |
-`,
-
-  "p1-w1": `# Week 1 — Problem Framing (Internal Context)
-
-**🎯 Mục tiêu:** Xác định đúng problem tại Bank X + outcome đo được bằng tiền
-
----
-
-## MUST KNOW
-
-- Current state của Bank X (quy trình hiện tại, tools đang dùng, pain points nội bộ)
-- Root cause vs symptom
-- Decision frequency tại Bank X
-- Cost per error (approve nhầm = loss, reject nhầm = lost revenue)
-
-## Tại sao quan trọng
-
-Inhouse proposal cần **số liệu nội bộ**, không chỉ industry benchmark.
-
-> "Chúng ta đang mất bao nhiêu" thuyết phục hơn "industry đang mất bao nhiêu".
-
-## ⚠️ Cảnh báo
-
-Nếu chưa có số liệu nội bộ chính xác → thừa nhận gap và đề xuất Discovery Phase.
-
-**Không bịa số.**
-
-## Áp dụng
-
-1. Use case shortlist (3–5 trong credit lifecycle) → chọn 1
-2. Current state mapping (as-is process)
-3. Pain point inventory từ team nội bộ
-4. Industry benchmark để triangulate nếu thiếu internal data
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`use-case-shortlist.md\` | 3-5 use cases đã evaluate |
-| \`problem-brief.md\` | Internal version — có số nội bộ |
-| \`current-state-assessment.md\` | As-is process documentation |
-| \`decision-frequency.md\` | Bao nhiêu decisions/ngày, cost/decision |
-
-## Tracking Checklist
-
-- [ ] Có ít nhất 1 internal data point chưa?
-- [ ] Pain point đã được confirm bởi ≥1 colleague?
-- [ ] Use case cuối cùng đã chọn chưa?
-`,
-
-  "p1-w2": `# Week 2 — VN Regulatory Landscape (Bank X Specific)
-
-**🎯 Mục tiêu:** Map regulatory constraints ảnh hưởng đến AI-Native CRDS tại Bank X cụ thể
-
----
-
-## Regulatory Framework
-
-### Thông tư 13/2018/TT-NHNN
-Quy định về hệ thống kiểm soát nội bộ. Ảnh hưởng đến audit trail và model governance requirements.
-
-### Nghị định 13/2023/NĐ-CP (PDPD)
-Bảo vệ dữ liệu cá nhân. **Critical cho AI-Native CRDS** vì hệ thống xử lý PII của khách hàng.
-
-Yêu cầu chính:
-- Consent management
-- Right to explanation (quyết định tự động)
-- Data deletion request
-- DPIA (Đánh giá tác động xử lý dữ liệu)
-
-### Nghị định 94/2025 (Sandbox Credit Scoring)
-Cho phép thử nghiệm credit scoring AI trong sandbox. **Cơ hội tốt cho Bank X** nếu muốn regulatory cover.
-
-### Thông tư 41/2016/TT-NHNN (Basel II)
-Capital adequacy requirements. AI model phải đảm bảo không làm tăng rủi ro vốn bất ngờ.
-
-## ⚠️ Key Action
-
-Kết nối với **Compliance Officer** của Bank X ngay từ tuần này.
-
-> Họ là **ally quan trọng**, không phải blocker nếu được involve sớm.
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`regulatory-mapping.md\` | Toàn bộ regulatory constraints mapped |
-| \`compliance-gap-analysis.md\` | Current state vs AI requirements |
-| \`pdpd-impact-bank-x.md\` | PDPD impact assessment cụ thể |
-`,
-
-  "p1-w10": `# Week 10 — Tech Stack & DPIA 🔰
-
-**🎯 Mục tiêu:** Đảm bảo tuân thủ NĐ13/2023 ngay từ khâu thiết kế + hiểu rõ tech stack Bank X
-
----
-
-## DPIA — Đánh Giá Tác Động Xử Lý Dữ Liệu Cá Nhân
-
-DPIA là **bắt buộc** theo Nghị định 13/2023/NĐ-CP khi dùng AI để ra quyết định tự động ảnh hưởng đến quyền lợi người dùng.
-
-## Data Flow trong AI-Native CRDS
-
-\`\`\`
-Khách hàng nộp đơn
-      ↓
-eKYC (identity verification) — PII
-      ↓
-CIC pull (credit history) — Financial PII
-      ↓
-Core Banking (transaction history) — Financial PII
-      ↓
-Feature Engineering — Derived data
-      ↓
-AI Model Scoring — Decision
-      ↓
-Credit Officer Review — Human oversight
-      ↓
-Lưu trữ Audit Log — Encrypted, access-controlled
-\`\`\`
-
-## Privacy by Design Requirements
-
-- [ ] Cơ chế rút lại consent
-- [ ] Right to explanation cho quyết định tự động
-- [ ] Data minimization — chỉ collect data cần thiết
-- [ ] Retention policy — xóa data sau X ngày
-
-## ⚠️ Critical Warning
-
-**KHÔNG dùng real customer data cho demo** trước khi DPIA + data governance được approve.
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`tech-stack-bank-x.md\` | Documented tech stack |
-| \`data-flow-diagram.md\` | PII marked, end-to-end flow |
-| \`dpia-report-v1.md\` | DPIA theo mẫu NĐ13 |
-| \`pdpd-compliance-checklist.md\` | Checklist tuân thủ |
-`,
-
-  "p2-overview": `# Phase 2 — Workflow Design & MLOps
-
-**Tuần 17–32 | Mục tiêu: Từ approval đến production-ready system**
-
----
-
-## Tổng quan
-
-Phase 2 biến approval từ C-level thành một hệ thống sẵn sàng deploy. Đây là giai đoạn kỹ thuật nặng nhất — MLOps, integrations, governance.
-
-## Các nhóm công việc chính
-
-### 1. Workflow Engineering (Week 17–22)
-- **Multi-role architecture** — aligned với org structure Bank X
-- **State machine v2** — retry, timeout, idempotency
-- **Integration build** — Core Banking, CIC, eKYC
-
-### 2. Governance & Compliance (Week 23–24)
-- **Governance layer** — SBV + PDPD + Bank X internal
-- **Bias assessment** — fairness metrics
-- **Stress testing** — 10 Bank X specific scenarios
-
-### 3. MLOps & Champion-Challenger (Week 26)
-- **Drift monitoring** — PSI, stability indices
-- **Champion-Challenger setup** — safe model updates
-
-## Key Principle: Champion-Challenger
-
-\`\`\`
-Champion = model đang chạy production
-Challenger = model mới (trained từ feedback data)
-
-Không auto-deploy Challenger mà không có:
-  1. Validation metrics vượt Champion
-  2. Risk team review + CAB approval
-  3. Rollback plan ready
-\`\`\`
-
-## Approval Gate
-
-\`\`\`
-Week 31: Phase 1 approval từ tất cả stakeholders
-  Risk / Compliance / IT / Business
-\`\`\`
-`,
-
-  "p2-w26": `# Week 26 — MLOps Pipeline & Champion-Challenger 🔰
-
-**🎯 Mục tiêu:** Chống model drift + thiết lập cơ chế nâng cấp model an toàn
-
----
-
-## Drift Monitoring
-
-| Metric | Ý nghĩa | Alert threshold |
-|--------|---------|-----------------|
-| PSI (Population Stability Index) | Input feature drift | PSI > 0.2 → investigate |
-| KS Score trend | Model discrimination | Drop >5% → retrain |
-| Approval rate | Output distribution | Change >10% → investigate |
-| Override rate | Credit Officer disagreement | >30% → model issue |
-
-## Champion-Challenger Flow
-
-\`\`\`
-Production Traffic
-      ↓
-  90% Champion  +  10% Challenger
-      ↓
-  Comparison Dashboard (Risk review)
-      ↓
-  Promote? → CAB Approval → Deploy
-\`\`\`
-
-## MLOps Orchestration Pipeline
-
-1. Data ingestion — daily batch từ Core Banking + CIC
-2. Drift check — PSI per feature, KS on score distribution
-3. Trigger — if drift > threshold → auto-create retrain ticket
-4. Training — retrain với sliding window data (24 months)
-5. Validation — backtesting, fairness check, vs Champion
-6. Risk review — Risk team review validation report
-7. CAB approval — Change Approval Board sign-off
-8. Deploy Challenger — canary (10% traffic)
-9. Monitor 2 weeks — compare Champion vs Challenger
-10. Promote or rollback — based on metrics
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`mlops-orchestration-plan.md\` | Full pipeline documentation |
-| \`drift-monitoring-spec.md\` | Metrics, thresholds, alert procedures |
-`,
-
-  "p3-overview": `# Phase 3 — Internal Deployment & Feedback Loop
-
-**Tuần 33–48 | Mục tiêu: Từ approved system đến live production**
-
----
-
-## Ba giai đoạn triển khai
-
-### Stage 1: Shadow Testing (Week 37–40)
-AI chạy song song — **không ảnh hưởng quyết định thật**. Zero risk, max learning.
-
-### Stage 2: Limited Deployment (Week 41–43)
-AI recommend decisions, Credit Officers **review và approve/override**. Chỉ low-risk cases.
-
-### Stage 3: Full Deployment (Week 45–47)
-AI-Native CRDS live toàn bộ CC origination workflow. Full monitoring active.
-
-## Nguyên tắc không thể thỏa hiệp
-
-> **Human-in-the-Loop là bắt buộc.** Credit Officer là final decision maker. Không thay đổi dù bị pressure "automate more."
-
-## Feedback Loop
-
-\`\`\`
-Decision Made → Wait 30-90 days → Outcome Known
-      ↓                                ↓
-  Log stored                    Label created
-      ↓                                ↓
-      └──────── Ground Truth ──────────┘
-                     ↓
-              Retrain trigger → Model improves
-\`\`\`
-`,
-
-  "p3-w47": `# Week 47 — Impact Measurement & Feedback Loop 🔰
-
-**🎯 Mục tiêu:** Đo impact 30 ngày sau full deployment + thiết lập feedback loop
-
----
-
-## Tại sao feedback loop là cốt lõi
-
-> AI-Native = system **học từ thực tế**. Không có ground truth feedback loop → model sẽ chết dần.
-
-## Ground Truth Schema
-
-\`\`\`json
-{
-  "decision_id": "uuid",
-  "ai_score": 0.73,
-  "ai_recommendation": "approve",
-  "final_decision": "approve",
-  "override": false,
-  "outcome": {
-    "label_date": "2025-04-15",
-    "days_to_label": 90,
-    "delinquency_90d": false,
-    "default": false
-  },
-  "model_version": "v1.2.0"
-}
-\`\`\`
-
-## 30-Day Impact Report
-
-| Metric | Before AI | After 30d | Target |
-|--------|-----------|-----------|--------|
-| Manual review rate | baseline | current | -30% |
-| Time-to-decision | baseline | current | -50% |
-| NPL rate (30d cohort) | baseline | pending | no increase |
-| Override rate | N/A | current | <20% |
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`30-day-impact-report.md\` | Impact metrics sau 30 ngày |
-| \`feedback-loop-schema.md\` | Schema + process documentation |
-| \`lessons-learned.md\` | What worked, what didn't |
-`,
-
-  "p4-overview": `# Phase 4 — Scale & Lifecycle Maturity
-
-**Tuần 49–60 | Mục tiêu: Từ working system đến institutional asset**
-
----
-
-## Bốn hướng mở rộng
-
-\`\`\`
-1. CC Salaried → CC Self-employed
-   (cùng product, khác segment — lowest risk)
-
-2. CC → Consumer Loan
-   (cùng segment, khác product)
-
-3. Origination → Early Warning System
-   (natural extension — data đã có sẵn)
-
-4. Retail → SME
-   (khác segment hoàn toàn — highest complexity)
-\`\`\`
-
-## ML Lifecycle
-
-\`\`\`
-Build → Validate → Deploy → Monitor → Retrain → Retire
-  ↑                                                ↓
-  └─────────────── Feedback Loop ─────────────────┘
-\`\`\`
-
-## Approval Gate cuối
-
-\`\`\`
-Week 54: Expansion approval (C-level)
-  Input: 90-day impact report với real numbers
-\`\`\`
-`,
-
-  "p4-w57": `# Week 57 — Model Lifecycle Maturity & CI/CD for ML 🔰
-
-**🎯 Mục tiêu:** Mature governance — từ "đang build" sang "production grade"
-
----
-
-## Deployment Options
-
-| Strategy | Use case | Risk |
-|----------|----------|------|
-| **Shadow** | New model, unknown risk | Lowest |
-| **Canary** | Challenger test (10% traffic) | Low |
-| **Blue-Green** | Safe full cutover with instant rollback | Medium |
-| **Hot swap** | Emergency patch | High — avoid |
-
-## Monitoring Schedule
-
-\`\`\`
-Daily:     Score distribution, approval rate
-Weekly:    PSI per feature, override rate trend
-Monthly:   KS score, default rate by cohort
-Quarterly: Full model review, retraining decision
-\`\`\`
-
-## CI/CD for ML Pipeline
-
-\`\`\`
-Git commit
-      ↓ Automated tests
-      ↓ Model validation (if model change)
-      ↓ Staging deploy + smoke tests
-      ↓ CAB review
-      ↓ Production deploy (canary first)
-      ↓ Monitoring active
-\`\`\`
-
-## Outputs
-
-| File | Nội dung |
-|------|----------|
-| \`model-governance-v2.md\` | Full governance framework |
-| \`ml-lifecycle-runbook.md\` | Step-by-step operational runbook |
-`
-};
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const ChevronDown = () => (
@@ -891,7 +721,8 @@ function Homepage({ setPage }) {
 // ─── DOCS PAGE ────────────────────────────────────────────────────────────────
 function DocsPage() {
   const [openPhases, setOpenPhases] = useState({ "phase-1": true });
-  const [selectedDoc, setSelectedDoc] = useState("p1-overview");
+  const [openWeeks, setOpenWeeks] = useState({ "phase-1/week-01": true });
+  const [selectedDoc, setSelectedDoc] = useState("phase-1/week-01/w01-01-use-case-shortlist.md");
   const contentRef = useRef(null);
   const [showTop, setShowTop] = useState(false);
 
@@ -905,47 +736,77 @@ function DocsPage() {
 
   const PHASE_COLORS = ["#E8001D","#1A73E8","#7C3AED","#B45309"];
 
+  const selectFile = (fileId) => {
+    setSelectedDoc(fileId);
+    contentRef.current?.scrollTo({ top: 0 });
+  };
+
+  const docContent = getDocContent(selectedDoc);
+
   return (
     <div style={{ display:"flex", height:"calc(100vh - 56px)", fontFamily:"'DM Sans',sans-serif" }}>
 
       {/* SIDEBAR */}
-      <aside style={{ width:258,minWidth:258,height:"100%",overflowY:"auto",background:"#fff",borderRight:"1px solid #E8E8E8",flexShrink:0 }}>
+      <aside style={{ width:268,minWidth:268,height:"100%",overflowY:"auto",background:"#fff",borderRight:"1px solid #E8E8E8",flexShrink:0 }}>
         <div style={{ padding:"16px 20px 12px",borderBottom:"1px solid #F0F0F0" }}>
           <div style={{ fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#E8001D",textTransform:"uppercase",fontFamily:"'Sora',sans-serif",marginBottom:3 }}>Documentation</div>
-          <div style={{ fontSize:11,color:"#999" }}>AI-Native CRDS · 60 Weeks Roadmap</div>
+          <div style={{ fontSize:11,color:"#999" }}>AI-Native CRDS · 60 Weeks · 337 files</div>
         </div>
 
         <div style={{ padding:"6px 0 24px" }}>
-          {DOCS_TREE.map((phase,pi)=>{
-            const isOpen = openPhases[phase.id];
+          {DOCS_TREE.map((phase, pi) => {
+            const isPhaseOpen = openPhases[phase.id];
             const pc = PHASE_COLORS[pi];
             return (
               <div key={phase.id}>
-                <button onClick={()=>setOpenPhases(p=>({...p,[phase.id]:!p[phase.id]}))} style={{
+                {/* ── Phase header ── */}
+                <button onClick={() => setOpenPhases(p => ({...p, [phase.id]: !p[phase.id]}))} style={{
                   width:"100%",display:"flex",alignItems:"center",gap:8,
                   padding:"9px 20px",background:"none",border:"none",cursor:"pointer",textAlign:"left",
                 }}>
                   <span style={{ color:pc,display:"flex",flexShrink:0 }}><FolderIcon/></span>
                   <span style={{ flex:1,fontSize:12,fontWeight:700,color:"#1A1A1A",lineHeight:1.3,fontFamily:"'Sora',sans-serif" }}>{phase.label}</span>
-                  <span style={{ color:"#bbb",transform:isOpen?"rotate(0)":"rotate(-90deg)",transition:"transform 0.2s",display:"flex" }}><ChevronDown/></span>
+                  <span style={{ color:"#bbb",transform:isPhaseOpen?"rotate(0)":"rotate(-90deg)",transition:"transform 0.2s",display:"flex" }}><ChevronDown/></span>
                 </button>
-                <div style={{ fontSize:10,fontWeight:600,color:pc,padding:"0 20px 6px 42px",fontFamily:"'Sora',sans-serif",letterSpacing:"0.05em" }}>{phase.weeks}</div>
-                {isOpen && (
+                <div style={{ fontSize:10,fontWeight:600,color:pc,padding:"0 20px 4px 42px",fontFamily:"'Sora',sans-serif",letterSpacing:"0.05em" }}>{phase.weeks}</div>
+
+                {isPhaseOpen && (
                   <div style={{ paddingBottom:4 }}>
-                    {phase.files.map(file=>{
-                      const isSel = selectedDoc===file.id;
+                    {phase.folders.map(folder => {
+                      const isWeekOpen = openWeeks[folder.id];
                       return (
-                        <button key={file.id} onClick={()=>{ setSelectedDoc(file.id); contentRef.current?.scrollTo({top:0}); }} style={{
-                          width:"100%",display:"flex",alignItems:"center",gap:8,
-                          padding:"6px 20px 6px 36px",
-                          background: isSel ? "#FFF0F2" : "none",
-                          border:"none",
-                          borderLeft: isSel ? `2px solid ${pc}` : "2px solid transparent",
-                          cursor:"pointer",textAlign:"left",transition:"all 0.12s",
-                        }}>
-                          <span style={{ color:isSel?pc:"#ccc",display:"flex",flexShrink:0 }}><FileIcon/></span>
-                          <span style={{ fontSize:12,color:isSel?pc:"#555",fontWeight:isSel?700:400,lineHeight:1.4 }}>{file.label}</span>
-                        </button>
+                        <div key={folder.id}>
+                          {/* ── Week folder ── */}
+                          <button onClick={() => setOpenWeeks(w => ({...w, [folder.id]: !w[folder.id]}))} style={{
+                            width:"100%",display:"flex",alignItems:"center",gap:7,
+                            padding:"5px 16px 5px 32px",background:"none",border:"none",cursor:"pointer",textAlign:"left",
+                          }}>
+                            <span style={{ color:"#bbb",display:"flex",flexShrink:0 }}><FolderIcon/></span>
+                            <span style={{ flex:1,fontSize:11,fontWeight:600,color:"#444",lineHeight:1.3 }}>{folder.label}</span>
+                            <span style={{ color:"#ccc",transform:isWeekOpen?"rotate(0)":"rotate(-90deg)",transition:"transform 0.15s",display:"flex" }}><ChevronDown/></span>
+                          </button>
+
+                          {isWeekOpen && (
+                            <div style={{ paddingBottom:2 }}>
+                              {folder.files.map(file => {
+                                const isSel = selectedDoc === file.id;
+                                return (
+                                  <button key={file.id} onClick={() => selectFile(file.id)} style={{
+                                    width:"100%",display:"flex",alignItems:"center",gap:7,
+                                    padding:"4px 12px 4px 48px",
+                                    background: isSel ? "#FFF0F2" : "none",
+                                    border:"none",
+                                    borderLeft: isSel ? `2px solid ${pc}` : "2px solid transparent",
+                                    cursor:"pointer",textAlign:"left",transition:"all 0.12s",
+                                  }}>
+                                    <span style={{ color:isSel?pc:"#ddd",display:"flex",flexShrink:0 }}><FileIcon/></span>
+                                    <span style={{ fontSize:11,color:isSel?pc:"#666",fontWeight:isSel?700:400,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{file.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
@@ -958,9 +819,9 @@ function DocsPage() {
 
       {/* CONTENT */}
       <main ref={contentRef} style={{ flex:1,overflowY:"auto",background:"#FAFAFA",padding:"0 0 80px" }}>
-        {DOCS_CONTENT[selectedDoc] ? (
+        {docContent ? (
           <div style={{ maxWidth:740,margin:"0 auto",padding:"48px 48px 64px" }}>
-            <div className="md-body" dangerouslySetInnerHTML={{ __html:renderMarkdown(DOCS_CONTENT[selectedDoc]) }}/>
+            <div className="md-body" dangerouslySetInnerHTML={{ __html:renderMarkdown(docContent) }}/>
           </div>
         ) : (
           <div style={{ display:"flex",alignItems:"center",justifyContent:"center",height:"60%",color:"#bbb",fontSize:14 }}>
