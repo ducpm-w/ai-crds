@@ -1,4 +1,0 @@
-# User Satisfaction Survey — Week 46
-> **Tags:** `[Product]` `[UX]` `[Users]`  
-> **Dự án:** AI Credit Risk Decision Support (AI-CRDS)  
-> **Tuần:** Week 46
