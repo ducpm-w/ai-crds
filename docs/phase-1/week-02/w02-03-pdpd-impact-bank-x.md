@@ -3,8 +3,8 @@
 > **Dự án:** AI-CRDS
 > **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
 > **Tuần:** Week 2
-> **Version:** v1.0
-> **Ngày:** 25/03/2026
+> **Version:** v1.1 — Bổ sung proposed resolution cho SBV retention vs BVDLCN deletion conflict + Luật AI 134/2025 reference
+> **Ngày:** 27/03/2026
 
 ---
 
@@ -259,6 +259,96 @@ tương lai khi điều kiện thay đổi.
 - [ ] Xác định **data deletion policy**: xóa gì, giữ gì (audit trail), bao lâu → cần legal opinion về xung đột SBV retention vs BVDLCN deletion
 - [ ] Thiết kế **adverse action notice template** → validate với Compliance
 - [ ] Thiết kế **complaint handling workflow**: internal resolution → A05 escalation
+
+### 4.4 Proposed Resolution: SBV Retention vs BVDLCN Deletion Conflict 🆕
+
+#### Bản chất xung đột
+
+| Yêu cầu | Nguồn | Nội dung |
+|---------|-------|---------|
+| **Giữ data** | TT 13/2018 (KSNB) + Luật TCTD 2024 + thực tiễn SBV | Mọi quyết định tín dụng phải traceable. SBV có thể yêu cầu xuất trình hồ sơ bất kỳ lúc nào. Hồ sơ tín dụng thường giữ 5-10 năm. Audit trail phải immutable. |
+| **Xóa data** | Luật BVDLCN 91/2025 Điều 15 | Chủ thể dữ liệu có quyền yêu cầu xóa DLCN. Bên kiểm soát phải xóa trong thời hạn quy định. |
+| **Ngoại lệ cho phép giữ** | Luật BVDLCN 91/2025 Điều 15 (khoản ngoại lệ) | Được phép giữ DLCN nếu "cần thiết để thực hiện nghĩa vụ theo quy định của pháp luật" hoặc "phục vụ lợi ích công cộng trong lĩnh vực y tế, ngân hàng, tài chính." |
+
+#### Proposed Resolution — Tiered Data Lifecycle
+
+**Nguyên tắc: Tách data thành 3 tầng với lifecycle khác nhau.**
+
+```
+Tầng 1: RAW PII (CCCD, SĐT, địa chỉ cụ thể, ảnh, sinh trắc)
+    │
+    │  Retention: Ngắn nhất có thể
+    │  Xóa khi: (a) Khách yêu cầu xóa, HOẶC
+    │            (b) Hết mục đích xử lý + hết thời hạn retention
+    │  Thời hạn đề xuất: 1 năm sau quyết định
+    │  (hoặc hết thời hạn hợp đồng thẻ + 1 năm buffer)
+    │
+    ▼
+Tầng 2: PSEUDONYMIZED AUDIT RECORD
+    │
+    │  Thay CCCD → hash ID
+    │  Thay tên → pseudonym hoặc bỏ
+    │  GIỮ: AI score, features đã dùng, model version,
+    │        threshold version, recommendation, human decision,
+    │        override reason, timestamp
+    │  Retention: 5-10 năm (align SBV audit requirement)
+    │  Cơ sở pháp lý giữ: Nghĩa vụ pháp luật (TT 13 + Luật TCTD)
+    │  → Ngoại lệ Điều 15 Luật BVDLCN: "cần thiết để thực hiện
+    │    nghĩa vụ theo quy định pháp luật"
+    │
+    ▼
+Tầng 3: ANONYMIZED STATISTICAL DATA
+    │
+    │  Aggregated data: approval rate, NPL by vintage,
+    │  model performance metrics
+    │  KHÔNG gắn liền cá nhân → không phải DLCN
+    │  Retention: Vĩnh viễn (phục vụ model improvement)
+    │
+    ▼
+    Không bị ảnh hưởng bởi deletion request
+```
+
+#### Chi tiết xử lý khi khách yêu cầu xóa
+
+| Bước | Action | Data affected | Legal basis |
+|------|--------|--------------|-----------|
+| 1 | Nhận yêu cầu xóa từ khách | — | Luật BVDLCN Điều 15 |
+| 2 | Xác minh danh tính người yêu cầu | — | NĐ 356 |
+| 3 | Xóa Tầng 1 (raw PII): CCCD, tên, SĐT, địa chỉ, ảnh, sinh trắc | Raw PII | Comply Luật BVDLCN |
+| 4 | Giữ Tầng 2 (pseudonymized audit): thay PII → hash, giữ AI decision record | Audit record | Ngoại lệ: nghĩa vụ pháp luật (TT 13/Luật TCTD) |
+| 5 | Giữ Tầng 3 (anonymized stats): không ảnh hưởng | Aggregated data | Không phải DLCN |
+| 6 | Thông báo khách: "DLCN đã xóa. Hồ sơ quyết định tín dụng được giữ dạng ẩn danh theo yêu cầu pháp luật ngân hàng." | — | Transparency |
+| 7 | Log deletion request trong audit trail | Deletion record | KSNB |
+
+#### Replay capability sau khi xóa Tầng 1
+
+Sau khi xóa raw PII, audit record (Tầng 2) vẫn giữ:
+- Input features (income range, CIC score, debt ratio — values, không phải PII gốc)
+- Model version + threshold version
+- AI recommendation + explanation
+- Human decision + override reason
+
+→ Vẫn replay được quyết định (same features + same model + same threshold = same output) mà **không cần raw PII**.
+
+SBV inspector hỏi "tại sao approve khoản này?" → trả lời được từ Tầng 2 mà không cần biết khách tên gì, CCCD gì.
+
+#### Lưu ý quan trọng
+
+1. **Đây là proposed resolution — CHƯA PHẢI legal opinion.** Cần confirm với Compliance Officer và legal counsel rằng "ngoại lệ nghĩa vụ pháp luật" trong Luật BVDLCN đủ cover việc giữ pseudonymized audit trail.
+2. **SBV chưa có hướng dẫn cụ thể** về cách xử lý xung đột này cho AI system. Proposed resolution dựa trên nguyên tắc chung + best practice quốc tế (GDPR Article 17(3)(b) có ngoại lệ tương tự cho "legal obligation").
+3. **Thời hạn retention Tầng 2 (5-10 năm)** cần confirm: SBV yêu cầu giữ hồ sơ tín dụng bao lâu? Luật kế toán yêu cầu giữ chứng từ bao lâu? Lấy thời hạn dài nhất.
+4. **Pseudonymization ≠ anonymization.** Pseudonymized data (hash ID) vẫn có thể re-identify nếu có mapping table → vẫn là DLCN theo Luật BVDLCN. Nhưng ngoại lệ "nghĩa vụ pháp luật" cho phép giữ.
+5. **Anonymized data (Tầng 3)** — nếu thực sự anonymous (không thể re-identify) → không phải DLCN → không bị ảnh hưởng bởi deletion request. Nhưng phải đảm bảo anonymization đủ mạnh.
+6. **Luật AI 134/2025** bổ sung: AI phải có trách nhiệm giải trình → cần audit trail để giải trình → strengthen case cho việc giữ Tầng 2.
+
+#### Action items
+
+- [ ] Confirm proposed resolution với Compliance Officer + legal counsel
+- [ ] Xác định retention period Tầng 2 (align SBV + Luật kế toán)
+- [ ] Thiết kế pseudonymization process (hash algorithm, key management)
+- [ ] Thiết kế deletion workflow (Tầng 1 xóa, Tầng 2 giữ, Tầng 3 không ảnh hưởng)
+- [ ] Thiết kế thông báo cho khách khi xóa (nêu rõ giữ audit theo pháp luật)
+- [ ] Test: sau khi xóa Tầng 1, replay quyết định từ Tầng 2 có hoạt động không?
 
 ---
 

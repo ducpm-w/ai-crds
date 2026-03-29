@@ -3,8 +3,8 @@
 > **Dự án:** AI-CRDS
 > **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
 > **Tuần:** Week 2
-> **Version:** v1.0
-> **Ngày:** 25/03/2026
+> **Version:** v1.1 — Bổ sung Luật AI 134/2025/QH15 requirements
+> **Ngày:** 27/03/2026
 
 ---
 
@@ -12,7 +12,9 @@
 
 Document 4 yêu cầu core từ SBV ảnh hưởng đến thiết kế AI-CRDS. Đây là các yêu cầu **không thể thỏa hiệp** — không comply = không deploy.
 
-**⚠️ Lưu ý:** VN chưa có 1 văn bản riêng biệt "SBV quy định về AI trong tài chính." Các yêu cầu dưới đây được tổng hợp từ nhiều văn bản (Luật TCTD 2024, TT 13/2018, NĐ 94/2025, Luật BVDLCN 2025 + NĐ 356/2025). Xem `regulatory-mapping.md` cho chi tiết từng văn bản.
+**⚠️ Lưu ý:** Từ 01/03/2026, **Luật Trí tuệ nhân tạo 134/2025/QH15** đã có hiệu lực — đây là Luật AI đầu tiên của VN. Nhiều yêu cầu trước đây chỉ là "SBV practice" nay trở thành **bắt buộc theo Luật** (human oversight, bias monitoring, trách nhiệm giải trình). Xem Section 5 cho chi tiết.
+
+VN chưa có 1 văn bản riêng biệt "SBV quy định về AI trong tài chính" nhưng NHNN sẽ ban hành TT riêng theo yêu cầu Luật AI. Các yêu cầu dưới đây được tổng hợp từ nhiều văn bản (Luật AI 134/2025, Luật TCTD 2024, TT 13/2018, NĐ 94/2025, Luật BVDLCN 2025 + NĐ 356/2025). Xem `regulatory-mapping.md` v1.1 cho chi tiết từng văn bản.
 
 ---
 
@@ -415,7 +417,112 @@ Cần confirm:
 
 ---
 
-## 5. Tổng Hợp — SBV Compliance Checklist
+## 5. Luật Trí tuệ nhân tạo 134/2025/QH15 — Khung pháp lý AI đầu tiên của VN 🆕
+
+### 5.1 Tổng quan
+
+| Mục | Nội dung |
+|-----|---------|
+| **Tên** | Luật Trí tuệ nhân tạo số 134/2025/QH15 |
+| **Ban hành** | 10/12/2025 (Quốc hội khóa XV, kỳ họp thứ 10) |
+| **Hiệu lực** | **01/03/2026** (đã có hiệu lực) |
+| **Ý nghĩa** | Luật AI đầu tiên của VN. Tạo khung pháp lý toàn diện cho AI — từ nghiên cứu, phát triển đến triển khai và sử dụng. Áp dụng cho mọi tổ chức/cá nhân VN và nước ngoài tham gia hoạt động AI tại VN. |
+
+### 5.2 Nguyên tắc cốt lõi (Điều 4) — Ảnh hưởng trực tiếp đến AI-CRDS
+
+| # | Nguyên tắc | Nguyên văn (tóm tắt) | Impact lên AI-CRDS |
+|---|-----------|---------------------|-------------------|
+| 1 | **Con người là trung tâm** | "Lấy con người làm trung tâm; bảo đảm quyền con người, quyền riêng tư" | Credit decision ảnh hưởng quyền tiếp cận tài chính → phải đặc biệt cẩn trọng |
+| 2 | **AI không thay thế con người** | "AI phục vụ con người, không thay thế thẩm quyền và trách nhiệm của con người" | Human-in-the-loop không chỉ là SBV practice — **bắt buộc theo Luật**. CO phải ký mọi quyết định. |
+| 3 | **Human oversight bắt buộc** | "Bảo đảm duy trì sự kiểm soát và khả năng can thiệp của con người đối với mọi quyết định và hành vi của hệ thống AI" | Override option cho CO là mandatory. Không được gỡ bỏ. AI phải có "kill switch." |
+| 4 | **Công bằng, không phân biệt** | "Bảo đảm công bằng, minh bạch, không thiên lệch, không phân biệt đối xử" | Bias monitoring không còn best practice — **vi phạm Luật** nếu AI phân biệt đối xử. Giới tính, địa lý, dân tộc phải monitor. |
+| 5 | **Minh bạch** | "Bảo đảm công bằng, minh bạch" | Explainability module mandatory. Khách phải hiểu được tại sao bị reject. |
+| 6 | **Trách nhiệm giải trình** | "Thực hiện trách nhiệm giải trình về các quyết định và hệ quả của hệ thống AI" | Audit trail + model documentation + replay capability = mandatory (không chỉ best practice). |
+| 7 | **Kiểm tra, giám sát** | "Khả năng kiểm tra và giám sát quá trình phát triển và vận hành hệ thống AI" | Regulator (NHNN, Bộ KH&CN) có quyền kiểm tra AI-CRDS bất kỳ lúc nào. Model card + audit trail phải sẵn sàng. |
+
+### 5.3 Phân loại rủi ro (Điều 9) — AI-CRDS = Rủi ro cao
+
+Luật phân loại hệ thống AI theo 3 mức rủi ro:
+
+| Mức | Mô tả | AI-CRDS? |
+|-----|-------|---------|
+| **Rủi ro cao** | Hệ thống AI ảnh hưởng đáng kể đến quyền, lợi ích hợp pháp của cá nhân, tổ chức. Danh mục cụ thể do Thủ tướng ban hành. | **Gần chắc chắn CÓ** — AI scoring tín dụng ảnh hưởng trực tiếp đến khả năng tiếp cận tài chính |
+| **Rủi ro trung bình** | Mức ảnh hưởng vừa phải | Không applicable |
+| **Rủi ro thấp** | Không thuộc 2 loại trên | Không applicable |
+
+**Danh mục AI rủi ro cao:** Do Thủ tướng ban hành (target 02/2026 theo Kế hoạch triển khai). Tại thời điểm viết (03/2026), chưa xác nhận đã ban hành hay chưa — **cần follow sát**.
+
+**Hệ quả nếu AI-CRDS là "rủi ro cao":**
+- Nghĩa vụ nặng hơn: đánh giá tác động, ghi nhãn, giám sát liên tục
+- Có thể bắt buộc đăng ký trên Cổng thông tin điện tử một cửa về AI + Cơ sở dữ liệu quốc gia về hệ thống AI (Bộ KH&CN quản lý)
+- Trách nhiệm bồi thường nếu AI gây thiệt hại
+
+### 5.4 Nghĩa vụ ghi nhãn AI
+
+Luật yêu cầu ghi nhãn cho hệ thống AI. Đối với AI-CRDS:
+
+| Điểm ghi nhãn | Implementation |
+|---------------|---------------|
+| **Credit decision có AI involvement** | Adverse action notice + approval letter phải ghi rõ: "Quyết định này được hỗ trợ bởi hệ thống trí tuệ nhân tạo. Quyết định cuối cùng do cán bộ tín dụng đưa ra." |
+| **AI score display cho Credit Officer** | UI hiển thị: "AI Recommendation — hỗ trợ bởi hệ thống AI, không phải quyết định cuối cùng" |
+| **Customer-facing communication** | Consent form phải nêu rõ: "Hồ sơ sẽ được xử lý có hỗ trợ của hệ thống trí tuệ nhân tạo" |
+
+### 5.5 Trách nhiệm bồi thường
+
+Luật quy định trách nhiệm bồi thường khi AI gây thiệt hại. Cho AI-CRDS:
+
+| Scenario | Ai chịu trách nhiệm? | Lưu ý |
+|---------|---------------------|-------|
+| AI reject nhầm → khách mất cơ hội tín dụng | ❓ **Cần xác định rõ:** bank partner hay AI-CRDS vendor? | Cần quy định trong hợp đồng vendor-bank (liability allocation clause) |
+| AI approve nhầm → bank loss | ❓ **Cần xác định rõ** | Human-in-the-loop = CO đã ký → bank chịu trách nhiệm chính. Nhưng nếu model lỗi hệ thống → vendor liability |
+| AI bias → phân biệt đối xử hệ thống | Cả hai — bank (deploy) + vendor (design) | Bias monitoring + regular audit giảm thiểu rủi ro |
+| Data breach qua AI system | Bên kiểm soát DLCN (bank) + bên xử lý (vendor) | Theo Luật BVDLCN 2025 |
+
+**→ Action: Thiết kế liability allocation framework trong hợp đồng vendor-bank. Cần legal counsel.**
+
+### 5.6 Các bộ ngành quy định chi tiết — NHNN sẽ ban hành gì?
+
+Kế hoạch triển khai Luật AI (baochinhphu.vn, 03/2026):
+
+> "Năm 2026 và các năm tiếp theo, Bộ, cơ quan ngang bộ quy định chi tiết yêu cầu về an toàn, quản lý rủi ro và điều kiện triển khai đối với việc ứng dụng trí tuệ nhân tạo trong ngành, lĩnh vực quản lý."
+
+**→ NHNN sẽ ban hành Thông tư riêng về AI trong banking.** Nội dung dự kiến (dựa trên dự thảo TT SBV về AI đã tham vấn — sources: vietnamlawmagazine.vn, DataGuidance):
+
+| Yêu cầu dự kiến | Impact lên AI-CRDS | Chuẩn bị trước |
+|-----------------|-------------------|---------------|
+| Thông báo trước cho khách khi dùng AI | Consent form + ghi nhãn | ✅ Đã thiết kế tại Section 5.4 |
+| Quyền khiếu nại đối với quyết định AI | Complaint handling workflow | ✅ Đã thiết kế tại pdpd-impact Quyền #9 |
+| Human-in-the-loop bắt buộc | CO ký mọi quyết định | ✅ Đã thiết kế tại Section 1 |
+| Đăng ký/thông báo hệ thống AI với NHNN | Hồ sơ đăng ký AI-CRDS | ❌ Chưa biết format — chờ TT |
+| Báo cáo sự cố AI | Incident reporting workflow | ⚠️ Prototype tại Week 36 |
+
+**→ AI-CRDS thiết kế proactively theo yêu cầu dự kiến. Khi TT chính thức ra → đã comply sẵn = competitive advantage.**
+
+### 5.7 So sánh: Trước vs Sau Luật AI 134/2025
+
+| Requirement | Trước 01/03/2026 | Sau 01/03/2026 (hiện tại) | Impact |
+|------------|-----------------|--------------------------|--------|
+| Human oversight | SBV practice + Luật TCTD (implicit) | **Luật AI Điều 4 (explicit)** — bắt buộc duy trì kiểm soát và can thiệp của con người | Nâng từ practice → LAW |
+| Bias monitoring | Best practice, chưa bắt buộc | **Luật AI Điều 4** — không thiên lệch, không phân biệt đối xử | Nâng từ optional → MANDATORY |
+| Explainability | NĐ 356 Điều 9 (cho DLCN) | **Luật AI Điều 4** — minh bạch + trách nhiệm giải trình | Mở rộng scope: không chỉ DLCN mà toàn bộ AI decision |
+| Ghi nhãn AI | Chưa có | **Luật AI** — bắt buộc ghi nhãn | MỚI — cần implement |
+| Phân loại rủi ro | Chưa có | **Luật AI Điều 9** — 3 mức rủi ro | MỚI — AI-CRDS likely "rủi ro cao" |
+| Trách nhiệm bồi thường | Theo Bộ luật Dân sự chung | **Luật AI** — quy định riêng cho AI | MỚI — cần liability framework |
+| Đăng ký AI | Chưa có | **Luật AI** — Cơ sở dữ liệu quốc gia về AI + Cổng 1 cửa | MỚI — chờ NĐ hướng dẫn |
+
+### 5.8 Status tại Bank X
+
+❓ **Chưa validate** — Pending meeting.
+
+Cần confirm:
+- [ ] Bank X có biết Luật AI 134/2025 đã có hiệu lực từ 01/03/2026 chưa?
+- [ ] Bank X đã có plan comply Luật AI cho hệ thống hiện tại chưa?
+- [ ] Bank X có đội ngũ/vendor nào đang triển khai AI cần comply chưa?
+- [ ] Legal department đã review Luật AI chưa? Liability framework đã có chưa?
+
+---
+
+## 6. Tổng Hợp — SBV Compliance Checklist
 
 | # | Requirement | Văn bản gốc | Priority | Status AI-CRDS | Target Week |
 |---|------------|------------|----------|---------------|------------|
@@ -434,10 +541,17 @@ Cần confirm:
 | 3.5 | Retention policy | TT 13/2018 + Luật BVDLCN | 🟡 MEDIUM | ❌ Chưa xác định | Week 23 |
 | 4.1 | Sandbox documentation package | NĐ 94/2025 | 🟢 OPTIONAL | ❌ Chưa soạn | Week 29 |
 | 4.2 | IT infrastructure đặt tại VN | NĐ 94/2025 | 🟡 CONDITIONAL | ❌ Chưa quyết | Week 10 |
+| **5.1** | **Human oversight bắt buộc theo Luật (không chỉ practice)** | **Luật AI 134/2025 Điều 4** | **🔴 NON-NEGOTIABLE** | **✅ Designed in** | **From day 1** |
+| **5.2** | **Bias monitoring mandatory** | **Luật AI 134/2025 Điều 4** | **🔴 HIGH** | **❌ Chưa design** | **Week 23** |
+| **5.3** | **Ghi nhãn AI trên mọi output** | **Luật AI 134/2025** | **🔴 HIGH** | **❌ Chưa design** | **Week 12 (MVP)** |
+| **5.4** | **Trách nhiệm giải trình (audit + explainability)** | **Luật AI 134/2025 Điều 4** | **🔴 HIGH** | **⚠️ Partial (audit trail designed, explainability chưa)** | **Week 9 + 35** |
+| **5.5** | **Liability allocation vendor-bank** | **Luật AI 134/2025** | **🟡 MEDIUM** | **❌ Chưa soạn** | **Week 11 (Proposal)** |
+| **5.6** | **Chuẩn bị cho Danh mục AI rủi ro cao** | **Luật AI 134/2025 Điều 9** | **🟡 MEDIUM** | **❌ Chờ Thủ tướng ban hành** | **Khi ban hành** |
+| **5.7** | **Theo dõi TT NHNN về AI trong banking** | **Luật AI 134/2025 → NHNN** | **🟡 MEDIUM** | **❌ Chờ dự thảo** | **Khi ban hành** |
 
 ---
 
-## 6. ⚠️ ACTION BẮT BUỘC TUẦN NÀY
+## 7. ⚠️ ACTION BẮT BUỘC TUẦN NÀY
 
 ### Book meeting với Compliance Officer — NGAY TUẦN NÀY
 
@@ -469,21 +583,28 @@ Cần confirm:
 
 ---
 
-## 7. Tracking — Tự hỏi cuối tuần
+## 8. Tracking — Tự hỏi cuối tuần
 
 - [ ] ⚠️ **Đã book meeting với Compliance Officer chưa? Nếu chưa → làm NGAY HÔM NAY**
-- [ ] Gap nào HIGH priority cần address ngay? (Top 3: Human-in-the-loop governance, Audit trail design, Model validation process)
+- [ ] Gap nào HIGH priority cần address ngay? (Top 3: Human-in-the-loop governance, Audit trail design, Model validation process, **Ghi nhãn AI, Bias monitoring**)
 - [ ] PDPD: Bank X đã có consent management chưa? Đã chuyển từ NĐ 13 sang Luật 91/2025 + NĐ 356 chưa?
 - [ ] SBV: Bank X có đăng ký sandbox NĐ 94 không? Nếu có → chuẩn bị documentation. Nếu không → standard path.
 - [ ] Tất cả 4 documents Week 2 đã ghi "Pending validation" cho các items chưa confirm?
 - [ ] Next step: validate với Compliance Officer → update tất cả 4 documents với real data
+- [ ] 🆕 **Luật AI 134/2025:** Danh mục AI rủi ro cao đã ban hành chưa? (Thủ tướng, target 02/2026)
+- [ ] 🆕 **Luật AI 134/2025:** NĐ hướng dẫn Luật AI đã ban hành chưa? (Bộ KH&CN soạn)
+- [ ] 🆕 **Luật AI 134/2025:** Ghi nhãn AI đã thiết kế chưa? (Target Week 12 MVP)
+- [ ] 🆕 **Luật AI 134/2025:** Liability allocation framework đã soạn chưa? (Target Week 11)
+- [ ] 🆕 **Dự thảo TT NHNN về AI trong banking:** Có cập nhật mới không?
 
 ---
 
-## 8. Ghi Chú & Limitations
+## 9. Ghi Chú & Limitations
 
 1. **"Pending validation với Compliance Officer"** — tất cả status "Bank X" trong document này là assumptions. Phải validate trước khi dùng cho quyết định thiết kế.
-2. **Không phải tư vấn pháp lý.** Cần legal counsel cho: retention period, DPIA nộp A05, sandbox application.
+2. **Không phải tư vấn pháp lý.** Cần legal counsel cho: retention period, DPIA nộp A05, sandbox application, liability allocation.
 3. **Dự thảo TT thay thế TT 13/2018** đang ở giai đoạn hoàn thiện. Có thể thêm yêu cầu Model Risk Management cụ thể. Follow sát.
 4. **NĐ 94/2025 sandbox mới** — chưa có tiền lệ bank nào hoàn thành sandbox credit scoring tại VN. Process có thể evolve.
-5. **Cross-reference:** regulatory-mapping.md, compliance-gap-analysis.md, pdpd-impact-assessment.md cho context đầy đủ.
+5. **Luật AI 134/2025:** NĐ hướng dẫn + Danh mục AI rủi ro cao đang soạn. Chi tiết nghĩa vụ cho AI rủi ro cao phụ thuộc vào 2 VB này. Chưa ban hành → một số yêu cầu cụ thể (mức phạt, đăng ký AI) chưa xác định.
+6. **Luật AI 134/2025:** NHNN sẽ ban hành TT riêng về AI trong banking — follow sát (xem Section 5.6). Thiết kế proactively theo yêu cầu dự kiến.
+7. **Cross-reference:** regulatory-mapping.md v1.1, compliance-gap-analysis.md, pdpd-impact-assessment.md v1.1 cho context đầy đủ.
