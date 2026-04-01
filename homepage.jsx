@@ -508,8 +508,7 @@ function Homepage({ setPage }) {
             <span style={{
               color:"#E8001D",
               WebkitTextStroke: "0px",
-            }}>Decision</span><br/>
-            Support
+            }}>Decision Support</span>
           </h1>
 
           {/* Right: description + CTA */}
@@ -517,21 +516,7 @@ function Homepage({ setPage }) {
             <p style={{ fontSize:15, color:"#555", lineHeight:1.8, margin:"0 0 28px" }}>
               Hệ thống AI hỗ trợ quyết định tín dụng thế hệ mới — Origination Scoring + Fraud Detection tại điểm phát hành thẻ tín dụng retail. Inhouse, compliant, production-grade.
             </p>
-            <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-              <button onClick={()=>setPage("demo")} style={{
-                background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
-                fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15,
-                padding:"13px 26px", borderRadius:7,
-                display:"flex", alignItems:"center", gap:10, transition:"all 0.2s",
-              }}
-                onMouseEnter={e=>{e.currentTarget.style.background="#C80019"; e.currentTarget.style.transform="translateY(-1px)";}}
-                onMouseLeave={e=>{e.currentTarget.style.background="#E8001D"; e.currentTarget.style.transform="none";}}
-              >
-                Try Demo
-                <span style={{ background:"rgba(255,255,255,0.22)",borderRadius:5,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center" }}>
-                  <ArrowRight size={14}/>
-                </span>
-              </button>
+            <div style={{ display:"flex", gap:10, flexWrap:"wrap", justifyContent:"flex-end" }}>
               <button onClick={()=>setPage("docs")} style={{
                 background:"#fff", color:"#1A1A1A", border:"1.5px solid #E0E0E0",
                 cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
@@ -542,6 +527,20 @@ function Homepage({ setPage }) {
                 onMouseLeave={e=>{e.currentTarget.style.borderColor="#E0E0E0"; e.currentTarget.style.color="#1A1A1A";}}
               >
                 View Docs
+              </button>
+              <button onClick={()=>setPage("demo")} style={{
+                background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
+                fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15,
+                padding:"8px 12px 8px 20px", borderRadius:7,
+                display:"flex", alignItems:"center", gap:10, transition:"all 0.2s",
+              }}
+                onMouseEnter={e=>{e.currentTarget.style.background="#C80019"; e.currentTarget.style.transform="translateY(-1px)";}}
+                onMouseLeave={e=>{e.currentTarget.style.background="#E8001D"; e.currentTarget.style.transform="none";}}
+              >
+                Try Demo
+                <span style={{ background:"rgba(255,255,255,0.22)",borderRadius:5,width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center" }}>
+                  <ArrowRight size={14}/>
+                </span>
               </button>
             </div>
           </div>
@@ -574,9 +573,9 @@ function Homepage({ setPage }) {
           <div style={{ flex:1, padding:"28px", display:"flex", flexDirection:"column", gap:16 }}>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
               {[
-                {label:"AI Score", val:"0.73", color:"#E8001D", sub:"Risk probability"},
-                {label:"Decision", val:"Review", color:"#F59E0B", sub:"Manual queue"},
-                {label:"Confidence", val:"High", color:"#22C55E", sub:"Score band"},
+                {label:"Risk Score", val:"0.73", color:"#E8001D", sub:"Default probability"},
+                {label:"Recommendation", val:"Review", color:"#F59E0B", sub:"Cần xét duyệt thủ công"},
+                {label:"Model Confidence", val:"92%", color:"#22C55E", sub:"Prediction reliability"},
               ].map((c,i)=>(
                 <div key={i} style={{ background:"rgba(255,255,255,0.05)",borderRadius:8,padding:"16px",border:"1px solid rgba(255,255,255,0.07)" }}>
                   <div style={{ fontSize:10,color:"rgba(255,255,255,0.4)",marginBottom:8,fontFamily:"'DM Sans',sans-serif" }}>{c.label}</div>
@@ -586,9 +585,9 @@ function Homepage({ setPage }) {
               ))}
             </div>
             <div style={{ flex:1, background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"16px 18px",border:"1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ fontSize:10,color:"rgba(255,255,255,0.35)",marginBottom:10,fontFamily:"'Sora',sans-serif",letterSpacing:"0.1em",textTransform:"uppercase" }}>Top Contributing Features</div>
+              <div style={{ fontSize:10,color:"rgba(255,255,255,0.35)",marginBottom:10,fontFamily:"'Sora',sans-serif",letterSpacing:"0.1em",textTransform:"uppercase" }}>Top Feature Contributions</div>
               <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
-                {[{name:"Payment History",pct:78},{name:"Credit Utilization",pct:54},{name:"Income Stability",pct:43}].map((f,i)=>(
+                {[{name:"Lịch sử thanh toán",pct:78},{name:"Dư nợ / Hạn mức",pct:54},{name:"Thu nhập ổn định",pct:43}].map((f,i)=>(
                   <div key={i} style={{ display:"flex",alignItems:"center",gap:10 }}>
                     <div style={{ fontSize:11,color:"rgba(255,255,255,0.55)",minWidth:130,fontFamily:"'DM Sans',sans-serif" }}>{f.name}</div>
                     <div style={{ flex:1,background:"rgba(255,255,255,0.08)",borderRadius:2,height:5 }}>
@@ -613,8 +612,8 @@ function Homepage({ setPage }) {
       </section>
 
       {/* ── STATS — highlighted numbers ──────────────── */}
-      <section style={{ background:"#F7F7F5", borderTop:"1px solid #E8E8E8", borderBottom:"1px solid #E8E8E8" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 40px", display:"grid", gridTemplateColumns:"repeat(4,1fr)" }}>
+      <section style={{ maxWidth:1200, margin:"0 auto", padding:"48px 40px 0" }}>
+        <div style={{ background:"#F7F7F5", border:"1px solid #E8E8E8", borderRadius:12, display:"grid", gridTemplateColumns:"repeat(4,1fr)" }}>
           {stats.map((s,i)=>(
             <div key={i} style={{
               padding:"36px 20px", textAlign:"center",
@@ -640,7 +639,7 @@ function Homepage({ setPage }) {
 
       {/* ── PHASES ───────────────────────────────────── */}
       <section style={{ padding:"72px 40px", maxWidth:1200, margin:"0 auto" }}>
-        <div style={{ display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:36 }}>
+        <div style={{ display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:36 }}>
           <div>
             <div style={{ fontSize:10,fontWeight:700,letterSpacing:"0.14em",color:"#E8001D",textTransform:"uppercase",marginBottom:8,fontFamily:"'Sora',sans-serif" }}>Roadmap Overview</div>
             <h2 style={{ fontFamily:"'Sora',sans-serif",fontSize:34,fontWeight:900,color:"#1A1A1A",margin:0,letterSpacing:"-1.2px" }}>4 Phases — 60 Weeks</h2>
