@@ -24,6 +24,7 @@ const DOCS_TREE = [
         { id: "phase-1/week-02/w02-01-regulatory-mapping.md", label: "w02-01-regulatory-mapping" },
         { id: "phase-1/week-02/w02-02-compliance-gap-analysis.md", label: "w02-02-compliance-gap-analysis" },
         { id: "phase-1/week-02/w02-03-pdpd-impact-bank-x.md", label: "w02-03-pdpd-impact-bank-x" },
+        { id: "phase-1/week-02/w02-04-sbv-requirements.md", label: "w02-04-sbv-requirements" },
       ]},
       { id: "phase-1/week-03", label: "Week 03", files: [
         { id: "phase-1/week-03/w03-01-data-landscape-bank-x.md", label: "w03-01-data-landscape-bank-x" },
