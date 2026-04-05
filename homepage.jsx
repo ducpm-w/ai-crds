@@ -35,6 +35,7 @@ const DOCS_TREE = [
         { id: "phase-1/week-04/w04-01-damage-model-bank-x.md", label: "w04-01-damage-model-bank-x" },
         { id: "phase-1/week-04/w04-02-break-even-analysis.md", label: "w04-02-break-even-analysis" },
         { id: "phase-1/week-04/w04-03-budget-estimate-v0.md", label: "w04-03-budget-estimate-v0" },
+        { id: "phase-1/week-04/w04-04-assumptions-log.md", label: "w04-04-assumptions-log" },
       ]},
       { id: "phase-1/week-05", label: "Week 05", files: [
         { id: "phase-1/week-05/w05-01-decision-architecture.md", label: "w05-01-decision-architecture" },
