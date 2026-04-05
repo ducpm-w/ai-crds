@@ -8,343 +8,64 @@ function getDocContent(fileId) {
   return MD_FILES[`/docs/${fileId}`] ?? null;
 }
 
-// ─── DOCS TREE: phase → week → files ──────────────────────────────────────────
-const DOCS_TREE = [
-  {
-    id: "phase-1", label: "Phase 1 — Foundation", weeks: "Week 1–16",
-    folders: [
-      { id: "phase-1/week-01", label: "Week 01", files: [
-        { id: "phase-1/week-01/w01-01-use-case-shortlist.md", label: "w01-01-use-case-shortlist" },
-        { id: "phase-1/week-01/w01-02-problem-brief.md", label: "w01-02-problem-brief" },
-        { id: "phase-1/week-01/w01-03-market-context.md", label: "w01-03-market-context" },
-        { id: "phase-1/week-01/w01-04-decision-frequency.md", label: "w01-04-decision-frequency" },
-        { id: "phase-1/week-01/w01-05-stakeholder-map.md", label: "w01-05-stakeholder-map" },
-      ]},
-      { id: "phase-1/week-02", label: "Week 02", files: [
-        { id: "phase-1/week-02/w02-01-regulatory-mapping.md", label: "w02-01-regulatory-mapping" },
-        { id: "phase-1/week-02/w02-02-compliance-gap-analysis.md", label: "w02-02-compliance-gap-analysis" },
-        { id: "phase-1/week-02/w02-03-pdpd-impact-bank-x.md", label: "w02-03-pdpd-impact-bank-x" },
-        { id: "phase-1/week-02/w02-04-sbv-requirements.md", label: "w02-04-sbv-requirements" },
-      ]},
-      { id: "phase-1/week-03", label: "Week 03", files: [
-        { id: "phase-1/week-03/w03-01-data-landscape-bank-x.md", label: "w03-01-data-landscape-bank-x" },
-        { id: "phase-1/week-03/w03-02-data-quality-scorecard.md", label: "w03-02-data-quality-scorecard" },
-        { id: "phase-1/week-03/w03-03-feature-availability-matrix.md", label: "w03-03-feature-availability-matrix" },
-      ]},
-      { id: "phase-1/week-04", label: "Week 04", files: [
-        { id: "phase-1/week-04/w04-01-damage-model-bank-x.md", label: "w04-01-damage-model-bank-x" },
-        { id: "phase-1/week-04/w04-02-break-even-analysis.md", label: "w04-02-break-even-analysis" },
-        { id: "phase-1/week-04/w04-03-budget-estimate-v0.md", label: "w04-03-budget-estimate-v0" },
-        { id: "phase-1/week-04/w04-04-assumptions-log.md", label: "w04-04-assumptions-log" },
-      ]},
-      { id: "phase-1/week-05", label: "Week 05", files: [
-        { id: "phase-1/week-05/w05-01-decision-architecture.md", label: "w05-01-decision-architecture" },
-        { id: "phase-1/week-05/w05-02-decision-state-spec.md", label: "w05-02-decision-state-spec" },
-        { id: "phase-1/week-05/w05-03-escalation-tree-v1.md", label: "w05-03-escalation-tree-v1" },
-      ]},
-      { id: "phase-1/week-06", label: "Week 06", files: [
-        { id: "phase-1/week-06/w06-01-threshold-framework.md", label: "w06-01-threshold-framework" },
-        { id: "phase-1/week-06/w06-02-cost-of-error-table.md", label: "w06-02-cost-of-error-table" },
-        { id: "phase-1/week-06/w06-03-approval-rate-curve.md", label: "w06-03-approval-rate-curve" },
-      ]},
-      { id: "phase-1/week-07", label: "Week 07", files: [
-        { id: "phase-1/week-07/w07-01-kpi-tree.md", label: "w07-01-kpi-tree" },
-        { id: "phase-1/week-07/w07-02-metric-conflict-memo.md", label: "w07-02-metric-conflict-memo" },
-        { id: "phase-1/week-07/w07-03-guardrail-definitions.md", label: "w07-03-guardrail-definitions" },
-      ]},
-      { id: "phase-1/week-08", label: "Week 08", files: [
-        { id: "phase-1/week-08/w08-01-workflow-as-is.md", label: "w08-01-workflow-as-is" },
-        { id: "phase-1/week-08/w08-02-workflow-to-be.md", label: "w08-02-workflow-to-be" },
-        { id: "phase-1/week-08/w08-03-integration-point-map.md", label: "w08-03-integration-point-map" },
-      ]},
-      { id: "phase-1/week-09", label: "Week 09", files: [
-        { id: "phase-1/week-09/w09-01-user-interview-notes.md", label: "w09-01-user-interview-notes" },
-        { id: "phase-1/week-09/w09-02-ux-wireframes-v1.md", label: "w09-02-ux-wireframes-v1" },
-        { id: "phase-1/week-09/w09-03-override-governance.md", label: "w09-03-override-governance" },
-      ]},
-      { id: "phase-1/week-10", label: "Week 10", files: [
-        { id: "phase-1/week-10/w10-01-tech-stack-bank-x.md", label: "w10-01-tech-stack-bank-x" },
-        { id: "phase-1/week-10/w10-02-data-flow-diagram.md", label: "w10-02-data-flow-diagram" },
-        { id: "phase-1/week-10/w10-03-dpia-report-v1.md", label: "w10-03-dpia-report-v1" },
-        { id: "phase-1/week-10/w10-04-pdpd-compliance-checklist.md", label: "w10-04-pdpd-compliance-checklist" },
-      ]},
-      { id: "phase-1/week-11", label: "Week 11", files: [
-        { id: "phase-1/week-11/w11-01-executive-summary.md", label: "w11-01-executive-summary" },
-        { id: "phase-1/week-11/w11-02-problem-statement.md", label: "w11-02-problem-statement" },
-        { id: "phase-1/week-11/w11-03-proposed-solution.md", label: "w11-03-proposed-solution" },
-        { id: "phase-1/week-11/w11-04-impact-and-roi.md", label: "w11-04-impact-and-roi" },
-        { id: "phase-1/week-11/w11-05-stakeholder-map.md", label: "w11-05-stakeholder-map" },
-        { id: "phase-1/week-11/w11-06-implementation-roadmap.md", label: "w11-06-implementation-roadmap" },
-        { id: "phase-1/week-11/w11-07-risks-and-mitigation.md", label: "w11-07-risks-and-mitigation" },
-      ]},
-      { id: "phase-1/week-12", label: "Week 12", files: [
-        { id: "phase-1/week-12/w12-01-working-demo-v1.md", label: "w12-01-working-demo-v1" },
-        { id: "phase-1/week-12/w12-02-demo-script.md", label: "w12-02-demo-script" },
-        { id: "phase-1/week-12/w12-04-audit-log-v1.md", label: "w12-04-audit-log-v1" },
-      ]},
-      { id: "phase-1/week-13", label: "Week 13", files: [
-        { id: "phase-1/week-13/w13-01-usability-test-report.md", label: "w13-01-usability-test-report" },
-        { id: "phase-1/week-13/w13-02-stakeholder-feedback-log.md", label: "w13-02-stakeholder-feedback-log" },
-        { id: "phase-1/week-13/w13-03-champion-confirmation.md", label: "w13-03-champion-confirmation" },
-        { id: "phase-1/week-13/w13-04-demo-v1-1-notes.md", label: "w13-04-demo-v1-1-notes" },
-        { id: "phase-1/week-13/w13-05-c-level-presentation.md", label: "w13-05-c-level-presentation" },
-      ]},
-      { id: "phase-1/week-14", label: "Week 14", files: [
-        { id: "phase-1/week-14/w14-01-failure-test-log.md", label: "w14-01-failure-test-log" },
-        { id: "phase-1/week-14/w14-02-risk-matrix.md", label: "w14-02-risk-matrix" },
-        { id: "phase-1/week-14/w14-03-incident-response-draft.md", label: "w14-03-incident-response-draft" },
-      ]},
-      { id: "phase-1/week-15", label: "Week 15", files: [
-        { id: "phase-1/week-15/w15-01-proposal-v2-final.md", label: "w15-01-proposal-v2-final" },
-        { id: "phase-1/week-15/w15-02-objection-handling.md", label: "w15-02-objection-handling" },
-      ]},
-      { id: "phase-1/week-16", label: "Week 16", files: [
-        { id: "phase-1/week-16/w16-01-c-level-presentation.md", label: "w16-01-c-level-presentation" },
-        { id: "phase-1/week-16/w16-02-meeting-notes-decisions.md", label: "w16-02-meeting-notes-decisions" },
-        { id: "phase-1/week-16/w16-03-phase-0-approval.md", label: "w16-03-phase-0-approval" },
-        { id: "phase-1/week-16/w16-04-phase-0-plan.md", label: "w16-04-phase-0-plan" },
-      ]},
-    ]
-  },
-  {
-    id: "phase-2", label: "Phase 2 — MLOps & Workflow", weeks: "Week 17–32",
-    folders: [
-      { id: "phase-2/week-17", label: "Week 17", files: [
-        { id: "phase-2/week-17/w17-01-role-architecture-bank-x.md", label: "w17-01-role-architecture-bank-x" },
-        { id: "phase-2/week-17/w17-02-permission-matrix.md", label: "w17-02-permission-matrix" },
-        { id: "phase-2/week-17/w17-03-maker-checker-spec.md", label: "w17-03-maker-checker-spec" },
-      ]},
-      { id: "phase-2/week-18", label: "Week 18", files: [
-        { id: "phase-2/week-18/w18-01-state-machine-v2.md", label: "w18-01-state-machine-v2" },
-        { id: "phase-2/week-18/w18-02-integration-retry-spec.md", label: "w18-02-integration-retry-spec" },
-        { id: "phase-2/week-18/w18-03-idempotency-design.md", label: "w18-03-idempotency-design" },
-      ]},
-      { id: "phase-2/week-19", label: "Week 19", files: [
-        { id: "phase-2/week-19/w19-01-roi-model-v2-bank-x.md", label: "w19-01-roi-model-v2-bank-x" },
-        { id: "phase-2/week-19/w19-02-assumptions-log-updated.md", label: "w19-02-assumptions-log-updated" },
-      ]},
-      { id: "phase-2/week-20", label: "Week 20", files: [
-        { id: "phase-2/week-20/w20-01-api-connections-v1.md", label: "w20-01-api-connections-v1" },
-        { id: "phase-2/week-20/w20-02-integration-test-report.md", label: "w20-02-integration-test-report" },
-      ]},
-      { id: "phase-2/week-21", label: "Week 21", files: [
-        { id: "phase-2/week-21/w21-01-workflow-demo-v2.md", label: "w21-01-workflow-demo-v2" },
-        { id: "phase-2/week-21/w21-02-role-based-access-demo.md", label: "w21-02-role-based-access-demo" },
-        { id: "phase-2/week-21/w21-03-audit-trail-v2.md", label: "w21-03-audit-trail-v2" },
-      ]},
-      { id: "phase-2/week-22", label: "Week 22", files: [
-        { id: "phase-2/week-22/w22-01-test-report-v2.md", label: "w22-01-test-report-v2" },
-        { id: "phase-2/week-22/w22-02-issue-log.md", label: "w22-02-issue-log" },
-        { id: "phase-2/week-22/w22-03-demo-v2-1.md", label: "w22-03-demo-v2-1" },
-      ]},
-      { id: "phase-2/week-23", label: "Week 23", files: [
-        { id: "phase-2/week-23/w23-01-governance-pack-bank-x.md", label: "w23-01-governance-pack-bank-x" },
-        { id: "phase-2/week-23/w23-02-bias-assessment.md", label: "w23-02-bias-assessment" },
-        { id: "phase-2/week-23/w23-03-sbv-compliance-checklist.md", label: "w23-03-sbv-compliance-checklist" },
-        { id: "phase-2/week-23/w23-04-model-card-v1.md", label: "w23-04-model-card-v1" },
-      ]},
-      { id: "phase-2/week-24", label: "Week 24", files: [
-        { id: "phase-2/week-24/w24-01-failure-scenario-log.md", label: "w24-01-failure-scenario-log" },
-        { id: "phase-2/week-24/w24-02-runbook-v1.md", label: "w24-02-runbook-v1" },
-        { id: "phase-2/week-24/w24-03-mitigation-per-scenario.md", label: "w24-03-mitigation-per-scenario" },
-      ]},
-      { id: "phase-2/week-25", label: "Week 25", files: [
-        { id: "phase-2/week-25/w25-01-scale-assessment-doc.md", label: "w25-01-scale-assessment-doc" },
-        { id: "phase-2/week-25/w25-02-bottleneck-memo.md", label: "w25-02-bottleneck-memo" },
-        { id: "phase-2/week-25/w25-03-infrastructure-recommendation.md", label: "w25-03-infrastructure-recommendation" },
-      ]},
-      { id: "phase-2/week-26", label: "Week 26", files: [
-        { id: "phase-2/week-26/w26-01-mlops-orchestration-plan.md", label: "w26-01-mlops-orchestration-plan" },
-        { id: "phase-2/week-26/w26-02-drift-monitoring-spec.md", label: "w26-02-drift-monitoring-spec" },
-      ]},
-      { id: "phase-2/week-27", label: "Week 27", files: [
-        { id: "phase-2/week-27/w27-01-phase-0-results-report.md", label: "w27-01-phase-0-results-report" },
-        { id: "phase-2/week-27/w27-02-stakeholder-validation-notes.md", label: "w27-02-stakeholder-validation-notes" },
-        { id: "phase-2/week-27/w27-03-go-no-go-recommendation.md", label: "w27-03-go-no-go-recommendation" },
-        { id: "phase-2/week-27/w27-04-phase-1-deployment-plan-draft.md", label: "w27-04-phase-1-deployment-plan-draft" },
-      ]},
-      { id: "phase-2/week-28", label: "Week 28", files: [
-        { id: "phase-2/week-28/w28-01-product-roadmap.md", label: "w28-01-product-roadmap" },
-        { id: "phase-2/week-28/w28-02-prioritization-matrix.md", label: "w28-02-prioritization-matrix" },
-        { id: "phase-2/week-28/w28-03-resource-request-update.md", label: "w28-03-resource-request-update" },
-      ]},
-      { id: "phase-2/week-29", label: "Week 29", files: [
-        { id: "phase-2/week-29/w29-01-phase-1-deployment-plan.md", label: "w29-01-phase-1-deployment-plan" },
-        { id: "phase-2/week-29/w29-02-change-management-plan.md", label: "w29-02-change-management-plan" },
-        { id: "phase-2/week-29/w29-03-training-plan.md", label: "w29-03-training-plan" },
-        { id: "phase-2/week-29/w29-04-communication-plan.md", label: "w29-04-communication-plan" },
-        { id: "phase-2/week-29/w29-05-success-criteria.md", label: "w29-05-success-criteria" },
-      ]},
-      { id: "phase-2/week-30", label: "Week 30", files: [
-        { id: "phase-2/week-30/w30-01-internal-case-study-v1.md", label: "w30-01-internal-case-study-v1" },
-        { id: "phase-2/week-30/w30-02-c-level-progress-report.md", label: "w30-02-c-level-progress-report" },
-        { id: "phase-2/week-30/w30-03-phase-1-approval-request.md", label: "w30-03-phase-1-approval-request" },
-      ]},
-      { id: "phase-2/week-31", label: "Week 31", files: [
-        { id: "phase-2/week-31/w31-01-phase-1-approval.md", label: "w31-01-phase-1-approval" },
-        { id: "phase-2/week-31/w31-02-final-deployment-checklist.md", label: "w31-02-final-deployment-checklist" },
-        { id: "phase-2/week-31/w31-03-training-materials-v1.md", label: "w31-03-training-materials-v1" },
-      ]},
-      { id: "phase-2/week-32", label: "Week 32", files: [
-        { id: "phase-2/week-32/w32-01-tech-debt-cleanup-log.md", label: "w32-01-tech-debt-cleanup-log" },
-        { id: "phase-2/week-32/w32-02-updated-documentation.md", label: "w32-02-updated-documentation" },
-        { id: "phase-2/week-32/w32-03-phase-3-readiness-checklist.md", label: "w32-03-phase-3-readiness-checklist" },
-      ]},
-    ]
-  },
-  {
-    id: "phase-3", label: "Phase 3 — Deployment", weeks: "Week 33–48",
-    folders: [
-      { id: "phase-3/week-33", label: "Week 33", files: [
-        { id: "phase-3/week-33/w33-01-build-vs-buy-analysis.md", label: "w33-01-build-vs-buy-analysis" },
-        { id: "phase-3/week-33/w33-02-vendor-comparison-matrix.md", label: "w33-02-vendor-comparison-matrix" },
-        { id: "phase-3/week-33/w33-03-inhouse-advantages-doc.md", label: "w33-03-inhouse-advantages-doc" },
-      ]},
-      { id: "phase-3/week-34", label: "Week 34", files: [
-        { id: "phase-3/week-34/w34-01-training-curriculum.md", label: "w34-01-training-curriculum" },
-        { id: "phase-3/week-34/w34-02-user-guides-per-role.md", label: "w34-02-user-guides-per-role" },
-        { id: "phase-3/week-34/w34-03-change-management-playbook.md", label: "w34-03-change-management-playbook" },
-        { id: "phase-3/week-34/w34-04-faq-document.md", label: "w34-04-faq-document" },
-      ]},
-      { id: "phase-3/week-35", label: "Week 35", files: [
-        { id: "phase-3/week-35/w35-01-audit-trail-spec.md", label: "w35-01-audit-trail-spec" },
-        { id: "phase-3/week-35/w35-02-sbv-export-format.md", label: "w35-02-sbv-export-format" },
-        { id: "phase-3/week-35/w35-03-replay-functionality-spec.md", label: "w35-03-replay-functionality-spec" },
-        { id: "phase-3/week-35/w35-04-retention-policy.md", label: "w35-04-retention-policy" },
-      ]},
-      { id: "phase-3/week-36", label: "Week 36", files: [
-        { id: "phase-3/week-36/w36-01-compliance-simulation-doc.md", label: "w36-01-compliance-simulation-doc" },
-        { id: "phase-3/week-36/w36-02-playbook-per-scenario.md", label: "w36-02-playbook-per-scenario" },
-        { id: "phase-3/week-36/w36-03-pdpd-response-templates.md", label: "w36-03-pdpd-response-templates" },
-      ]},
-      { id: "phase-3/week-37", label: "Week 37", files: [
-        { id: "phase-3/week-37/w37-01-shadow-testing-environment.md", label: "w37-01-shadow-testing-environment" },
-        { id: "phase-3/week-37/w37-02-daily-monitoring-dashboard.md", label: "w37-02-daily-monitoring-dashboard" },
-        { id: "phase-3/week-37/w37-03-credit-officer-briefing-materials.md", label: "w37-03-credit-officer-briefing-materials" },
-        { id: "phase-3/week-37/w37-04-daily-results-log.md", label: "w37-04-daily-results-log" },
-      ]},
-      { id: "phase-3/week-38", label: "Week 38", files: [
-        { id: "phase-3/week-38/w38-01-week-2-shadow-testing-report.md", label: "w38-01-week-2-shadow-testing-report" },
-        { id: "phase-3/week-38/w38-02-issue-log.md", label: "w38-02-issue-log" },
-        { id: "phase-3/week-38/w38-03-model-performance-vs-baseline.md", label: "w38-03-model-performance-vs-baseline" },
-        { id: "phase-3/week-38/w38-04-iteration-log.md", label: "w38-04-iteration-log" },
-      ]},
-      { id: "phase-3/week-39", label: "Week 39", files: [
-        { id: "phase-3/week-39/w39-01-mid-point-analysis.md", label: "w39-01-mid-point-analysis" },
-        { id: "phase-3/week-39/w39-02-go-no-go-limited-deployment.md", label: "w39-02-go-no-go-limited-deployment" },
-        { id: "phase-3/week-39/w39-03-adjustments-needed.md", label: "w39-03-adjustments-needed" },
-      ]},
-      { id: "phase-3/week-40", label: "Week 40", files: [
-        { id: "phase-3/week-40/w40-01-shadow-testing-final-report.md", label: "w40-01-shadow-testing-final-report" },
-        { id: "phase-3/week-40/w40-02-ai-vs-manual-comparison.md", label: "w40-02-ai-vs-manual-comparison" },
-        { id: "phase-3/week-40/w40-03-limited-deployment-proposal.md", label: "w40-03-limited-deployment-proposal" },
-        { id: "phase-3/week-40/w40-04-updated-success-criteria.md", label: "w40-04-updated-success-criteria" },
-      ]},
-      { id: "phase-3/week-41", label: "Week 41", files: [
-        { id: "phase-3/week-41/w41-01-limited-deployment-live.md", label: "w41-01-limited-deployment-live" },
-        { id: "phase-3/week-41/w41-02-real-time-monitoring-dashboard.md", label: "w41-02-real-time-monitoring-dashboard" },
-        { id: "phase-3/week-41/w41-03-override-rate-tracking.md", label: "w41-03-override-rate-tracking" },
-        { id: "phase-3/week-41/w41-04-daily-stakeholder-updates.md", label: "w41-04-daily-stakeholder-updates" },
-      ]},
-      { id: "phase-3/week-42", label: "Week 42", files: [
-        { id: "phase-3/week-42/w42-01-weekly-performance-reports.md", label: "w42-01-weekly-performance-reports" },
-        { id: "phase-3/week-42/w42-02-user-feedback-synthesis.md", label: "w42-02-user-feedback-synthesis" },
-        { id: "phase-3/week-42/w42-03-model-adjustments.md", label: "w42-03-model-adjustments" },
-        { id: "phase-3/week-42/w42-04-stakeholder-updates.md", label: "w42-04-stakeholder-updates" },
-      ]},
-      { id: "phase-3/week-43", label: "Week 43", files: [
-        { id: "phase-3/week-43/w43-01-limited-deployment-results-report.md", label: "w43-01-limited-deployment-results-report" },
-        { id: "phase-3/week-43/w43-02-full-deployment-proposal.md", label: "w43-02-full-deployment-proposal" },
-        { id: "phase-3/week-43/w43-03-updated-roi.md", label: "w43-03-updated-roi" },
-      ]},
-      { id: "phase-3/week-44", label: "Week 44", files: [
-        { id: "phase-3/week-44/w44-01-c-level-presentation-phase-2.md", label: "w44-01-c-level-presentation-phase-2" },
-        { id: "phase-3/week-44/w44-02-full-deployment-approval.md", label: "w44-02-full-deployment-approval" },
-        { id: "phase-3/week-44/w44-03-full-deployment-plan.md", label: "w44-03-full-deployment-plan" },
-      ]},
-      { id: "phase-3/week-45", label: "Week 45", files: [
-        { id: "phase-3/week-45/w45-01-full-deployment-live.md", label: "w45-01-full-deployment-live" },
-        { id: "phase-3/week-45/w45-02-all-users-trained.md", label: "w45-02-all-users-trained" },
-        { id: "phase-3/week-45/w45-03-full-monitoring-active.md", label: "w45-03-full-monitoring-active" },
-        { id: "phase-3/week-45/w45-04-incident-response-on-call.md", label: "w45-04-incident-response-on-call" },
-      ]},
-      { id: "phase-3/week-46", label: "Week 46", files: [
-        { id: "phase-3/week-46/w46-01-stabilization-report.md", label: "w46-01-stabilization-report" },
-        { id: "phase-3/week-46/w46-02-performance-optimization-log.md", label: "w46-02-performance-optimization-log" },
-        { id: "phase-3/week-46/w46-03-user-satisfaction-survey.md", label: "w46-03-user-satisfaction-survey" },
-      ]},
-      { id: "phase-3/week-47", label: "Week 47", files: [
-        { id: "phase-3/week-47/w47-01-30-day-impact-report.md", label: "w47-01-30-day-impact-report" },
-        { id: "phase-3/week-47/w47-02-actual-vs-projected-comparison.md", label: "w47-02-actual-vs-projected-comparison" },
-        { id: "phase-3/week-47/w47-03-lessons-learned.md", label: "w47-03-lessons-learned" },
-        { id: "phase-3/week-47/w47-04-feedback-loop-schema.md", label: "w47-04-feedback-loop-schema" },
-        { id: "phase-3/week-47/w47-05-next-optimization-priorities.md", label: "w47-05-next-optimization-priorities" },
-      ]},
-      { id: "phase-3/week-48", label: "Week 48", files: [
-        { id: "phase-3/week-48/w48-01-phase-3-retrospective.md", label: "w48-01-phase-3-retrospective" },
-        { id: "phase-3/week-48/w48-02-updated-backlog-phase-4.md", label: "w48-02-updated-backlog-phase-4" },
-      ]},
-    ]
-  },
-  {
-    id: "phase-4", label: "Phase 4 — Scale & Maturity", weeks: "Week 49–60",
-    folders: [
-      { id: "phase-4/week-49", label: "Week 49", files: [
-        { id: "phase-4/week-49/w49-01-expansion-roadmap.md", label: "w49-01-expansion-roadmap" },
-        { id: "phase-4/week-49/w49-02-next-segment-business-case.md", label: "w49-02-next-segment-business-case" },
-        { id: "phase-4/week-49/w49-03-resource-request-for-expansion.md", label: "w49-03-resource-request-for-expansion" },
-      ]},
-      { id: "phase-4/week-50", label: "Week 50", files: [
-        { id: "phase-4/week-50/w50-01-ews-business-case.md", label: "w50-01-ews-business-case" },
-        { id: "phase-4/week-50/w50-02-data-availability-assessment.md", label: "w50-02-data-availability-assessment" },
-        { id: "phase-4/week-50/w50-03-ews-proposal.md", label: "w50-03-ews-proposal" },
-      ]},
-      { id: "phase-4/week-51", label: "Week 51", files: [
-        { id: "phase-4/week-51/w51-01-internal-presentation.md", label: "w51-01-internal-presentation" },
-        { id: "phase-4/week-51/w51-02-methodology-documentation.md", label: "w51-02-methodology-documentation" },
-        { id: "phase-4/week-51/w51-03-knowledge-sharing-sessions.md", label: "w51-03-knowledge-sharing-sessions" },
-      ]},
-      { id: "phase-4/week-52-53", label: "Week 52–53", files: [
-        { id: "phase-4/week-52-53/w52-01-ip-ownership-memo.md", label: "w52-01-ip-ownership-memo" },
-        { id: "phase-4/week-52-53/w52-02-packaging-feasibility-report.md", label: "w52-02-packaging-feasibility-report" },
-        { id: "phase-4/week-52-53/w52-03-go-no-go-saas-decision.md", label: "w52-03-go-no-go-saas-decision" },
-      ]},
-      { id: "phase-4/week-54", label: "Week 54", files: [
-        { id: "phase-4/week-54/w54-01-90-day-impact-report.md", label: "w54-01-90-day-impact-report" },
-        { id: "phase-4/week-54/w54-02-roi-validation.md", label: "w54-02-roi-validation" },
-        { id: "phase-4/week-54/w54-03-next-phase-recommendations.md", label: "w54-03-next-phase-recommendations" },
-        { id: "phase-4/week-54/w54-04-budget-request-expansion.md", label: "w54-04-budget-request-expansion" },
-      ]},
-      { id: "phase-4/week-55-56", label: "Week 55–56", files: [
-        { id: "phase-4/week-55-56/w55-01-next-segment-deployment.md", label: "w55-01-next-segment-deployment" },
-        { id: "phase-4/week-55-56/w55-02-reuse-rate-assessment.md", label: "w55-02-reuse-rate-assessment" },
-        { id: "phase-4/week-55-56/w55-03-onboarding-playbook-update.md", label: "w55-03-onboarding-playbook-update" },
-      ]},
-      { id: "phase-4/week-57", label: "Week 57", files: [
-        { id: "phase-4/week-57/w57-01-model-governance-v2.md", label: "w57-01-model-governance-v2" },
-        { id: "phase-4/week-57/w57-02-ml-lifecycle-runbook.md", label: "w57-02-ml-lifecycle-runbook" },
-      ]},
-      { id: "phase-4/week-58", label: "Week 58", files: [
-        { id: "phase-4/week-58/w58-01-ai-native-pm-case-study.md", label: "w58-01-ai-native-pm-case-study" },
-        { id: "phase-4/week-58/w58-02-methodology-documentation.md", label: "w58-02-methodology-documentation" },
-        { id: "phase-4/week-58/w58-03-personal-positioning-statement.md", label: "w58-03-personal-positioning-statement" },
-        { id: "phase-4/week-58/w58-04-portfolio-update.md", label: "w58-04-portfolio-update" },
-      ]},
-      { id: "phase-4/week-59", label: "Week 59", files: [
-        { id: "phase-4/week-59/w59-01-complete-system-documentation.md", label: "w59-01-complete-system-documentation" },
-        { id: "phase-4/week-59/w59-02-runbook-operations-team.md", label: "w59-02-runbook-operations-team" },
-        { id: "phase-4/week-59/w59-03-training-materials-v3.md", label: "w59-03-training-materials-v3" },
-        { id: "phase-4/week-59/w59-04-handover-plan.md", label: "w59-04-handover-plan" },
-      ]},
-      { id: "phase-4/week-60", label: "Week 60", files: [
-        { id: "phase-4/week-60/w60-01-retrospective-document.md", label: "w60-01-retrospective-document" },
-        { id: "phase-4/week-60/w60-02-next-60-week-plan.md", label: "w60-02-next-60-week-plan" },
-        { id: "phase-4/week-60/w60-03-saas-optionality-decision.md", label: "w60-03-saas-optionality-decision" },
-        { id: "phase-4/week-60/w60-04-personal-ai-native-pm-roadmap.md", label: "w60-04-personal-ai-native-pm-roadmap" },
-      ]},
-    ]
-  },
-];
+// ─── PHASE METADATA ────────────────────────────────────────────────────────────
+const PHASE_META = {
+  "phase-1": { label: "Phase 1 — Foundation",      weeks: "Week 1–16"  },
+  "phase-2": { label: "Phase 2 — MLOps & Workflow", weeks: "Week 17–32" },
+  "phase-3": { label: "Phase 3 — Deployment",       weeks: "Week 33–48" },
+  "phase-4": { label: "Phase 4 — Scale & Maturity", weeks: "Week 49–60" },
+};
+
+// ─── AUTO-BUILD DOCS TREE từ Vite glob ────────────────────────────────────────
+function buildDocsTree(mdFiles) {
+  const phases = {};
+
+  Object.keys(mdFiles)
+    .sort()
+    .forEach(path => {
+      const relative = path.replace("/docs/", "");
+      const parts = relative.split("/");
+
+      if (parts.length !== 3) return;
+
+      const [phaseId, weekId, filename] = parts;
+
+      if (!PHASE_META[phaseId]) return;
+
+      if (!phases[phaseId]) {
+        phases[phaseId] = {
+          id: phaseId,
+          label: PHASE_META[phaseId].label,
+          weeks: PHASE_META[phaseId].weeks,
+          folders: {},
+        };
+      }
+
+      if (!phases[phaseId].folders[weekId]) {
+        phases[phaseId].folders[weekId] = {
+          id: `${phaseId}/${weekId}`,
+          label: weekId.replace("week-", "Week "),
+          files: [],
+        };
+      }
+
+      phases[phaseId].folders[weekId].files.push({
+        id: relative,
+        label: filename.replace(/\.md$/, "").replace(/^w\d{2}-\d{2}-/, ""),
+      });
+    });
+
+  return Object.keys(phases)
+    .sort()
+    .map(phaseId => ({
+      ...phases[phaseId],
+      folders: Object.keys(phases[phaseId].folders)
+        .sort()
+        .map(weekId => phases[phaseId].folders[weekId]),
+    }));
+}
+
+const DOCS_TREE = buildDocsTree(MD_FILES);
 
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
