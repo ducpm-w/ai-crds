@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 
 // ─── DOCS: load từ /docs/**/*.md via Vite glob ────────────────────────────────
 const MD_FILES = import.meta.glob("/docs/**/*.md", { query: "?raw", import: "default", eager: true });
@@ -140,7 +141,9 @@ function renderMarkdown(text) {
 }
 
 // ─── NAVBAR ───────────────────────────────────────────────────────────────────
-function Navbar({ page, setPage }) {
+function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
   return (
     <nav style={{
       position:"sticky", top:0, zIndex:100,
@@ -148,7 +151,7 @@ function Navbar({ page, setPage }) {
       padding:"0 40px", height:"56px",
       display:"flex", alignItems:"center", justifyContent:"space-between",
     }}>
-      <button onClick={()=>setPage("home")} style={{
+      <button onClick={()=>navigate("/")} style={{
         background:"none", border:"none", cursor:"pointer",
         display:"flex", alignItems:"center", gap:10, padding:0,
       }}>
@@ -160,18 +163,18 @@ function Navbar({ page, setPage }) {
       </button>
 
       <div style={{ display:"flex", alignItems:"center", gap:4 }}>
-        {[{id:"home",label:"Home"},{id:"docs",label:"Docs"}].map(p=>(
-          <button key={p.id} onClick={()=>setPage(p.id)} style={{
-            background: page===p.id ? "#F5F5F3" : "none",
+        {[{id:"home",label:"Home",path:"/"},{id:"docs",label:"Docs",path:"/docs"}].map(p=>(
+          <button key={p.id} onClick={()=>navigate(p.path)} style={{
+            background: location.pathname===p.path ? "#F5F5F3" : "none",
             border:"none", cursor:"pointer",
-            fontFamily:"'DM Sans',sans-serif", fontWeight: page===p.id ? 600 : 400,
-            fontSize:14, color: page===p.id ? "#1A1A1A" : "#777",
+            fontFamily:"'DM Sans',sans-serif", fontWeight: location.pathname===p.path ? 600 : 400,
+            fontSize:14, color: location.pathname===p.path ? "#1A1A1A" : "#777",
             padding:"7px 14px", borderRadius:5, transition:"all 0.15s",
           }}>
             {p.label}
           </button>
         ))}
-        <button onClick={()=>setPage("demo")} style={{
+        <button onClick={()=>navigate("/demo")} style={{
           background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
           fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:13,
           padding:"8px 18px", borderRadius:5, marginLeft:8,
@@ -189,7 +192,8 @@ function Navbar({ page, setPage }) {
 }
 
 // ─── HOMEPAGE ─────────────────────────────────────────────────────────────────
-function Homepage({ setPage }) {
+function Homepage() {
+  const navigate = useNavigate();
   const phases = [
     { num:"01", weeks:"Week 1–16", title:"Foundation", sub:"Problem framing, DPIA, MVP build, internal proposal & C-level approval" },
     { num:"02", weeks:"Week 17–32", title:"MLOps & Workflow", sub:"Multi-role workflow, Champion-Challenger setup, integration & validation" },
@@ -240,7 +244,7 @@ function Homepage({ setPage }) {
               Hệ thống AI hỗ trợ quyết định tín dụng thế hệ mới — Origination Scoring + Fraud Detection tại điểm phát hành thẻ tín dụng retail. Inhouse, compliant, production-grade.
             </p>
             <div style={{ display:"flex", gap:10, flexWrap:"wrap", justifyContent:"flex-end" }}>
-              <button onClick={()=>setPage("docs")} style={{
+              <button onClick={()=>navigate("/docs")} style={{
                 background:"#fff", color:"#1A1A1A", border:"1.5px solid #E0E0E0",
                 cursor:"pointer", fontFamily:"'DM Sans',sans-serif",
                 fontWeight:600, fontSize:15, padding:"12px 22px", borderRadius:7,
@@ -251,7 +255,7 @@ function Homepage({ setPage }) {
               >
                 View Docs
               </button>
-              <button onClick={()=>setPage("demo")} style={{
+              <button onClick={()=>navigate("/demo")} style={{
                 background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
                 fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15,
                 padding:"8px 12px 8px 20px", borderRadius:7,
@@ -367,7 +371,7 @@ function Homepage({ setPage }) {
             <div style={{ fontSize:10,fontWeight:700,letterSpacing:"0.14em",color:"#E8001D",textTransform:"uppercase",marginBottom:8,fontFamily:"'Sora',sans-serif" }}>Roadmap Overview</div>
             <h2 style={{ fontFamily:"'Sora',sans-serif",fontSize:34,fontWeight:900,color:"#1A1A1A",margin:0,letterSpacing:"-1.2px" }}>4 Phases — 60 Weeks</h2>
           </div>
-          <button onClick={()=>setPage("docs")} style={{
+          <button onClick={()=>navigate("/docs")} style={{
             background:"none", border:"1.5px solid #E0E0E0", cursor:"pointer",
             fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:13,
             color:"#555", padding:"8px 16px", borderRadius:5,
@@ -574,7 +578,8 @@ function DocsPage() {
 }
 
 // ─── DEMO PLACEHOLDER ─────────────────────────────────────────────────────────
-function DemoPage({ setPage }) {
+function DemoPage() {
+  const navigate = useNavigate();
   return (
     <div style={{ minHeight:"calc(100vh - 56px)",display:"flex",alignItems:"center",justifyContent:"center",background:"#fff",fontFamily:"'DM Sans',sans-serif" }}>
       <div style={{ textAlign:"center",maxWidth:420 }}>
@@ -585,7 +590,7 @@ function DemoPage({ setPage }) {
         <p style={{ fontSize:14,color:"#666",lineHeight:1.75,marginBottom:28 }}>
           Demo MVP v1 đang được build tại Week 12 milestone. Synthetic data modeled theo Bank X data structure.
         </p>
-        <button onClick={()=>setPage("home")} style={{
+        <button onClick={()=>navigate("/")} style={{
           background:"#E8001D",color:"#fff",border:"none",cursor:"pointer",
           fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:13,
           padding:"10px 22px",borderRadius:6,transition:"background 0.15s",
@@ -602,8 +607,6 @@ function DemoPage({ setPage }) {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [page, setPage] = useState("home");
-
   return (
     <>
       <style>{`
@@ -640,10 +643,12 @@ export default function App() {
         main::-webkit-scrollbar { width:4px; }
         main::-webkit-scrollbar-thumb { background:#E0E0E0; border-radius:2px; }
       `}</style>
-      <Navbar page={page} setPage={setPage}/>
-      {page==="home" && <Homepage setPage={setPage}/>}
-      {page==="docs" && <DocsPage/>}
-      {page==="demo" && <DemoPage setPage={setPage}/>}
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        <Route path="/demo" element={<DemoPage />} />
+      </Routes>
     </>
   );
 }
