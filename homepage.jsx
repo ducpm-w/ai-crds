@@ -51,7 +51,7 @@ function buildDocsTree(mdFiles) {
 
       phases[phaseId].folders[weekId].files.push({
         id: relative,
-        label: filename.replace(/\.md$/, "").replace(/^w\d{2}-\d{2}-/, ""),
+        label: filename.replace(/\.md$/, ""),
       });
     });
 
