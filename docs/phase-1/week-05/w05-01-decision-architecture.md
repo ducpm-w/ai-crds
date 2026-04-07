@@ -280,7 +280,7 @@ Fraud flag ELEVATED hoặc HIGH — regardless of credit score. Route to Senior 
 
 | Exit | Condition | Next State | Action |
 |------|----------|-----------|--------|
-| **Cleared — Route to Scoring** | Fraud team confirms NOT fraud | → STATE 1 or 2 (based on score) | Log clearance, proceed with scoring |
+| **Cleared — Route to Scoring** | Fraud team confirms NOT fraud | → **AI RE-SCORE** với fraud_flag reset to CLEAR → route based on new score: State 1 (score > TH_high + confidence > 0.85) hoặc State 2 (tất cả còn lại). Không dùng score cũ — re-score vì fraud investigation có thể phát hiện thêm data (ví dụ: verified identity, employer confirmed). | Log clearance + re-score reason, proceed with scoring |
 | **Confirmed Fraud — Reject** | Fraud team confirms fraud | → REJECTED_FRAUD (terminal) | Block applicant, report SIMO (TT 45/2025), blacklist CCCD, law enforcement (nếu cần) |
 | **Inconclusive — Reject** | Cannot determine, too risky | → REJECTED (terminal) | Adverse action notice (generic: "unable to verify identity"), blacklist for review period |
 | **Need More Verification** | Cần thêm identity documents | → STATE 5 | Request: original CCCD at branch, video call verification |
@@ -462,7 +462,36 @@ Data missing, inconsistent, hoặc verification failed. AI KHÔNG ép quyết đ
 | **REJECTED** | Application denied | Adverse action notice (top 3 reasons, Luật AI 134/2025 explainability), retain audit record (5-10 năm per SBV), inform right to complaint |
 | **REJECTED_FRAUD** | Fraud confirmed | Reject + SIMO report (TT 45/2025) + blacklist + law enforcement referral (nếu applicable) |
 | **EXPIRED** | Customer didn't respond in 14 days | Close, notify, archive |
-| **WITHDRAWN** | Customer withdrew | Close, archive, delete PII per BVDLCN schedule |
+| **WITHDRAWN** | Customer withdrew | Close, archive, apply data retention per below |
+
+### Data Retention per Terminal State (Tiered Data Lifecycle — ref pdpd-impact-assessment.md v1.1 Section 4.4)
+
+Áp dụng Tiered Data Lifecycle đã define tại Week 2 cho resolution xung đột SBV retention vs BVDLCN deletion:
+
+| Terminal State | Tầng 1: Raw PII (CCCD, tên, SĐT, ảnh) | Tầng 2: Pseudonymized Audit (hash ID, AI score, decision, reasons) | Tầng 3: Anonymized Stats (aggregated metrics) | CIC Query Log |
+|---------------|---------------------------------------|------------------------------------------------------------------|----------------------------------------------|--------------|
+| **APPROVED** | Giữ suốt thời hạn hợp đồng CC + 1 năm buffer. Xóa khi khách close CC + 1 năm. | Giữ **10 năm** sau quyết định (SBV audit + Luật kế toán). Pseudonymize khi Tầng 1 xóa. | Vĩnh viễn (không phải DLCN). | Giữ per SBV requirement (5-10 năm). |
+| **REJECTED** | Xóa sau **1 năm** kể từ ngày reject (đủ thời gian cho khiếu nại). Nếu khách yêu cầu xóa sớm hơn → xóa Tầng 1, giữ Tầng 2. | Giữ **5 năm** (SBV audit — cần trace reject decisions). | Vĩnh viễn. | Giữ 5 năm. |
+| **REJECTED_FRAUD** | Giữ **5 năm** (fraud investigation + law enforcement + SIMO record). Không xóa khi khách yêu cầu — ngoại lệ "lợi ích công cộng" Luật BVDLCN. | Giữ **10 năm** (fraud pattern analysis + SBV). | Vĩnh viễn. | Giữ 10 năm. |
+| **EXPIRED** | Xóa sau **90 ngày** (khách không respond = low value). | Giữ **2 năm** (basic audit trail — SBV có thể hỏi). | Vĩnh viễn. | Giữ 2 năm. |
+| **WITHDRAWN** | Xóa sau **30 ngày** (khách chủ động rút = respect privacy, shortest retention). Nếu khách yêu cầu xóa ngay → xóa Tầng 1 ngay, giữ Tầng 2 minimum. | Giữ **1 năm** (minimum audit trail — SBV có thể hỏi tại sao có application). Pseudonymize immediately: thay CCCD → hash, bỏ tên. | Vĩnh viễn. | Giữ 1 năm. |
+
+**⚠️ Retention periods là proposed — cần confirm với Compliance Officer + Legal counsel.** Xem pdpd-impact-assessment.md v1.1 Section 4.4 cho full resolution framework + deletion workflow 7 bước.
+
+### Deletion Trigger cho WITHDRAWN
+
+```
+Customer withdraws application
+    │
+    ├── T+0: Application status → WITHDRAWN
+    ├── T+0: Stop all processing (AI scoring, CIC query nếu pending)
+    ├── T+0: Pseudonymize Tầng 2 immediately (hash CCCD, remove name)
+    ├── T+0: Notify customer: "Hồ sơ đã hủy. DLCN sẽ được xóa trong 30 ngày.
+    │         Hồ sơ quyết định ẩn danh được giữ theo yêu cầu pháp luật ngân hàng."
+    ├── T+30d: Auto-delete Tầng 1 (raw PII)
+    ├── T+30d: Log deletion in audit trail
+    └── T+1y: Review Tầng 2 — delete nếu không còn cần
+```
 
 ---
 
