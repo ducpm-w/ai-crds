@@ -56,6 +56,9 @@
 | **Window** | Weekly rolling. Report weekly. |
 | **Report** | Median (not mean — outliers distort mean). Also report P75 and P95. |
 | **Segment** | By state: S1 target ≤ 4h, S2 target ≤ 8h, S3 target ≤ 4h, S4 target ≤ 24h. |
+| **Owner** | Ops Manager |
+| **Data source** | AI-CRDS audit trail (application_received_timestamp, decision_timestamp) |
+| **Target** | Median ≤ 4h (overall). P95 ≤ 24h. |
 | **Unit** | Hours |
 
 ### L2-B3: Volume Issued per Month
@@ -63,7 +66,12 @@
 | Attribute | Definition |
 |-----------|-----------|
 | **Formula** | `Count(Applications where terminal_state = APPROVED AND card_issued = TRUE)` |
+| **Numerator** | Applications with terminal state APPROVED AND card_issued flag = TRUE |
+| **Denominator** | N/A (count metric) |
 | **Window** | Calendar month. Report monthly. |
+| **Owner** | Head of Cards |
+| **Data source** | CBS (card issuance records) + AI-CRDS audit trail |
+| **Target** | ≥ 1,800/tháng (maintain current) |
 | **Caveat** | Approved ≠ Issued. Customer may not activate card. Track both. |
 
 ### L2-R1: NPL Rate
@@ -77,6 +85,9 @@
 | **Window** | Monthly snapshot. Report monthly. |
 | **Lag** | **90+ day measurement lag.** Application approved today → earliest NPL signal = 90 days later. Full vintage maturity: 12 months. |
 | **Segment** | By vintage month (approval cohort). By AI score band at approval. By state at approval (S1 vs S2). |
+| **Owner** | Risk Manager |
+| **Data source** | Core Banking System → DPD tracking. Filter: originated via AI-CRDS. |
+| **Target** | ≤ 3.5% (current baseline). Stretch: ≤ 2.8% (-20%). |
 | **Caveat** | First 3 months post-deployment: NPL data NOT yet available for AI-CRDS cohort. Use DPD 30+ as early warning. |
 
 ### L2-R2: Fraud Rate at Origination
@@ -94,7 +105,12 @@
 | Attribute | Definition |
 |-----------|-----------|
 | **Formula** | `(Total_Credit_Loss_12M + Total_Fraud_Loss_12M) ÷ Approved_Applications_12M` |
+| **Numerator** | Total credit write-offs + confirmed fraud losses, for AI-CRDS originated CC portfolio, trailing 12 months |
+| **Denominator** | Count of applications approved via AI-CRDS in same 12-month period |
 | **Window** | Rolling 12 months. Monthly report. |
+| **Owner** | Risk Manager |
+| **Data source** | Finance ledger (write-offs, provisions) + Fraud database + AI-CRDS audit trail |
+| **Target** | ≤ 1.225M VND (current EL). Stretch: ≤ 1.0M VND. |
 | **Unit** | VND per approved application |
 
 ### L2-O1: Manual Review Rate
@@ -102,27 +118,95 @@
 | Attribute | Definition |
 |-----------|-----------|
 | **Formula** | `(State2 + State3 + State4) volume ÷ Total_Applications × 100%` |
+| **Numerator** | Count of applications routed to State 2, 3, or 4 (requiring individual CO review) |
+| **Denominator** | Total applications received |
 | **"Manual"** | Any application requiring CO individual review (not batch confirm). State 1 batch confirm = NOT manual. |
 | **Window** | Weekly rolling. |
+| **Owner** | Ops Manager |
+| **Data source** | AI-CRDS routing log (state assignments) |
+| **Target** | ≤ 55% (≥ 45% auto-route to State 1) |
 
 ### L2-O2: CO Capacity Utilization
 
 | Attribute | Definition |
 |-----------|-----------|
 | **Formula** | `Actual_CO_Review_Hours ÷ Available_CO_Hours × 100%` |
-| **Available** | CO_Count × Working_Days × Productive_Hours_Per_Day (6h). |
-| **Actual** | Sum of `co_review_time_seconds` from audit trail ÷ 3600. |
+| **Numerator** | Sum of `co_review_time_seconds` from audit trail ÷ 3600. |
+| **Denominator** | CO_Count × Working_Days × Productive_Hours_Per_Day (6h). |
 | **Window** | Weekly. |
-| **Target range** | 70-80%. Below 60% = overstaffed. Above 90% = overloaded, SLA risk. |
+| **Owner** | Ops Manager |
+| **Data source** | AI-CRDS audit trail (review time) + HR (CO headcount, working days) |
+| **Target** | 70-80%. Below 60% = overstaffed. Above 90% = overloaded, SLA risk. |
 
 ### L2-O3: SLA Compliance Rate
 
 | Attribute | Definition |
 |-----------|-----------|
 | **Formula** | `On_Time_Decisions ÷ Total_Decisions × 100%` |
-| **On-time** | Decision made within SLA per state (S1: 4h, S2: 8h, S3: 4h, S4: 24h). |
+| **Numerator** | Count of decisions made within SLA per state (S1: 4h, S2: 8h, S3: 4h, S4: 24h) |
+| **Denominator** | Total decisions across all states |
+| **On-time** | Decision made within SLA per state. |
 | **Window** | Weekly. |
+| **Owner** | Ops Manager |
+| **Data source** | AI-CRDS audit trail (state entry timestamp, decision timestamp) |
+| **Target** | ≥ 90% (all states weighted) |
 | **Segment** | By state. Overall = weighted by state volume. |
+
+---
+
+## 4. ALERT THRESHOLDS — Escalation Ladder per Metric
+
+Mỗi metric có 3-level alert: Warning → Review → Emergency.
+
+| Metric | ✅ Normal | ⚠️ Warning (→ Owner review) | 🟡 Review (→ Risk Manager + PM) | 🔴 Emergency (→ Risk Committee) |
+|--------|----------|----------------------------|--------------------------------|--------------------------------|
+| **L2-B1 Approval rate** | 55-65% | < 55% hoặc > 65% | < 50% hoặc > 70% | < 45% hoặc > 75% |
+| **L2-B2 Time-to-decision (P95)** | ≤ 24h | > 24h | > 48h | > 72h |
+| **L2-B3 Volume issued** | ≥ 1,800/tháng | < 1,500 (-17%) | < 1,200 (-33%) | < 900 (-50%) |
+| **L2-R1 NPL rate** | ≤ 3.0% | **+50 bps above baseline** (3.5% → 4.0%) | **+100 bps** (3.5% → 4.5%) | **+200 bps** (3.5% → 5.5%) → **Emergency stop** |
+| **L2-R2 Fraud rate** | ≤ 0.56% | +30 bps (0.8% → 1.1%) | +60 bps (0.8% → 1.4%) | > 1.5% → Emergency fraud review |
+| **L2-R3 EL per app** | ≤ 1.0M | > 1.225M (baseline) | > 1.5M (+22%) | > 2.0M (+63%) → Threshold review |
+| **L2-O1 Manual review rate** | ≤ 55% | > 60% | > 70% | > 80% (AI barely adding value) |
+| **L2-O2 CO utilization** | 70-80% | > 85% hoặc < 60% | > 90% | > 95% → Capacity emergency |
+| **L2-O3 SLA compliance** | ≥ 90% | < 90% | < 80% | < 75% → Process failure |
+| **L3-W2 Override rate** | 10-20% | > 30% hoặc < 5% | > 40% hoặc < 3% | > 60% hoặc < 2% |
+| **L3-M7 PSI (drift)** | < 0.10 | > 0.10 | > 0.20 | > 0.25 → Retrain |
+| **L3-C4 Gender gap** | ≤ 5pp | > 5pp | > 8pp | > 12pp → Luật AI investigation |
+
+### Alert Response Protocol
+
+```
+⚠️ WARNING:   Owner receives dashboard alert → investigate within 48h
+🟡 REVIEW:    Risk Manager + PM notified → root cause analysis within 1 week
+🔴 EMERGENCY: Risk Committee convened → response within 4h
+              Possible actions: tighten/loosen threshold, pause AI, retrain model
+```
+
+### NPL Alert Example (most critical metric)
+
+```
+NPL RATE ESCALATION LADDER
+
+Baseline: 3.5%
+
+    3.5% ── Normal operation
+    │
+    4.0% ── ⚠️ WARNING (+50 bps)
+    │       → Risk Manager reviews monthly NPL report
+    │       → Check: is increase from AI cohort or legacy?
+    │       → Check: DPD 30+ trend (leading indicator)
+    │
+    4.5% ── 🟡 REVIEW (+100 bps)
+    │       → Threshold review triggered
+    │       → Vintage analysis: which approval month cohort is worse?
+    │       → Consider: tighten TH_high by +0.03-0.05
+    │
+    5.5% ── 🔴 EMERGENCY (+200 bps)
+            → Risk Committee emergency meeting
+            → Pause State 1 (auto-route) → all cases to State 2 (full review)
+            → Root cause analysis: model failure? External shock? Data issue?
+            → Resume only after Committee approval
+```
 
 ---
 
