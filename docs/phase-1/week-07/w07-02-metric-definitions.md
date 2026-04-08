@@ -238,6 +238,11 @@ Baseline: 3.5%
 | **Segment** | By direction (override-to-approve vs override-to-reject). By CO (individual CO override patterns). |
 | **Interpretation** | 10-20% = healthy (CO adds value). > 30% = model-CO misalignment (investigate). < 5% = CO may be rubber-stamping (investigate). |
 
+**Rubber-stamping detection:**
+- Override rate < 5% **AND** avg `co_review_time_seconds` < 120 giây (2 phút) for State 1 batch confirm → **ALERT: CO batch-confirming without actually reviewing.**
+- Action: Spot audit 10 random batch confirmations per week. Check: did CO open applicant detail? Did CO view CIC summary? Or just click "confirm all" immediately?
+- If confirmed rubber-stamping → (a) Mandatory CO training refresh. (b) Reduce max batch size. (c) Consider requiring CO to click into each record before confirm enabled (UI guardrail).
+
 ---
 
 ## Tracking

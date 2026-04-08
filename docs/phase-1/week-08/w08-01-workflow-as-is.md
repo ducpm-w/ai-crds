@@ -239,6 +239,9 @@ Day 2-7: Bước 8 (notification + card issuance)
 | Manual review rate | 100% | By definition (no AI) | ✅ High |
 | SLA compliance | ❓ Unknown | No SLA currently | ❓ |
 | Audit trail fields | ❓ ~5-8 fields | Industry est. | ❓ Low |
+| **Shadow CO validated** | **❌ Chưa** | **N/A** | **N/A** |
+
+> **⚠️ Toàn bộ flow chưa được validate với CO tại Bank X.** Cần shadow ít nhất 1 ngày trước Week 12. Nếu không kịp → ghi rõ trong MVP assumptions log (assumptions-log.md) và note "As-is flow = industry generic, not Bank X specific" trong mọi document tham chiếu flow này.
 
 ---
 

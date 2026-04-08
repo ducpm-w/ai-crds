@@ -138,6 +138,8 @@ Subject to:
 | 0.80 | 140 (+20) | 60.48 tỷ (+8.64) | 57 (-6) | 23.81 tỷ (-2.65) | 1.15 tỷ (-0.33) | **83.14 tỷ** |
 | 0.85 | 165 (+45) | 71.28 tỷ (+19.44) | 52 (-11) | 21.65 tỷ (-4.81) | 0.72 tỷ (-0.76) | **91.21 tỷ** |
 
+> **Note:** TH_high = 0.65 có net cost thấp hơn trên paper (60.20 tỷ vs 76.82 tỷ tại 0.75) nhưng **vi phạm NPL constraint** (NPL tăng 15-25% so với baseline) → Risk Committee sẽ không approve. 0.75 là lowest threshold không vi phạm NPL constraint (NPL ≈ baseline hoặc giảm nhẹ). Net cost tại 0.75 cao hơn vì FP cost cao — nhưng đây là "cost of safety" mà Risk Committee chấp nhận.
+
 **Observation:** TH_high = 0.75 không phải absolute minimum cost. Nhưng:
 - **0.65-0.70:** NPL tăng → Risk Committee sẽ không approve
 - **0.80-0.85:** Ops saving giảm, FP cost tăng đáng kể, CO vẫn review gần hết
