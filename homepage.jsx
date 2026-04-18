@@ -174,7 +174,7 @@ function Navbar() {
             {p.label}
           </button>
         ))}
-        <button onClick={()=>window.open("http://localhost:5174/apply","_blank")} style={{
+        <button onClick={()=>window.location.href="/demo/apply"} style={{
           background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
           fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:13,
           padding:"8px 18px", borderRadius:5, marginLeft:8,
@@ -255,7 +255,7 @@ function Homepage() {
               >
                 View Docs
               </button>
-              <button onClick={()=>window.open("http://localhost:5174/apply","_blank")} style={{
+              <button onClick={()=>window.location.href="/demo/apply"} style={{
                 background:"#E8001D", color:"#fff", border:"none", cursor:"pointer",
                 fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15,
                 padding:"8px 12px 8px 20px", borderRadius:7,
