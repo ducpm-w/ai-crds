@@ -1,341 +1,444 @@
-# Demo Script — AI-CRDS MVP v1
-> **Tags:** `[Product]` `[Demo]` `[Stakeholder]`
+# MVP Build Notes — AI-CRDS v0.1.0
+> **Tags:** `[Tech]` `[Product]` `[Build]`
 > **Dự án:** AI-CRDS
 > **Tuần:** Week 12
-> **Version:** v1.0
+> **Version:** v0.1.0-synthetic
 > **Ngày:** 09/04/2026
 
 ---
 
 ## Mục đích
 
-Demo script cho Week 13 internal presentation. 3 scenarios, 15-20 phút total. Audience: Credit Officers, Risk Manager, Head of Cards, CTO.
-
-**⚠️ MỌI DATA TRONG DEMO LÀ SYNTHETIC — KHÔNG PHẢI KHÁCH HÀNG THẬT.**
+Technical spec cho MVP build. Input cho Claude Code / dev team. Scope: internal demo only, synthetic data, end-to-end flow.
 
 ---
 
-## 0. SETUP & OPENING (2 phút)
+## 1. TECH STACK — MVP
 
-### Before Demo
-
-- [ ] System running, data loaded (10K synthetic records)
-- [ ] 3 test applications pre-created (Scenario A/B/C)
-- [ ] Browser zoom 125% (readable from projector)
-- [ ] Backup screenshots ready (nếu live demo fail)
-- [ ] "SYNTHETIC DATA — DEMO ONLY" watermark visible
-
-### Opening Script
-
-```
-"Cảm ơn mọi người dành thời gian. Hôm nay tôi demo AI-CRDS —
-hệ thống AI hỗ trợ quyết định tín dụng cho CC.
-
-3 điều quan trọng trước khi bắt đầu:
-1. Data hoàn toàn synthetic — không phải khách hàng thật
-2. AI chỉ HỖ TRỢ — Credit Officer vẫn ký quyết định cuối cùng
-3. Đây là MVP — mục tiêu là show end-to-end flow, không phải production
-
-Tôi sẽ demo 3 scenarios:
-A. Hồ sơ tốt → AI score cao → batch confirm (3-5 phút thay vì 35 phút)
-B. Hồ sơ borderline → AI explain → CO full review → reject → adverse action
-C. Hồ sơ có fraud signal → AI flag → priority review
-
-Mỗi scenario ~5-7 phút. Xin hỏi sau mỗi scenario hoặc cuối demo."
-```
+| Layer | Technology | Note |
+|-------|-----------|------|
+| **Frontend** | Next.js 14+ (React) | CO review UI, application form, audit viewer |
+| **Backend** | Next.js API routes hoặc FastAPI | Scoring engine, audit write, routing logic |
+| **Database** | Supabase (PostgreSQL) | Applications, audit_log, overrides |
+| **Styling** | Tailwind CSS | Dark tech aesthetic (Linear-inspired) |
+| **Deployment** | Vercel (frontend) + Supabase (DB) | Demo only, no production security |
+| **Data** | CSV/JSON synthetic dataset (10K) | Pre-loaded into Supabase |
 
 ---
 
-## 1. SCENARIO A — HAPPY PATH (State 1: Batch Approve)
+## 2. DATABASE SCHEMA
 
-### Setup
+### Table: `applications`
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Nguyễn Văn An | Synthetic prefix |
-| CCCD | SYN-079123456 | Synthetic |
-| Age | 35 | Prime earning age |
-| Income | 25M/tháng | Above average |
-| Employer | FPT Software (FDI) | Stable, verifiable |
-| Employment | 36 tháng | Long tenure |
-| CIC Score | 740 | High |
-| DTI | 22% | Low |
-| DPD history | 0 | Clean |
-| eKYC | Pass (0.96) | High confidence |
-
-### Demo Flow (5-7 phút)
-
-```
-STEP 1: Application Input (/apply)
-"Đây là form nhập hồ sơ. Trong production, data auto-fill từ online form
-hoặc branch nhập. Hôm nay tôi nhập manual cho demo."
-→ Fill form fields
-→ Click "Submit Application"
-→ "Hồ sơ đang được xử lý..."
-
-STEP 2: AI Scoring Result (/score/[id])
-"Trong <30 giây, AI đã:
-- Query CIC (mock) → score 740
-- Run eKYC (mock) → pass
-- Calculate risk score → 0.82
-- Calculate confidence → 91%
-- Route to State 1 (Batch Review)"
-
-Show trên screen:
-├── Risk Score: 0.82 (LOW RISK) [green gauge]
-├── Confidence: 91% [green bar]
-├── Fraud Score: 0.05 (CLEAR) [green]
-├── State: BATCH REVIEW (State 1)
-├── AI Recommendation: APPROVE
-├── Top 3 Positive: CIC 740, DTI 22%, 3yr employment
-└── "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
-
-→ "Chú ý AI label ở đây — bắt buộc theo Luật AI 134/2025."
-
-STEP 3: Batch Review Queue (/review/batch)
-"Đây là queue của Credit Officer. 12 hồ sơ AI recommends approve.
-CO xem summary, có thể expand detail, rồi confirm."
-
-→ Show batch queue (12 records)
-→ Expand 1-2 records (show detail panel)
-→ Select 4 records (including Nguyễn Văn An)
-→ Click "Confirm Selected (4)"
-→ "4 hồ sơ đã được approve."
-
-→ "Thời gian: 3-5 phút cho 4 hồ sơ. Trước đây: 35 phút × 4 = 140 phút.
-   Giảm 85% thời gian review cho high-confidence cases."
-
-STEP 4: Audit Log (/audit)
-"Mọi quyết định được ghi nhận tự động. 24+ fields."
-
-→ Show audit log entry cho Nguyễn Văn An
-→ Point out: decision_id, model_version, ai_score, human_decision,
-             co_review_seconds, ai_label_displayed, batch_review_flag
-→ "SBV có thể inspect bất kỳ quyết định nào — đầy đủ thông tin."
+```sql
+CREATE TABLE applications (
+    id              VARCHAR(30) PRIMARY KEY,   -- "APP-2026-04-000001"
+    -- Personal
+    full_name       VARCHAR(100) NOT NULL,
+    cccd            VARCHAR(15) NOT NULL,       -- "SYN-079123456"
+    date_of_birth   DATE NOT NULL,
+    gender          VARCHAR(10),
+    province        VARCHAR(50),
+    -- Financial
+    monthly_income  INTEGER NOT NULL,           -- VND
+    employer_name   VARCHAR(100),
+    employer_type   VARCHAR(20),                -- SOE/FDI/PRIVATE/SME/STARTUP
+    employment_months INTEGER,
+    -- CIC (mock)
+    cic_score       INTEGER,                    -- 300-850
+    cic_total_debt  INTEGER,                    -- VND
+    cic_max_dpd_12m INTEGER,                    -- Days past due
+    cic_inquiries_6m INTEGER,
+    cic_active_loans INTEGER,
+    cic_debt_group  INTEGER,                    -- 1-5
+    cic_history_months INTEGER,
+    -- eKYC (mock)
+    ekyc_pass       BOOLEAN DEFAULT TRUE,
+    ekyc_face_match NUMERIC(3,2),               -- 0.00-1.00
+    ekyc_confidence NUMERIC(3,2),
+    -- Status
+    status          VARCHAR(20) DEFAULT 'PENDING', -- PENDING/SCORING/ROUTED/DECIDED
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
 ```
 
-### Key Message (nói cho audience)
+### Table: `decisions`
 
+```sql
+CREATE TABLE decisions (
+    id              VARCHAR(30) PRIMARY KEY,   -- "DEC-2026-04-000001"
+    application_id  VARCHAR(30) REFERENCES applications(id),
+    -- AI output
+    ai_risk_score   NUMERIC(4,3),
+    ai_fraud_score  NUMERIC(4,3),
+    ai_confidence   NUMERIC(4,3),
+    ai_recommendation VARCHAR(20),
+    ai_explanation  JSONB,                      -- ["reason1", "reason2", "reason3"]
+    state_routed    VARCHAR(10),                -- STATE_1 through STATE_5
+    -- Human decision
+    co_id           VARCHAR(20),
+    human_decision  VARCHAR(20),                -- APPROVE/REJECT/REJECT_FRAUD
+    approved_limit  INTEGER,
+    co_review_seconds INTEGER,
+    -- Override
+    override_flag   BOOLEAN DEFAULT FALSE,
+    override_reason_cat VARCHAR(5),
+    override_reason_text TEXT,
+    -- Compliance
+    adverse_action_id VARCHAR(30),
+    ai_label_displayed BOOLEAN DEFAULT TRUE,
+    opt_out_ai      BOOLEAN DEFAULT FALSE,
+    batch_review    BOOLEAN DEFAULT FALSE,
+    batch_id        VARCHAR(30),
+    -- Meta
+    model_version   VARCHAR(30) DEFAULT 'v0.1.0-synthetic',
+    threshold_version VARCHAR(30) DEFAULT 'TH-2026-Q1-v1',
+    record_hash     VARCHAR(64),
+    decided_at      TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
 ```
-"State 1 = 35-45% volume. Từ 35 phút manual → 3-5 phút batch confirm.
-CO vẫn review và confirm — AI chỉ pre-screen và route.
-Đây là nguồn operational saving lớn nhất."
+
+### Table: `audit_log`
+
+```sql
+-- Full 28-field schema from audit-log-schema.md
+-- Append-only: REVOKE UPDATE, DELETE, TRUNCATE
+-- See audit-log-schema.md for complete DDL
 ```
 
 ---
 
-## 2. SCENARIO B — BORDERLINE (State 2: Individual Review → Reject)
+## 3. SCORING ENGINE
 
-### Setup
+### 3.1 Credit Risk Score (Rule-based MVP)
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Phạm Thị Bình | Synthetic |
-| CCCD | SYN-024987654 | Synthetic |
-| Age | 29 | Younger |
-| Income | 18M/tháng | Moderate |
-| Employer | Công ty ABC (SME) | Less stable |
-| Employment | 8 tháng | Short |
-| CIC Score | 650 | Adequate but not strong |
-| DTI | 42% | Borderline high |
-| DPD history | 0 | Clean |
-| Inquiries 6M | 2 | Multiple recent inquiries |
-| eKYC | Pass (0.91) | OK |
+```python
+def calculate_risk_score(app: dict) -> dict:
+    """
+    Rule-based scoring for MVP. Returns score + explanation.
+    Production: replace with ML model (logistic regression → GBM).
+    """
+    score = 0.50  # base score
+    factors = []
 
-### Demo Flow (5-7 phút)
+    # === CIC Score (strongest signal) ===
+    cic = app.get('cic_score', 0)
+    if cic >= 720:
+        score += 0.20
+        factors.append({"factor": "CIC score excellent", "value": cic, "impact": "+0.20", "direction": "positive"})
+    elif cic >= 650:
+        score += 0.10
+        factors.append({"factor": "CIC score adequate", "value": cic, "impact": "+0.10", "direction": "positive"})
+    elif cic >= 550:
+        pass  # neutral
+    elif cic > 0:
+        score -= 0.20
+        factors.append({"factor": "CIC score low", "value": cic, "impact": "-0.20", "direction": "negative"})
+    else:
+        score -= 0.10  # thin file
+        factors.append({"factor": "No CIC record (thin file)", "value": 0, "impact": "-0.10", "direction": "negative"})
 
+    # === DPD History ===
+    dpd = app.get('cic_max_dpd_12m', 0)
+    if dpd == 0:
+        score += 0.10
+        factors.append({"factor": "No payment delays", "value": dpd, "impact": "+0.10", "direction": "positive"})
+    elif dpd >= 90:
+        score -= 0.30
+        factors.append({"factor": "Severe payment delays (90+ days)", "value": dpd, "impact": "-0.30", "direction": "negative"})
+    elif dpd >= 30:
+        score -= 0.15
+        factors.append({"factor": "Payment delays in 12 months", "value": dpd, "impact": "-0.15", "direction": "negative"})
+
+    # === DTI ===
+    income = app.get('monthly_income', 1)
+    debt = app.get('cic_total_debt', 0)
+    dti = debt / max(income, 1) if income > 0 else 999
+    if dti < 0.30:
+        score += 0.10
+        factors.append({"factor": "Low debt-to-income ratio", "value": f"{dti:.0%}", "impact": "+0.10", "direction": "positive"})
+    elif dti > 0.50:
+        score -= 0.15
+        factors.append({"factor": "High debt-to-income ratio", "value": f"{dti:.0%}", "impact": "-0.15", "direction": "negative"})
+    elif dti > 0.40:
+        score -= 0.05
+        factors.append({"factor": "Borderline debt-to-income ratio", "value": f"{dti:.0%}", "impact": "-0.05", "direction": "negative"})
+
+    # === Employment ===
+    emp = app.get('employment_months', 0)
+    if emp >= 36:
+        score += 0.08
+        factors.append({"factor": "Long employment tenure", "value": f"{emp} months", "impact": "+0.08", "direction": "positive"})
+    elif emp >= 12:
+        score += 0.03
+    elif emp < 6:
+        score -= 0.10
+        factors.append({"factor": "Short employment tenure", "value": f"{emp} months", "impact": "-0.10", "direction": "negative"})
+
+    # === Income ===
+    if income >= 25_000_000:
+        score += 0.05
+    elif income < 10_000_000:
+        score -= 0.10
+        factors.append({"factor": "Income below minimum threshold", "value": f"{income:,} VND", "impact": "-0.10", "direction": "negative"})
+
+    # === Inquiries ===
+    inq = app.get('cic_inquiries_6m', 0)
+    if inq >= 4:
+        score -= 0.10
+        factors.append({"factor": "Multiple recent credit inquiries", "value": inq, "impact": "-0.10", "direction": "negative"})
+    elif inq >= 2:
+        score -= 0.03
+        factors.append({"factor": "Some recent credit inquiries", "value": inq, "impact": "-0.03", "direction": "negative"})
+
+    # === Existing Customer Bonus ===
+    if app.get('is_existing_customer', False):
+        score += 0.05
+        factors.append({"factor": "Existing Bank X customer", "value": "Yes", "impact": "+0.05", "direction": "positive"})
+
+    # Clamp to [0, 1]
+    final_score = max(0.0, min(1.0, round(score, 3)))
+
+    # Sort factors by absolute impact
+    factors.sort(key=lambda f: abs(float(f['impact'])), reverse=True)
+
+    # Top 3 risk + top 3 positive
+    risk_factors = [f for f in factors if f['direction'] == 'negative'][:3]
+    positive_factors = [f for f in factors if f['direction'] == 'positive'][:3]
+
+    # Confidence (simplified: based on data completeness)
+    data_fields = ['cic_score', 'monthly_income', 'employment_months', 'cic_max_dpd_12m', 'cic_total_debt']
+    filled = sum(1 for f in data_fields if app.get(f) is not None and app.get(f) != 0)
+    confidence = round(0.50 + (filled / len(data_fields)) * 0.45, 2)  # 0.50-0.95 range
+
+    return {
+        "risk_score": final_score,
+        "confidence": confidence,
+        "risk_factors": risk_factors,
+        "positive_factors": positive_factors,
+        "all_factors": factors,
+    }
 ```
-STEP 1: AI Scoring Result
-→ Risk Score: 0.52 (MEDIUM) [yellow gauge]
-→ Confidence: 72% [yellow bar]
-→ State: STANDARD REVIEW (State 2)
-→ AI Recommendation: REVIEW NEEDED
 
-STEP 2: Individual Review Screen (/review/[id])
-"Đây là screen CO dùng cho State 2 — full review."
+### 3.2 Fraud Score (Simplified Rule-based)
 
-Show 2-column layout:
-LEFT (AI Panel):
-├── Risk Score: 0.52 MEDIUM
-├── Confidence: 72%
-├── ⚠️ TOP 3 RISK:
-│   ❶ DTI 42% (borderline)
-│   ❷ Employment 8 tháng (short)
-│   ❸ 2 inquiries/6M (multiple recent)
-├── ✅ TOP 3 POSITIVE:
-│   ❶ CIC 650 (adequate)
-│   ❷ No DPD history
-│   ❸ eKYC verified
+```python
+def calculate_fraud_score(app: dict) -> dict:
+    """
+    Simplified fraud scoring for MVP.
+    Production: replace with ML fraud model.
+    """
+    fraud_score = 0.0
+    triggers = []
 
-RIGHT (Applicant Data):
-├── Demographics, income, employer
-├── CIC Report summary
-├── eKYC details
+    # eKYC face match
+    face_match = app.get('ekyc_face_match', 1.0)
+    if face_match < 0.70:
+        fraud_score += 0.35
+        triggers.append(f"Face match low ({face_match:.2f})")
+    elif face_match < 0.85:
+        fraud_score += 0.15
+        triggers.append(f"Face match borderline ({face_match:.2f})")
 
-→ "AI không nói 'reject' — AI nói 'review needed' và explain WHY.
-   CO thấy cả risk VÀ positive factors. CO quyết định."
+    # Application velocity (mock: random flag for demo)
+    velocity = app.get('application_velocity_24h', 1)
+    if velocity >= 3:
+        fraud_score += 0.25
+        triggers.append(f"Multiple applications ({velocity}/24h)")
 
-STEP 3: CO Decision — REJECT
-"Trong demo này, CO quyết định reject vì DTI 42% + employment 8 tháng."
+    # Income-profile mismatch
+    income = app.get('monthly_income', 0)
+    cic_score = app.get('cic_score', 0)
+    if income > 20_000_000 and cic_score == 0:  # high income + thin file
+        fraud_score += 0.15
+        triggers.append("High income with no credit history")
 
-→ Click "REJECT"
-→ System tự động generate adverse action notice
+    # Employer unverifiable (mock)
+    if app.get('employer_unverifiable', False):
+        fraud_score += 0.15
+        triggers.append("Employer not found in business registry")
 
-STEP 4: Adverse Action Notice
-"Khi reject, hệ thống tự động tạo thông báo cho khách."
+    fraud_score = min(1.0, round(fraud_score, 3))
 
-Show notice:
-├── "CHƯA ĐÁP ỨNG ĐIỀU KIỆN PHÁT HÀNH THẺ"
-├── Lý do:
-│   ① Tỷ lệ nghĩa vụ nợ hiện tại so với thu nhập vượt mức cho phép
-│   ② Thời gian làm việc tại đơn vị hiện tại chưa đủ yêu cầu
-│   ③ Số lượng yêu cầu vay vốn gần đây cao bất thường
-├── Quyền của khách: CIC check, human review, khiếu nại, apply lại
-├── "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
-└── Hotline + email khiếu nại
-
-→ "3 lý do plain language — không phải 'không đủ điều kiện' chung chung.
-   Khách hiểu tại sao bị từ chối. Comply NĐ 356 + Luật AI 134/2025."
+    return {
+        "fraud_score": fraud_score,
+        "fraud_triggers": triggers,
+        "fraud_level": "HIGH" if fraud_score >= 0.70 else "ELEVATED" if fraud_score >= 0.40 else "CLEAR",
+    }
 ```
 
-### Key Message
+### 3.3 State Routing
 
-```
-"AI explain WHY → CO quyết định informed hơn → khách hiểu tại sao bị từ chối.
-Trước đây: CO check 10+ fields, 35 phút, lý do reject = 'không đủ điều kiện'.
-Bây giờ: AI highlight top 3 risk + top 3 positive, CO focus review, adverse action tự động."
+```python
+def route_to_state(risk_score, fraud_score, confidence, opt_out_ai=False) -> str:
+    """
+    Route application to decision state based on thresholds.
+    Thresholds from threshold-framework.md.
+    """
+    TH_HIGH = 0.75
+    TH_LOW = 0.35
+    TH_FRAUD_ELEVATED = 0.40
+    TH_CONFIDENCE = 0.60
+    DEAD_ZONE = 0.02
+
+    # Opt-out → State 2 (manual)
+    if opt_out_ai:
+        return "STATE_2"
+
+    # Fraud check first (overrides credit routing)
+    if fraud_score >= TH_FRAUD_ELEVATED:
+        return "STATE_3"
+
+    # Low confidence → escalate
+    if confidence < TH_CONFIDENCE:
+        return "STATE_4"
+
+    # Dead zone → escalate
+    if abs(risk_score - TH_HIGH) <= DEAD_ZONE:
+        return "STATE_4"
+
+    # High score → batch approve
+    if risk_score >= TH_HIGH and confidence >= 0.85:
+        return "STATE_1"
+
+    # Below TH_LOW → lean reject in State 2
+    # Between TH_LOW and TH_HIGH → standard review
+    return "STATE_2"
 ```
 
 ---
 
-## 3. SCENARIO C — FRAUD DETECTION (State 3)
+## 4. PAGES TO BUILD
 
-### Setup
+### 4.1 `/apply` — Application Input Form
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Trần Văn Cường | Synthetic |
-| CCCD | SYN-036111222 | Synthetic |
-| Age | 28 | Young |
-| Income | 30M/tháng | Suspiciously high for profile |
-| Employer | "Tập đoàn XYZ" | Unverifiable |
-| Employment | 24 tháng | Claims 2 years |
-| eKYC | Face match: 0.58 (LOW) | Possible identity fraud |
-| Velocity | 3 applications same device/24h | Fraud signal |
-| CIC | No record (thin file) | No credit history |
-
-### Demo Flow (5-7 phút)
-
-```
-STEP 1: AI Scoring Result
-→ Risk Score: 0.38 (HIGH RISK) [red gauge]
-→ Fraud Score: 0.71 (ELEVATED) [red alert]
-→ State: PRIORITY FRAUD REVIEW (State 3) [red badge]
-→ 🔴 FRAUD SIGNAL DETECTED banner
-
-STEP 2: Fraud Review Screen
-"State 3 = priority fraud review. Fraud analyst hoặc Senior CO xử lý."
-
-Show fraud-specific UI:
-├── 🔴 FRAUD SIGNALS DETECTED
-│   ├── Face match score: 0.58 (below 0.80 threshold)
-│   ├── Application velocity: 3 apps / same device / 24h
-│   ├── Employer: không tìm thấy trong ĐKKD
-│   └── Income: 30M mâu thuẫn với thin file (no CIC record)
-├── Recommended action: Enhanced Due Diligence
-└── EDD Checklist available
-
-→ "AI phát hiện 4 fraud signals mà process hiện tại có thể miss.
-   eKYC chỉ cho pass/fail — AI cross-check nhiều signals."
-
-STEP 3: Decision — REJECT (Fraud)
-→ Click "REJECT — Fraud Confirmed"
-→ Audit log: fraud_decision = true
-→ SIMO report flag = filed
-→ Internal blacklist updated
-
-STEP 4: Adverse Action (Fraud template)
-Show fraud template:
-├── "Không thể hoàn tất xác minh thông tin cá nhân theo quy định"
-├── KHÔNG nêu chi tiết fraud signals
-└── Hướng khách đến branch nếu muốn re-verify
-
-→ "Lưu ý: thông báo cho khách KHÔNG nêu 'nghi ngờ gian lận'.
-   Chỉ nói 'không thể xác minh'. Bảo vệ bank khỏi defamation risk
-   VÀ không giúp fraudster biết bị phát hiện bằng cách nào."
-```
-
-### Key Message
-
-```
-"Hiện tại Bank X chỉ có eKYC pass/fail — không có fraud scoring layer.
-AI-CRDS thêm multi-signal fraud detection:
-- Face match anomaly
-- Application velocity
-- Employer verification
-- Income-profile mismatch
-
-Fraud rate ~0.8% × 3,000 apps = 24 fraud cases/tháng × 50M = 14.4 tỷ/năm.
-AI catch thêm 30% → save 4.32 tỷ/năm."
-```
-
----
-
-## 4. CLOSING (2 phút)
-
-```
-"Tóm tắt 3 scenarios:
-
-A. Hồ sơ tốt → 35 phút manual → 3-5 phút batch = TIẾT KIỆM 85% THỜI GIAN
-B. Hồ sơ borderline → AI explain → CO review informed → adverse action tự động
-C. Fraud → AI detect multi-signal → catch tại origination, TRƯỚC KHI card phát hành
-
-Tất cả: CO vẫn ký quyết định cuối cùng.
-Tất cả: Audit trail 24 fields, SBV ready.
-Tất cả: AI label display (Luật AI 134/2025).
-Tất cả: Data 100% synthetic — MVP demo only.
-
-Next step: Week 13 — usability test với Credit Officers.
-Xin mọi người thử dùng và cho feedback."
-```
-
----
-
-## 5. FAQ — Prepare for Q&A
-
-| # | Likely question | Answer |
-|---|----------------|--------|
-| 1 | "AI score dựa trên cái gì?" | "MVP dùng rule-based scoring (CIC score, DTI, employment, DPD). Production sẽ dùng ML model (logistic regression → gradient boosting) trained trên real data." |
-| 2 | "Accuracy bao nhiêu?" | "MVP trên synthetic data — accuracy chưa meaningful. Shadow testing trên real data (Phase 0, 4 tuần) sẽ cho con số thật. Mục tiêu: AI agree với CO ≥70%." |
-| 3 | "Nếu AI sai thì sao?" | "CO luôn có quyền override. Override logged + tracked. Nếu AI consistently sai → model retrain. Guardrail: NPL +200bps → emergency stop." |
-| 4 | "CO có bị thay thế không?" | "Không. CO ký mọi quyết định. AI xử lý routine (batch), CO xử lý complex. CO expertise MORE valuable — focus vào cases khó." |
-| 5 | "Khi nào dùng real data?" | "Sau khi: (1) Phase 0 approved, (2) DPIA submitted, (3) IT integration done. Ước tính: shadow testing Week 37 (nếu Phase 0 approved Week 16)." |
-| 6 | "Budget bao nhiêu?" | "Phase 0: 365M, 8 tuần. Chi tiết trong proposal file 06-implementation-roadmap.md." |
-| 7 | "Tại sao không mua vendor?" | "In-house: IP 100% Bank X, chi phí 3 năm thấp hơn 40-50%, regulatory fit cho VN, tận dụng CBS/CIC data nội bộ." |
-
----
-
-## 6. CONTINGENCY — Nếu Live Demo Fail
-
-| Problem | Backup |
+| Element | Detail |
 |---------|--------|
-| System down | Switch to screenshot deck (pre-captured for all 3 scenarios) |
-| Scoring engine error | Show hardcoded results (pre-populated test data) |
-| UI broken | Walk through wireframe mockups (ux-wireframes-notes.md) |
-| Data not loading | Demo with 1 pre-loaded record per scenario |
-| Projector issue | Share screen via Zoom/Teams (have link ready) |
+| **Fields** | name, CCCD (SYN prefix), DOB, gender, province, monthly_income, employer_name, employer_type (dropdown: SOE/FDI/PRIVATE/SME), employment_months |
+| **Mock fields** | CIC data (auto-populated from synthetic dataset or random generation), eKYC result (auto pass/configurable fail) |
+| **Submit** | → call scoring engine → save to `applications` + `decisions` → redirect to score page |
+| **Watermark** | "SYNTHETIC DATA — DEMO ONLY" on all screens |
 
-**Rule: Nếu live demo fail > 2 phút → switch to backup. Không debug on stage.**
+### 4.2 `/score/[id]` — AI Scoring Result
+
+| Element | Detail |
+|---------|--------|
+| **Risk score** | Gauge chart (0-1.0). Color: green (<0.35 risk) / yellow (0.35-0.75) / red (>0.75) |
+| **Confidence** | Progress bar with percentage |
+| **Fraud score** | Badge: CLEAR (green) / ELEVATED (orange) / HIGH (red) |
+| **State badge** | STATE_1 (blue) / STATE_2 (yellow) / STATE_3 (red) / STATE_4 (purple) / STATE_5 (gray) |
+| **Explanation** | Top 3 risk + Top 3 positive factors (cards/chips) |
+| **AI label** | "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo" — light blue banner, persistent |
+| **Action** | "Go to Review" button → routes to appropriate review screen |
+
+### 4.3 `/review/batch` — Batch Review Queue (State 1)
+
+| Element | Detail |
+|---------|--------|
+| **Table** | Sortable: name, score, confidence, top factor, suggested limit |
+| **Selection** | Checkbox per row. NO "select all." Max 10 per confirm. |
+| **Expand** | Click row → inline detail (demographics + CIC + AI explanation) |
+| **Actions** | "Confirm Selected" / "Override Selected" / "Move to Review" |
+| **Counter** | "Selected: X/Y" + "Max batch: 10" |
+| **AI label** | Top of page, persistent |
+
+### 4.4 `/review/[id]` — Individual Review (State 2/3/4)
+
+| Element | Detail |
+|---------|--------|
+| **Layout** | 2-column: AI panel (left) + Applicant data (right) |
+| **AI panel** | Score + confidence + fraud + recommendation + top 3 risk + top 3 positive |
+| **Data panel** | Demographics, CIC summary, eKYC status, income details |
+| **SLA bar** | Progress bar: "4h/8h remaining" (State 2) |
+| **CO notes** | Free text area (optional, saved with decision) |
+| **Actions** | 4 buttons: APPROVE (+ limit dropdown) / REJECT / ESCALATE / NEED MORE INFO |
+| **AI label** | Persistent top banner |
+
+### 4.5 `/override/[id]` — Override Flow (Modal)
+
+| Element | Detail |
+|---------|--------|
+| **Trigger** | When CO action contradicts AI recommendation |
+| **Header** | "Override: [ACTION] — AI recommended [RECOMMENDATION]" |
+| **Reason dropdown** | 7 categories (REL/INC/EMP/TMP/ERR/POL/OTH) |
+| **Free text** | Required, min 20 chars, character counter |
+| **Supervisor flag** | Auto-checked if: approve-when-AI-says-reject OR limit > threshold |
+| **Note** | "Override sẽ được log trong audit trail" |
+| **Buttons** | Cancel / Submit Override |
+
+### 4.6 `/audit` — Audit Log Viewer
+
+| Element | Detail |
+|---------|--------|
+| **Table** | All decisions, paginated (20/page) |
+| **Columns** | decision_id, application_id, ai_score, human_decision, state, co_id, override_flag, timestamp |
+| **Filters** | Date range, state, CO, decision type (approve/reject), override only |
+| **Detail** | Click row → full 28-field record view |
+| **Export** | "Export CSV" button (for demo reporting) |
+
+---
+
+## 5. STYLING & UX
+
+| Element | Spec |
+|---------|------|
+| **Theme** | Dark tech aesthetic (bg: #0A0A0A, surface: #1A1A1A, border: #2A2A2A) |
+| **Accent** | Blue (#3B82F6) for primary actions. Red (#EF4444) for alerts/reject. Green (#22C55E) for approve. |
+| **Font** | Inter (body), JetBrains Mono (scores/numbers) |
+| **AI label** | Light blue banner (#DBEAFE bg, #1D4ED8 text), not dismissible |
+| **Watermark** | "SYNTHETIC DATA — DEMO ONLY" — semi-transparent, top-right corner, every page |
+| **Risk colors** | Low risk: green. Medium: yellow/amber. High: red. Matches ux-wireframes-notes.md. |
+
+---
+
+## 6. BUILD TIMELINE
+
+| Day | Task | Deliverable |
+|-----|------|------------|
+| **1** | Database schema + Supabase setup. Load 10K synthetic data. | Tables created, data loaded |
+| **2** | Scoring engine (risk + fraud + routing). Unit tests for 3 scenarios. | Scoring returns correct results |
+| **3** | `/apply` form + `/score/[id]` result page. | Application → score flow works |
+| **4** | `/review/batch` + `/review/[id]` screens. | CO review UIs functional |
+| **5** | `/override/[id]` modal + audit log write. | Override flow + audit trail |
+| **6** | `/audit` viewer + adverse action generation. AI label everywhere. | Full end-to-end flow |
+| **7** | End-to-end test (3 scenarios). Screenshots. Demo rehearsal. | Demo-ready MVP |
+
+---
+
+## 7. TEST SCENARIOS — Must Pass
+
+| # | Scenario | Input | Expected output | Pass? |
+|---|---------|-------|-----------------|-------|
+| 1 | High-score → State 1 | CIC 740, DTI 22%, 36M employment, eKYC pass | Score ≥0.75, confidence ≥0.85, State 1 | ❓ |
+| 2 | Borderline → State 2 | CIC 650, DTI 42%, 8M employment | Score 0.45-0.70, State 2 | ❓ |
+| 3 | Fraud signals → State 3 | Face match 0.58, velocity 3, thin file, income 30M | Fraud score ≥0.40, State 3 | ❓ |
+| 4 | Low confidence → State 4 | CIC 0 (thin file), income 12M, 3M employment | Confidence <0.60, State 4 | ❓ |
+| 5 | Override approve→reject | State 1 app, CO clicks Reject | Override pop-up, reason required, audit logged | ❓ |
+| 6 | Adverse action generation | State 2 reject | Notice with top 3 reasons + AI label + rights | ❓ |
+| 7 | Audit completeness | Any decision | 28 fields in audit_log, hash correct | ❓ |
+| 8 | Batch confirm | Select 5 from State 1 queue | 5 records updated, audit logged × 5 | ❓ |
 
 ---
 
 ## Tracking
 
-- [ ] 3 test applications pre-created?
-- [ ] Scoring engine returns correct scores for 3 scenarios?
-- [ ] Audit log ghi đủ 24+ fields?
-- [ ] AI label visible on every screen?
-- [ ] Adverse action notice generates correctly?
+- [ ] Supabase project created?
+- [ ] Synthetic data (10K) loaded into Supabase?
+- [ ] Scoring engine passes 8 test scenarios?
+- [ ] All 6 pages functional?
+- [ ] AI label visible on EVERY screen?
+- [ ] "SYNTHETIC DATA" watermark on every page?
+- [ ] Audit log writes 28 fields per decision?
+- [ ] Adverse action notice generates with top 3 reasons?
+- [ ] Demo 3 scenarios end-to-end without errors?
 - [ ] Backup screenshots captured?
-- [ ] FAQ answers rehearsed?
-- [ ] Demo time ≤ 20 phút (timed)?
+
+---
+
+## Ghi Chú
+
+1. **MVP scoring = rule-based, NOT ML.** Production sẽ dùng logistic regression → gradient boosting trained trên real data. Rule-based MVP demonstrates concept + routing logic.
+2. **"SYNTHETIC DATA — DEMO ONLY" watermark = mandatory.** PDPD violation nếu ai tưởng nhầm là real data.
+3. **End-to-end flow > feature completeness.** Demo phải chạy từ đầu đến cuối. Từng feature có thể rough. Flow phải smooth.
+4. **Cross-reference:** feature-availability-matrix.md (fields), threshold-framework.md (thresholds), ux-wireframes-notes.md (screen design), audit-log-schema.md (28 fields), adverse-action-template.md (notice templates), demo-script.md (3 scenarios).
