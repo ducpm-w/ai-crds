@@ -8,36 +8,14 @@ import { getApplication, getDecision } from '../lib/db.js';
 const STATE_META = {
   STATE_1:{ label:'BATCH REVIEW',         sub:'Hàng đợi xét duyệt lô',            color:'#22C55E', bg:'rgba(34,197,94,0.08)',  border:'rgba(34,197,94,0.25)' },
   STATE_2:{ label:'STANDARD REVIEW',      sub:'Xét duyệt cá nhân',                color:'#3B82F6', bg:'rgba(59,130,246,0.08)', border:'rgba(59,130,246,0.25)' },
-  STATE_3:{ label:'PRIORITY FRAUD REVIEW',sub:'Ưu tiên xem xét gian lận',         color:'#EF4444', bg:'rgba(239,68,68,0.08)',  border:'rgba(239,68,68,0.25)' },
+  STATE_3:{ label:'PRIORITY FRAUD REVIEW',sub:'Ưu tiên xem xét gian lận',         color:'#E8001D', bg:'rgba(232,0,29,0.08)',  border:'rgba(232,0,29,0.25)' },
   STATE_4:{ label:'ESCALATE',             sub:'Cần leo thang — độ tin cậy thấp',  color:'#F59E0B', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.25)' },
-  STATE_5:{ label:'MANUAL REVIEW',        sub:'Xử lý thủ công (khách từ chối AI)',color:'#888',    bg:'rgba(136,136,136,0.08)',border:'rgba(136,136,136,0.25)' },
+  STATE_5:{ label:'MANUAL REVIEW',        sub:'Xử lý thủ công (khách từ chối AI)',color:'#8A8680', bg:'rgba(138,134,128,0.08)',border:'rgba(138,134,128,0.25)' },
 };
 const FRAUD_META = {
   CLEAR:   { color:'#22C55E', bg:'rgba(34,197,94,0.08)',  border:'rgba(34,197,94,0.25)' },
   ELEVATED:{ color:'#F59E0B', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.25)' },
-  HIGH:    { color:'#EF4444', bg:'rgba(239,68,68,0.08)',  border:'rgba(239,68,68,0.25)' },
-};
-
-const F = {
-  page:{ minHeight:'100vh', background:'#0A0A0A', color:'#E8E8E8', fontFamily:"'DM Sans',sans-serif" },
-  nav:{ background:'#111', borderBottom:'1px solid #1E1E1E', padding:'0 28px', height:52,
-    display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 },
-  brand:{ color:'#E8001D', fontWeight:800, fontSize:15, cursor:'pointer', fontFamily:"'Sora',sans-serif", background:'none', border:'none' },
-  btn:{ background:'none', border:'none', color:'#555', fontSize:13, cursor:'pointer', padding:'5px 10px', fontFamily:"'DM Sans',sans-serif" },
-  wrap:{ maxWidth:820, margin:'0 auto', padding:'24px 20px 60px' },
-  card:{ background:'#111', border:'1px solid #1E1E1E', borderRadius:10, padding:'20px 22px', marginBottom:14 },
-  sec:{ fontSize:10, fontWeight:700, color:'#555', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:12, fontFamily:"'Sora',sans-serif" },
-  badge:(m)=>({ display:'inline-flex', alignItems:'center', gap:6, background:m.bg, border:`1px solid ${m.border}`, borderRadius:6, padding:'6px 12px', marginBottom:7 }),
-  bar:{ background:'#1A1A1A', borderRadius:99, height:7, overflow:'hidden', marginTop:5 },
-  factor:(r)=>({ padding:'7px 10px', background:r?'rgba(239,68,68,0.07)':'rgba(34,197,94,0.07)',
-    border:`1px solid ${r?'rgba(239,68,68,0.15)':'rgba(34,197,94,0.15)'}`,
-    borderRadius:5, marginBottom:5, fontSize:12, color:r?'#FCA5A5':'#86EFAC' }),
-  signal:{ padding:'7px 10px', background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.18)',
-    borderRadius:5, marginBottom:5, fontSize:12, color:'#FCA5A5', display:'flex', alignItems:'center', gap:7 },
-  cta:{ display:'flex', gap:10, marginTop:22 },
-  ctaBtn:(c)=>({ flex:1, padding:'11px 16px', borderRadius:7, border:'none', cursor:'pointer',
-    fontSize:13, fontWeight:700, fontFamily:"'DM Sans',sans-serif",
-    background:c, color:c==='#1A1A1A'?'#555':'#fff' }),
+  HIGH:    { color:'#E8001D', bg:'rgba(232,0,29,0.08)',  border:'rgba(232,0,29,0.25)' },
 };
 
 export default function ScorePage() {
@@ -49,7 +27,8 @@ export default function ScorePage() {
   useEffect(()=>{ setApp(getApplication(id)); setDec(getDecision(id)); },[id]);
 
   if (!app || !dec) return (
-    <div style={{...F.page, display:'flex', alignItems:'center', justifyContent:'center', color:'#555'}}>
+    <div className="sp-page" style={{display:'flex', alignItems:'center', justifyContent:'center', color:'#555'}}>
+      <style>{STYLES}</style>
       Không tìm thấy hồ sơ.{' '}
       <button style={{marginLeft:10, color:'#3B82F6', background:'none', border:'none', cursor:'pointer'}} onClick={()=>nav('/apply')}>← Tạo mới</button>
     </div>
@@ -61,27 +40,40 @@ export default function ScorePage() {
   const isFraud = dec.state_routed === 'STATE_3';
 
   return (
-    <div style={F.page}>
-      <nav style={F.nav}>
-        <button style={F.brand} onClick={()=>nav('/')}>AI-CRDS</button>
-        <div>
-          <button style={F.btn} onClick={()=>nav('/apply')}>Hồ sơ mới</button>
-          <button style={F.btn} onClick={()=>nav('/review/batch')}>Batch</button>
-          <button style={F.btn} onClick={()=>nav('/audit')}>Audit</button>
+    <div className="sp-page">
+      <style>{STYLES}</style>
+      
+      <nav className="nav">
+        <button onClick={() => nav("/")} className="brand">
+          <div className="brand-mark">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <span className="brand-name">AI–CRDS</span>
+          <span className="brand-tag">BANK X · INTERNAL</span>
+        </button>
+        <div className="nav-right">
+          <button className="nav-link" onClick={()=>nav('/apply')}>Hồ sơ mới</button>
+          <button className="nav-link" onClick={()=>nav('/review/batch')}>Batch</button>
+          <button className="nav-link" onClick={()=>nav('/audit')}>Audit</button>
         </div>
       </nav>
+
       <AILabel />
       <DemoWatermark />
 
-      <div style={F.wrap}>
+      <div className="sp-wrap">
         {/* App header */}
-        <div style={F.card}>
+        <div className="sp-card sp-header-card">
+          <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+          <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
             <div>
-              <div style={{fontSize:18, fontWeight:700, color:'#E8E8E8', fontFamily:"'Sora',sans-serif"}}>{app.full_name}</div>
-              <div style={{fontSize:11, color:'#444', fontFamily:"'JetBrains Mono',monospace", marginTop:2}}>CCCD: {app.cccd} · ID: {id.slice(0,8)}...</div>
+              <div className="sp-name">{app.full_name}</div>
+              <div className="sp-ident">CCCD: {app.cccd} · ID: {id.slice(0,8)}...</div>
             </div>
-            <div style={{fontSize:11, color:'#333', fontFamily:"'JetBrains Mono',monospace", textAlign:'right'}}>
+            <div className="sp-meta-info">
               <div>{dec.model_version}</div><div>{dec.threshold_version}</div>
             </div>
           </div>
@@ -89,58 +81,57 @@ export default function ScorePage() {
 
         {/* Fraud banner */}
         {isFraud && (
-          <div style={{background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.35)', borderRadius:8,
-            padding:'11px 16px', marginBottom:14, display:'flex', alignItems:'center', gap:9}}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2">
+          <div className="sp-fraud-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8001D" strokeWidth="2">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span style={{fontSize:13, color:'#FCA5A5', fontWeight:600}}>🔴 TÍN HIỆU GIAN LẬN PHÁT HIỆN — Phân tuyến ưu tiên xem xét</span>
+            <span>🔴 TÍN HIỆU GIAN LẬN PHÁT HIỆN — Phân tuyến ưu tiên xem xét</span>
           </div>
         )}
 
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14}}>
+        <div className="sp-g2">
           {/* Left */}
-          <div style={F.card}>
-            <div style={F.sec}>Điểm tín dụng AI</div>
-            <GaugeChart value={dec.final_score} size={192} />
+          <div className="sp-card">
+            <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+            <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+            <div className="sp-sec">Điểm tín dụng AI</div>
+            <GaugeChart value={dec.final_score} size={220} />
 
             <div style={{marginTop:12}}>
               {/* State badge */}
-              <div style={F.badge(sm)}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:sm.color,display:'inline-block',flexShrink:0}}/>
+              <div className="sp-badge" style={{background:sm.bg, border:`1px solid ${sm.border}`}}>
+                <span className="badge-dot" style={{background:sm.color}}/>
                 <div>
-                  <span style={{fontSize:12,fontWeight:800,color:sm.color,fontFamily:"'JetBrains Mono',monospace"}}>{sm.label}</span>
-                  <span style={{fontSize:11,color:'#555',display:'block'}}>{sm.sub}</span>
+                  <span className="badge-title" style={{color:sm.color}}>{sm.label}</span>
+                  <span className="badge-sub">{sm.sub}</span>
                 </div>
               </div>
               {/* Fraud badge */}
-              <div style={F.badge(fm)}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:fm.color,display:'inline-block',flexShrink:0}}/>
+              <div className="sp-badge" style={{background:fm.bg, border:`1px solid ${fm.border}`}}>
+                <span className="badge-dot" style={{background:fm.color}}/>
                 <div>
-                  <span style={{fontSize:12,fontWeight:800,color:fm.color,fontFamily:"'JetBrains Mono',monospace"}}>FRAUD: {dec.fraud_level}</span>
-                  <span style={{fontSize:11,color:'#555',display:'block'}}>Score: {Math.round(dec.fraud_score*100)}/100</span>
+                  <span className="badge-title" style={{color:fm.color}}>FRAUD: {dec.fraud_level}</span>
+                  <span className="badge-sub">Score: {Math.round(dec.fraud_score*100)}/100</span>
                 </div>
               </div>
 
               {/* Confidence */}
-              <div style={{marginTop:10}}>
-                <div style={{display:'flex', justifyContent:'space-between', fontSize:12, color:'#555', marginBottom:3}}>
-                  <span>Độ tin cậy</span>
-                  <span style={{color:'#E8E8E8', fontFamily:"'JetBrains Mono',monospace"}}>{conf}%</span>
+              <div style={{marginTop:18}}>
+                <div style={{display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--mute)', marginBottom:6}}>
+                  <span style={{fontWeight:500}}>Độ tin cậy</span>
+                  <span style={{color:'var(--ink)', fontFamily:"var(--f-mono)", fontWeight:600}}>{conf}%</span>
                 </div>
-                <div style={F.bar}>
-                  <div style={{height:'100%', borderRadius:99,
-                    width:`${conf}%`, background:conf>=85?'#22C55E':conf>=60?'#F59E0B':'#EF4444'}} />
+                <div className="sp-bar-track">
+                  <div className="sp-bar-fill" style={{
+                    width:`${conf}%`, background:conf>=85?'#22C55E':conf>=60?'#F59E0B':'#E8001D'}} />
                 </div>
               </div>
 
               {dec.suggested_limit > 0 && (
-                <div style={{marginTop:10, padding:'8px 11px', background:'#1A1A1A', border:'1px solid #222', borderRadius:6}}>
-                  <div style={{fontSize:10,color:'#444',marginBottom:2}}>Hạn mức đề xuất</div>
-                  <div style={{fontSize:15,fontWeight:700,color:'#E8E8E8',fontFamily:"'JetBrains Mono',monospace"}}>
-                    {(dec.suggested_limit/1e6).toFixed(0)}M VND
-                  </div>
+                <div className="sp-limit-box">
+                  <div className="limit-lbl">Hạn mức đề xuất</div>
+                  <div className="limit-val">{(dec.suggested_limit/1e6).toFixed(0)}M VND</div>
                 </div>
               )}
             </div>
@@ -148,29 +139,34 @@ export default function ScorePage() {
 
           {/* Right — factors */}
           <div>
-            <div style={F.card}>
-              <div style={F.sec}>✅ Yếu tố tích cực</div>
+            <div className="sp-card" style={{marginBottom:14}}>
+              <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+              <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+              <div className="sp-sec">✅ Yếu tố tích cực</div>
               {(dec.positive_factors??[]).length===0
-                ? <div style={{fontSize:12,color:'#444'}}>Không có yếu tố tích cực đáng kể</div>
-                : (dec.positive_factors??[]).map((f,i)=><div key={i} style={F.factor(false)}>✓ {f.label}</div>)
+                ? <div style={{fontSize:13,color:'var(--mute)'}}>Không có yếu tố tích cực đáng kể</div>
+                : (dec.positive_factors??[]).map((f,i)=><div key={i} className="factor f-pos">✓ {f.label}</div>)
               }
             </div>
-            <div style={F.card}>
-              <div style={F.sec}>⚠️ Yếu tố rủi ro</div>
+            
+            <div className="sp-card" style={{marginBottom: (dec.signals??[]).length > 0 ? 14 : 0}}>
+              <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+              <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+              <div className="sp-sec">⚠️ Yếu tố rủi ro</div>
               {(dec.risk_factors??[]).length===0
-                ? <div style={{fontSize:12,color:'#444'}}>Không có yếu tố rủi ro đáng kể</div>
-                : (dec.risk_factors??[]).map((f,i)=><div key={i} style={F.factor(true)}>! {f.label}</div>)
+                ? <div style={{fontSize:13,color:'var(--mute)'}}>Không có yếu tố rủi ro đáng kể</div>
+                : (dec.risk_factors??[]).map((f,i)=><div key={i} className="factor f-neg">! {f.label}</div>)
               }
             </div>
+
             {(dec.signals??[]).length > 0 && (
-              <div style={F.card}>
-                <div style={F.sec}>🔴 Tín hiệu gian lận</div>
+              <div className="sp-card">
+                <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+                <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+                <div className="sp-sec">🔴 Tín hiệu gian lận</div>
                 {dec.signals.map((s,i)=>(
-                  <div key={i} style={F.signal}>
-                    <span style={{background:s.severity==='HIGH'?'#7F1D1D':'#78350F',
-                      color:s.severity==='HIGH'?'#FCA5A5':'#FDE68A',
-                      fontSize:9,fontWeight:700,padding:'2px 5px',borderRadius:2,
-                      fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>{s.severity}</span>
+                  <div key={i} className="signal">
+                    <span className={`sig-badge ${s.severity}`}>{s.severity}</span>
                     {s.label}
                   </div>
                 ))}
@@ -180,21 +176,138 @@ export default function ScorePage() {
         </div>
 
         {/* CTA */}
-        <div style={F.cta}>
-          <button style={F.ctaBtn('#1A1A1A')} onClick={()=>nav('/apply')}>← Hồ sơ mới</button>
-          <button style={{...F.ctaBtn(sm.color), flex:2}} onClick={()=>{
+        <div className="sp-cta">
+          <button className="btn-ghost btn-lg" onClick={()=>nav('/apply')}>← Hồ sơ mới</button>
+          
+          <button className="btn-primary btn-lg sp-main-cta" onClick={()=>{
             if (dec.state_routed==='STATE_1') nav('/review/batch');
             else nav(`/review/${id}`);
-          }}>
-            {dec.state_routed==='STATE_1' && '→ Xem hàng đợi Batch'}
-            {dec.state_routed==='STATE_2' && '→ Xét duyệt chi tiết'}
-            {dec.state_routed==='STATE_3' && '🔴 → Xem xét ưu tiên Fraud'}
-            {dec.state_routed==='STATE_4' && '→ Escalate hồ sơ'}
-            {dec.state_routed==='STATE_5' && '→ Xử lý thủ công'}
+          }} style={{ background:sm.color, borderColor:sm.color, flex:2 }}>
+            <span style={{color: sm.color === '#22C55E' ? '#fff' : '#fff'}}>{
+              dec.state_routed==='STATE_1' ? '→ Xem hàng đợi Batch' :
+              dec.state_routed==='STATE_2' ? '→ Xét duyệt chi tiết' :
+              dec.state_routed==='STATE_3' ? '🔴 → Xem xét ưu tiên Fraud' :
+              dec.state_routed==='STATE_4' ? '→ Escalate hồ sơ' : '→ Xử lý thủ công'
+            }</span>
+            <span className="btn-arrow" style={{marginLeft:12}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></svg>
+            </span>
           </button>
-          <button style={F.ctaBtn('#1A1A1A')} onClick={()=>nav('/audit')}>Audit Log</button>
+          
+          <button className="btn-ghost btn-lg" onClick={()=>nav('/audit')}>Audit Log</button>
         </div>
       </div>
     </div>
   );
 }
+
+const STYLES = `
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --ink:      #0A0A0A;
+  --ink-2:    #2A2A2A;
+  --mute:     #8A8680;
+  --mute-2:   #B6B2AA;
+  --line:     #E4E2DC;
+  --line-2:   #EFEDE6;
+  --canvas:   #FAFAF7;
+  --canvas-2: #F3F1EA;
+  --signal:   #E8001D;
+  --f-sans:   'Geist', system-ui, -apple-system, sans-serif;
+  --f-serif:  'Instrument Serif', 'Times New Roman', serif;
+  --f-mono:   'JetBrains Mono', ui-monospace, monospace;
+}
+
+.sp-page {
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  z-index: 2;
+}
+
+.sp-page::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.5; mix-blend-mode: multiply;
+}
+
+/* ───────── NAV ───────── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,250,247,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  padding: 0 40px; height: 64px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.brand { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 0; }
+.brand-mark { width: 26px; height: 26px; background: var(--signal); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+.brand-name { font-family: var(--f-serif); font-style: italic; font-size: 22px; color: var(--ink); letter-spacing: -0.5px; line-height: 1; }
+.brand-tag { font-family: var(--f-mono); font-size: 9.5px; font-weight: 500; color: var(--mute); letter-spacing: 0.12em; padding-left: 10px; border-left: 1px solid var(--line); }
+.nav-right { display: flex; gap: 8px; }
+.nav-link { background: none; border: none; cursor: pointer; font-family: var(--f-sans); font-size: 13px; color: var(--mute); font-weight: 500; padding: 8px 14px; border-radius: 4px; transition: color .2s; }
+.nav-link:hover { color: var(--ink); }
+
+/* ───────── CONTENT ───────── */
+.sp-wrap { max-width: 900px; margin: 0 auto; padding: 40px 32px 100px; }
+
+.sp-card { background: #fff; border: 1px solid var(--line); padding: 28px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.015); }
+.sp-header-card { padding: 20px 28px; margin-bottom: 20px; }
+
+.sp-corner { position: absolute; width: 6px; height: 6px; border: 1px solid var(--ink); opacity: 0.2; }
+.sp-corner.ct-tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.sp-corner.ct-tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.sp-corner.ct-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.sp-corner.ct-br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.sp-name { font-family: var(--f-serif); font-style: italic; font-size: 28px; font-weight: 400; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.02em; }
+.sp-ident { font-family: var(--f-mono); font-size: 11px; color: var(--mute); letter-spacing: 0.05em; }
+.sp-meta-info { font-family: var(--f-mono); font-size: 10px; color: var(--mute-2); text-align: right; letter-spacing: 0.1em; line-height: 1.6; }
+
+.sp-sec { font-family: var(--f-mono); font-size: 11.5px; font-weight: 600; color: var(--signal); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
+
+.sp-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* Badges */
+.sp-badge { display: inline-flex; alignItems: center; gap: 8px; border-radius: 6px; padding: 8px 14px; margin-bottom: 8px; width: 100%; align-items: center; }
+.badge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.badge-title { font-family: var(--f-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; display: block; margin-bottom: 2px; }
+.badge-sub { font-size: 12.5px; color: var(--ink-2); display: block; }
+
+/* Progress bar */
+.sp-bar-track { background: var(--line); border-radius: 99px; height: 6px; overflow: hidden; }
+.sp-bar-fill { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(.2,.7,.2,1); }
+
+.sp-limit-box { margin-top: 20px; padding: 14px 18px; background: var(--canvas-2); border: 1px solid var(--line); border-radius: 6px; }
+.limit-lbl { font-size: 11px; color: var(--mute); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+.limit-val { font-family: var(--f-mono); font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+
+/* Factors */
+.factor { padding: 9px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 13.5px; font-weight: 500; }
+.f-pos { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #166534; }
+.f-neg { background: rgba(232,0,29,0.06); border: 1px solid rgba(232,0,29,0.15); color: #991B1B; }
+
+.signal { padding: 10px 12px; background: rgba(232,0,29,0.06); border: 1px solid rgba(232,0,29,0.2); border-radius: 6px; margin-bottom: 8px; font-size: 13px; color: #991B1B; display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.sig-badge { font-family: var(--f-mono); font-size: 9.5px; font-weight: 700; padding: 3px 6px; border-radius: 4px; }
+.sig-badge.HIGH { background: #E8001D; color: #fff; }
+.sig-badge.ELEVATED { background: #F59E0B; color: #fff; }
+
+.sp-fraud-banner { background: rgba(232,0,29,0.08); border: 1px solid rgba(232,0,29,0.3); border-radius: 8px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.sp-fraud-banner span { font-size: 14px; color: #B91C1C; font-weight: 600; letter-spacing: -0.01em; }
+
+.sp-cta { display: flex; gap: 16px; margin-top: 32px; }
+
+/* Buttons global */
+.btn-primary { background: var(--ink); color: #fff; border: 1px solid var(--ink); cursor: pointer; font-weight: 500; letter-spacing: -0.01em; display: inline-flex; align-items: center; justify-content: center; transition: all .28s cubic-bezier(.2,.7,.2,1); position: relative; overflow: hidden; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); cursor: pointer; font-weight: 500; transition: all .2s; }
+.btn-ghost:hover { border-color: var(--ink); background: #fff; }
+.btn-sm { font-size: 12.5px; padding: 8px 14px; border-radius: 4px; }
+.btn-lg { font-size: 14.5px; padding: 14px 24px; border-radius: 6px; }
+.btn-primary .btn-arrow { display: flex; align-items: center; transition: transform .3s; }
+.btn-primary:hover .btn-arrow { transform: translateX(4px); }
+`;

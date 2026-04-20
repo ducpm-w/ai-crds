@@ -11,23 +11,23 @@ const REASONS = [
 ];
 
 const css = {
-  overlay:{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)',
+  overlay:{ position:'fixed', inset:0, background:'rgba(250, 250, 247, 0.8)', backdropFilter:'blur(4px)',
     display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000, padding:24 },
-  box:{ background:'#1A1A1A', border:'1px solid #2A2A2A', borderRadius:12,
-    padding:30, width:'100%', maxWidth:500, fontFamily:"'DM Sans',sans-serif" },
-  title:{ fontSize:17, fontWeight:700, color:'#E8E8E8', marginBottom:5 },
-  sub:{ fontSize:13, color:'#666', marginBottom:22, lineHeight:1.55 },
-  label:{ display:'block', fontSize:11, fontWeight:700, color:'#555',
-    textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 },
-  sel:{ width:'100%', background:'#222', border:'1px solid #333', borderRadius:6,
-    color:'#E8E8E8', fontSize:13, padding:'9px 11px', marginBottom:14, outline:'none' },
-  ta:{ width:'100%', background:'#222', border:'1px solid #333', borderRadius:6,
-    color:'#E8E8E8', fontSize:13, padding:'9px 11px', minHeight:80, resize:'vertical',
-    outline:'none', fontFamily:"'DM Sans',sans-serif", boxSizing:'border-box', marginBottom:4 },
-  chars:{ fontSize:11, color:'#444', textAlign:'right', marginBottom:14 },
-  warn:{ background:'#2A1A1A', border:'1px solid #7F1D1D', borderRadius:6,
-    padding:'9px 13px', marginBottom:18, display:'flex', gap:9, alignItems:'flex-start' },
-  row:{ display:'flex', gap:8, justifyContent:'flex-end' },
+  box:{ background:'#fff', border:'1px solid var(--line)', borderRadius:12, boxShadow:'0 10px 40px rgba(0,0,0,0.05)',
+    padding:32, width:'100%', maxWidth:520, fontFamily:"var(--f-sans)", position:'relative' },
+  title:{ fontSize:19, fontWeight:700, color:'var(--ink)', marginBottom:8, fontFamily:"var(--f-serif)" },
+  sub:{ fontSize:14, color:'var(--mute)', marginBottom:24, lineHeight:1.55 },
+  label:{ display:'block', fontSize:11, fontWeight:600, color:'var(--mute)',
+    textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:8 },
+  sel:{ width:'100%', background:'var(--canvas)', border:'1px solid var(--line)', borderRadius:6,
+    color:'var(--ink)', fontSize:14, padding:'12px 14px', marginBottom:18, outline:'none', cursor:'pointer' },
+  ta:{ width:'100%', background:'var(--canvas)', border:'1px solid var(--line)', borderRadius:6,
+    color:'var(--ink)', fontSize:14, padding:'12px 14px', minHeight:100, resize:'vertical',
+    outline:'none', fontFamily:"var(--f-sans)", boxSizing:'border-box', marginBottom:8 },
+  chars:{ fontSize:11, color:'var(--mute-2)', textAlign:'right', marginBottom:18 },
+  warn:{ background:'rgba(232,0,29,0.05)', border:'1px solid rgba(232,0,29,0.2)', borderRadius:8,
+    padding:'12px 16px', marginBottom:24, display:'flex', gap:12, alignItems:'flex-start' },
+  row:{ display:'flex', gap:10, justifyContent:'flex-end', marginTop: 10 },
 };
 
 export default function OverrideModal({ isOpen, onClose, onConfirm, aiRec, humanDecision }) {
@@ -51,8 +51,8 @@ export default function OverrideModal({ isOpen, onClose, onConfirm, aiRec, human
       <div style={css.box}>
         <div style={css.title}>⚠️ Ghi nhận lý do override</div>
         <div style={css.sub}>
-          AI khuyến nghị <strong style={{color:'#F59E0B'}}>{aiRec}</strong> — bạn chọn{' '}
-          <strong style={{color: humanDecision==='APPROVE'?'#22C55E':'#EF4444'}}>{humanDecision}</strong>.
+          AI khuyến nghị <strong style={{color:'#D97706'}}>{aiRec}</strong> — bạn chọn{' '}
+          <strong style={{color: humanDecision==='APPROVE'?'#059669':'#E8001D'}}>{humanDecision}</strong>.
           Vui lòng ghi nhận lý do theo quy định.
         </div>
 
@@ -69,25 +69,21 @@ export default function OverrideModal({ isOpen, onClose, onConfirm, aiRec, human
 
         {needsSup && (
           <div style={css.warn}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" style={{flexShrink:0,marginTop:2}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8001D" strokeWidth="2" style={{flexShrink:0,marginTop:1}}>
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            <span style={{fontSize:12, color:'#FCA5A5', lineHeight:1.5}}>
-              <strong>Yêu cầu phê duyệt cấp trên.</strong> Hồ sơ sẽ được gắn cờ để cấp trên xem xét.
+            <span style={{fontSize:13, color:'#991B1B', lineHeight:1.5}}>
+              <strong style={{color:'#E8001D'}}>Yêu cầu phê duyệt cấp trên.</strong> Hồ sơ sẽ được gắn cờ để cấp trên xem xét.
             </span>
           </div>
         )}
 
         <div style={css.row}>
-          <button onClick={onClose} style={{background:'none', border:'1px solid #333', color:'#666',
-            padding:'8px 18px', borderRadius:6, cursor:'pointer', fontSize:13, fontWeight:600}}>
+          <button onClick={onClose} className="btn-ghost">
             Huỷ
           </button>
-          <button onClick={confirm} disabled={!valid} style={{
-            background: valid?'#3B82F6':'#222', border:'none',
-            color: valid?'#fff':'#555', padding:'8px 18px',
-            borderRadius:6, cursor: valid?'pointer':'not-allowed', fontSize:13, fontWeight:700 }}>
+          <button onClick={confirm} disabled={!valid} className="btn-primary" style={{ cursor: valid?'pointer':'not-allowed', background: valid?'var(--ink)':'var(--mute)', borderColor: valid?'var(--ink)':'var(--mute)' }}>
             Xác nhận
           </button>
         </div>
