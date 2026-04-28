@@ -876,9 +876,10 @@ body::before {
 }
 .btn-ghost:hover { background: var(--ink); color: #fff; }
 .btn-sm { font-size: 12.5px; padding: 9px 16px; border-radius: 2px; display: inline-flex; align-items: center; gap: 8px; }
-.btn-lg { font-size: 15px; padding: 16px 24px; border-radius: 2px; }
+.btn-lg { font-size: 15px; padding: 16px 24px; border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; }
 .btn-primary.btn-lg { padding: 16px 20px 16px 28px; }
 .btn-primary.btn-lg .btn-arrow { width: 28px; height: 28px; border-radius: 2px; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; }
+.cta-row .btn-lg { min-width: 158px; }
 
 /* ───────── INSTRUMENT PANEL ───────── */
 .instrument {
