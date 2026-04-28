@@ -91,8 +91,7 @@ function HomePage() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/"               element={<HomePage />} />
-      <Route path="/apply"          element={<ApplyPage />} />
+      <Route path="/"               element={<ApplyPage />} />
       <Route path="/score/:id"      element={<ScorePage />} />
       <Route path="/review/batch"   element={<BatchQueuePage />} />
       <Route path="/review/:id"     element={<IndividualReviewPage />} />

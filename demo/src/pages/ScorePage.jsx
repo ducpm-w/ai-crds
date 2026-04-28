@@ -64,21 +64,6 @@ export default function ScorePage() {
       <DemoWatermark />
 
       <div className="sp-wrap">
-        {/* App header */}
-        <div className="sp-card sp-header-card">
-          <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
-          <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
-          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-            <div>
-              <div className="sp-name">{app.full_name}</div>
-              <div className="sp-ident">CCCD: {app.cccd} · ID: {id.slice(0,8)}...</div>
-            </div>
-            <div className="sp-meta-info">
-              <div>{dec.model_version}</div><div>{dec.threshold_version}</div>
-            </div>
-          </div>
-        </div>
-
         {/* Fraud banner */}
         {isFraud && (
           <div className="sp-fraud-banner">
@@ -95,6 +80,14 @@ export default function ScorePage() {
           <div className="sp-card">
             <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
             <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+            {/* Applicant info — moved from header card */}
+            <div style={{marginBottom:20}}>
+              <div className="sp-name">{app.full_name}</div>
+              <div className="sp-ident" style={{marginTop:4}}>CCCD: {app.cccd} · ID: {id.slice(0,8)}...</div>
+              <div className="sp-meta-info" style={{textAlign:'left', marginTop:6}}>
+                {dec.model_version} · {dec.threshold_version}
+              </div>
+            </div>
             <div className="sp-sec">Điểm tín dụng AI</div>
             <GaugeChart value={dec.final_score} size={220} />
 
@@ -137,8 +130,72 @@ export default function ScorePage() {
             </div>
           </div>
 
-          {/* Right — factors */}
+          {/* Right — metrics + factors */}
           <div>
+            {/* Scoring dimensions */}
+            <div className="sp-card" style={{marginBottom:14}}>
+              <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
+              <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
+              <div className="sp-sec">Chỉ số chấm điểm</div>
+              {(() => {
+                const cic    = +(app?.cic_score)        || 0;
+                const dpd    = +(app?.cic_max_dpd_12m)  || 0;
+                const months = +(app?.employment_months) || 0;
+                const incM   = (+(app?.monthly_income)  || 0) / 1_000_000;
+                const dti    = dec.dti || 0;
+                const fraud  = dec.fraud_score || 0;
+
+                const metrics = [
+                  {
+                    key: 'CIC Score',
+                    val: cic > 0 ? `${cic} / 850` : 'Không có',
+                    score: cic >= 720 ? 1 : cic >= 650 ? 0.78 : cic >= 500 ? 0.45 : cic > 0 ? 0.25 : 0.28,
+                  },
+                  {
+                    key: 'Lịch sử thanh toán',
+                    val: dpd === 0 ? 'Không nợ quá hạn' : `DPD max ${dpd} ngày`,
+                    score: dpd === 0 ? 1 : dpd < 30 ? 0.60 : dpd < 90 ? 0.25 : 0.05,
+                  },
+                  {
+                    key: 'Ổn định việc làm',
+                    val: months > 0 ? `${months} tháng` : 'Chưa rõ',
+                    score: months >= 36 ? 1 : months >= 12 ? 0.68 : months >= 6 ? 0.38 : 0.15,
+                  },
+                  {
+                    key: 'Thu nhập',
+                    val: incM > 0 ? `${incM.toFixed(0)}M VND/tháng` : 'Chưa rõ',
+                    score: Math.min(1, incM / 28),
+                  },
+                  {
+                    key: 'Tỷ lệ nợ / DTI',
+                    val: dti > 0 ? `${dti.toFixed(0)}%` : '0%',
+                    score: dti === 0 ? 0.80 : dti < 30 ? 1 : dti < 40 ? 0.68 : dti < 50 ? 0.35 : 0.12,
+                  },
+                  {
+                    key: 'Tín hiệu gian lận',
+                    val: dec.fraud_level || 'CLEAR',
+                    score: Math.max(0, 1 - fraud * 1.35),
+                  },
+                ];
+
+                const mc = (s) => s >= 0.70 ? '#22C55E' : s >= 0.38 ? '#F59E0B' : '#E8001D';
+                const micon = (s) => s >= 0.70 ? '✓' : s >= 0.38 ? '△' : '✕';
+
+                return metrics.map((m) => (
+                  <div key={m.key} className="metric-row">
+                    <div className="metric-key">{m.key}</div>
+                    <div className="metric-val-wrap">
+                      <span className="metric-val">{m.val}</span>
+                      <span className="metric-icon" style={{color: mc(m.score)}}>{micon(m.score)}</span>
+                    </div>
+                    <div className="metric-bar-track">
+                      <div className="metric-bar-fill" style={{width:`${Math.round(m.score*100)}%`, background: mc(m.score)}} />
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+
             <div className="sp-card" style={{marginBottom:14}}>
               <div className="sp-corner ct-tl"/><div className="sp-corner ct-tr"/>
               <div className="sp-corner ct-bl"/><div className="sp-corner ct-br"/>
@@ -300,6 +357,16 @@ const STYLES = `
 .sp-fraud-banner span { font-size: 14px; color: #B91C1C; font-weight: 600; letter-spacing: -0.01em; }
 
 .sp-cta { display: flex; gap: 16px; margin-top: 32px; }
+
+/* Metric rows */
+.metric-row { margin-bottom: 14px; }
+.metric-row:last-child { margin-bottom: 0; }
+.metric-val-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.metric-key { font-family: var(--f-mono); font-size: 10.5px; color: var(--mute); letter-spacing: 0.04em; font-weight: 500; margin-bottom: 4px; }
+.metric-val { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.metric-icon { font-family: var(--f-mono); font-size: 12px; font-weight: 700; }
+.metric-bar-track { background: var(--line); height: 4px; border-radius: 99px; overflow: hidden; }
+.metric-bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(.2,.7,.2,1); }
 
 /* Buttons global */
 .btn-primary { background: var(--ink); color: #fff; border: 1px solid var(--ink); cursor: pointer; font-weight: 500; letter-spacing: -0.01em; display: inline-flex; align-items: center; justify-content: center; transition: all .28s cubic-bezier(.2,.7,.2,1); position: relative; overflow: hidden; }
