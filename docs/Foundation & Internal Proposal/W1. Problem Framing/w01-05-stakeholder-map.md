@@ -1,10 +1,5 @@
 # Stakeholder Map — AI Credit Risk Decision Support
-> **Tags:** `[Product]` `[Business]` `[Governance]`
 > **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
-> **Use case:** Origination Scoring + Fraud Detection Layer
-> **Segment:** Retail Credit Card — Salaried
-> **Tuần:** Week 1
-> **Version:** v1.1 — Applied 3 feedback items (Compliance blocker, CTO metric, Comms KPI ref)
 
 ---
 

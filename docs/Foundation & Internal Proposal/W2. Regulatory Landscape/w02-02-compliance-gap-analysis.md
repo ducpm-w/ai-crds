@@ -1,10 +1,5 @@
 # Compliance Gap Analysis — AI-CRDS
-> **Tags:** `[Compliance]` `[Legal]` `[Governance]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 2
-> **Version:** v1.0
-> **Ngày:** 25/03/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

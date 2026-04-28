@@ -1,10 +1,5 @@
 # Regulatory Mapping — AI Credit Risk Decision Support
-> **Tags:** `[Compliance]` `[Legal]` `[Governance]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 2
-> **Version:** v1.1 — Bổ sung Luật AI 134/2025/QH15 + Dự thảo TT SBV về AI trong ngân hàng
-> **Ngày:** 26/03/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

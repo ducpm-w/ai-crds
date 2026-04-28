@@ -1,9 +1,5 @@
 # UX Wireframes Notes — CO Review Interface
-> **Tags:** `[Product]` `[UX]` `[Design]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 9
-> **Version:** v1.0 (low-fidelity text wireframes)
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

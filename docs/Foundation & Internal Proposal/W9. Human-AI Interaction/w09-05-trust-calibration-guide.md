@@ -1,9 +1,5 @@
 # Trust Calibration Guide — CO × AI-CRDS
-> **Tags:** `[Product]` `[UX]` `[Training]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 9
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

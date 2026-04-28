@@ -1,7 +1,5 @@
 # Stakeholder Map — AI-Native CRDS
-> **Dự án:** AI-Native Credit Risk Decision Support
-> **File:** 05/07 — Internal Proposal
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

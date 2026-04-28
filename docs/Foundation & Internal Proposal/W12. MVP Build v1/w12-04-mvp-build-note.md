@@ -1,9 +1,5 @@
 # MVP Build Notes — AI-CRDS v0.1.0
-> **Tags:** `[Tech]` `[Product]` `[Build]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 12
-> **Version:** v0.1.0-synthetic
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

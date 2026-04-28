@@ -1,10 +1,5 @@
 # PDPD Impact Assessment — AI-CRDS
-> **Tags:** `[Compliance]` `[Legal]` `[Architecture]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 2
-> **Version:** v1.1 — Bổ sung proposed resolution cho SBV retention vs BVDLCN deletion conflict + Luật AI 134/2025 reference
-> **Ngày:** 27/03/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

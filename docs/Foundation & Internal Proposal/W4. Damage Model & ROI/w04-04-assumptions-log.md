@@ -1,10 +1,5 @@
 # Assumptions Log — AI-CRDS
-> **Tags:** `[Business]` `[Risk]` `[Governance]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 4
-> **Version:** v1.0
-> **Ngày:** 02/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

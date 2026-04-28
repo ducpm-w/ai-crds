@@ -1,10 +1,5 @@
 # SBV Requirements — AI-CRDS
-> **Tags:** `[Compliance]` `[Governance]` `[Risk]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 2
-> **Version:** v1.1 — Bổ sung Luật AI 134/2025/QH15 requirements
-> **Ngày:** 27/03/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

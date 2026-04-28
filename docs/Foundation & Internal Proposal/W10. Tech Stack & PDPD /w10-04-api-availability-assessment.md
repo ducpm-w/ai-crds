@@ -1,9 +1,5 @@
 # API Availability Assessment — AI-CRDS × Bank X
-> **Tags:** `[Tech]` `[Architecture]` `[Integration]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 10
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

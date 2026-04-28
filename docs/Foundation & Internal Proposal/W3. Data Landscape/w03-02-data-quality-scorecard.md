@@ -1,10 +1,5 @@
 # Data Quality Scorecard — AI-CRDS
-> **Tags:** `[Data]` `[Quality]` `[Assessment]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 3
-> **Version:** v1.0
-> **Ngày:** 27/03/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

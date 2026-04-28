@@ -1,10 +1,5 @@
 # KPI Tree — AI-CRDS
-> **Tags:** `[Product]` `[Business]` `[Risk]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 7
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

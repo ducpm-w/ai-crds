@@ -1,9 +1,5 @@
 # Integration Point Map — AI-CRDS
-> **Tags:** `[Architecture]` `[Tech]` `[Infrastructure]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 8
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

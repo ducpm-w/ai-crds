@@ -1,9 +1,5 @@
 # Metric Conflict Memo — AI-CRDS
-> **Tags:** `[Product]` `[Governance]` `[Stakeholder]`
-> **Dự án:** AI-CRDS
-> **Tuần:** Week 7
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

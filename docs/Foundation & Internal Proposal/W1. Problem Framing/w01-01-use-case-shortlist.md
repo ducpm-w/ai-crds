@@ -1,7 +1,5 @@
-# Problem Framing — Week 1
-> **Tags:** `[Product]` `[Business]` `[Market]`  
+# Problem Framing
 > **Dự án:** AI Credit Risk Decision Support (AI-CRDS)  
-> **Ngày chốt:** Week 1
 
 ---
 

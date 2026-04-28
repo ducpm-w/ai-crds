@@ -1,10 +1,5 @@
 # Sensitivity Analysis — AI-CRDS Threshold Scenarios
-> **Tags:** `[Risk]` `[Product]` `[C-Level]`
-> **Dự án:** AI-CRDS
-> **Use case:** Origination Scoring + Fraud Detection Layer — Retail CC Salaried
-> **Tuần:** Week 6
-> **Version:** v1.0
-> **Ngày:** 09/04/2026
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

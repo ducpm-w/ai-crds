@@ -1,8 +1,5 @@
 # Executive Summary — AI-Native CRDS
-> **Dự án:** AI-Native Credit Risk Decision Support
-> **Trình:** C-Level — Bank X
-> **Ngày:** 09/04/2026
-> **Phân loại:** Internal — Confidential
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

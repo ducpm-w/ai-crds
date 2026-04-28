@@ -1,9 +1,5 @@
 # Problem Brief — AI Credit Risk Decision Support
-> **Use case:** Origination Scoring + Fraud Detection Layer  
-> **Segment:** Retail Credit Card — Salaried  
-> **Sản phẩm:** AI-CRDS (AI Credit Risk Decision Support)  
-> **Thị trường:** Digital bank VN → Traditional bank → Finance companies  
-> **Version:** 1.1 — Updated from feedback review
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

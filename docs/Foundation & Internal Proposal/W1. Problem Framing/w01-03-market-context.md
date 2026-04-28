@@ -1,10 +1,5 @@
 # Market Context — Credit Card Origination tại VN
-> **Dự án:** AI Credit Risk Decision Support (AI-CRDS)  
-> **Use case:** Origination Scoring + Fraud Detection Layer  
-> **Segment:** Retail Credit Card — Salaried  
-> **Mục đích:** Tổng hợp toàn bộ dữ liệu thị trường đã verified — phục vụ problem framing, target bank selection, và pitch deck  
-> **Nguyên tắc:** Mỗi số liệu ghi rõ nguồn + thời điểm. Không có con số nào không có nguồn.  
-> **Version:** 1.0
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 

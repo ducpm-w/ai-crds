@@ -1,8 +1,5 @@
 # Operational Baseline — Credit Card Origination tại VN
-> **Phụ lục cho Problem Brief**  
-> **Mục đích:** Ước tính volume hồ sơ, thời gian xử lý, nhân sự, tỷ lệ approve — phục vụ thiết kế sản phẩm AI-CRDS  
-> **Nguyên tắc:** Mỗi số liệu ghi rõ: ✅ Verified (có nguồn public) / 🔶 Derived (tính từ data verified) / ❌ Gap (chưa có, cần validate với bank)  
-> **Version:** 1.1 — Bổ sung decision definition, peak pattern, forward references
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 
