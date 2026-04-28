@@ -230,7 +230,6 @@ function Navbar() {
           </button>
         </div>
       </nav>
-      {location.pathname === "/" && <Ticker />}
     </>
   );
 }
@@ -457,31 +456,13 @@ function Homepage() {
       </section>
 
       {/* ─── PHASES ──────────────────────────────────────── */}
-      <section className="phases">
-        <div className="phases-head">
-          <div>
-            <span className="sec-code">§ 03 / ROADMAP</span>
-            <h2 className="sec-h">
-              Four phases <span className="sec-h-serif">traced over</span> sixty weeks.
-            </h2>
-          </div>
-          <button onClick={() => navigate("/docs")} className="btn-ghost btn-sm">
-            Full documentation <Arrow size={12}/>
-          </button>
-        </div>
-
-        <ol className="phase-list">
-          {phases.map((ph, i) => <PhaseRow key={i} {...ph} idx={i}/>)}
-        </ol>
-      </section>
-
       {/* ─── PRINCIPLES ──────────────────────────────────── */}
       <section className="principles">
         <div className="principles-inner">
           <div className="principles-head">
             <span className="sec-code sec-code-dark">§ 04 / NON-NEGOTIABLES</span>
             <h2 className="sec-h sec-h-dark">
-              Không thể <span className="sec-h-serif sec-h-serif-dark">thỏa hiệp</span>.
+              Nguyên tắc <span className="sec-h-serif sec-h-serif-dark">cốt lõi</span>.
             </h2>
             <p className="principles-lede">
               Ba nguyên tắc neo toàn bộ hệ thống — governance, privacy, model safety. Tất cả engineering decision phải thông qua các constraint này.
@@ -879,7 +860,7 @@ body::before {
 .btn-lg { font-size: 15px; padding: 16px 24px; border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; }
 .btn-primary.btn-lg { padding: 16px 20px 16px 28px; }
 .btn-primary.btn-lg .btn-arrow { width: 28px; height: 28px; border-radius: 2px; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; }
-.cta-row .btn-lg { min-width: 158px; }
+.cta-row .btn-lg { min-width: 158px; height: 62px; }
 
 /* ───────── INSTRUMENT PANEL ───────── */
 .instrument {
