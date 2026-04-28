@@ -93,7 +93,6 @@ export default function IndividualReviewPage() {
           <div className="nav-right">
             <button className="nav-link" onClick={()=>nav('/apply')}>Hồ sơ mới</button>
             <button className="nav-link" onClick={()=>nav('/review/batch')}>Batch</button>
-            <button className="nav-link" onClick={()=>nav('/audit')}>Audit</button>
           </div>
         </div>
       </nav>

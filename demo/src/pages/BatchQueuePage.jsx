@@ -57,7 +57,6 @@ export default function BatchQueuePage() {
         </button>
         <div className="nav-right">
           <button className="nav-link" onClick={()=>nav('/apply')}>Hồ sơ mới</button>
-          <button className="nav-link" onClick={()=>nav('/audit')}>Audit</button>
         </div>
       </nav>
       <AILabel />
@@ -69,7 +68,6 @@ export default function BatchQueuePage() {
             <div style={{ fontFamily: 'var(--f-serif)', fontSize: 26, color: 'var(--ink)' }}>Hàng đợi Batch — STATE_1</div>
             <div style={{ fontFamily: 'var(--f-mono)', fontSize: 11, color: 'var(--mute)', marginTop: 4 }}>Điểm cao ≥75, độ tin cậy ≥85% — sẵn sàng duyệt lô</div>
           </div>
-          <button className="btn-ghost btn-sm" onClick={()=>nav('/apply')}>+ Hồ sơ mới</button>
         </div>
 
         {/* Success */}
@@ -191,16 +189,21 @@ export default function BatchQueuePage() {
       </div>
 
       {/* Confirm bar */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--line)', padding: '16px 40px', display: 'flex', alignItems: 'center', gap: 16, zIndex: 100 }}>
-        <span style={{ fontSize: 13, color: 'var(--mute)' }}>
-          Đã chọn <strong style={{ color: 'var(--ink)' }}>{sel.size}</strong>/{MAX}
-          {sel.size>0 && <span> — tiết kiệm ~{sel.size*30}–{sel.size*35} phút thẩm định</span>}
-        </span>
-        <button onClick={confirm} disabled={!sel.size} className="btn-primary"
-          style={{ background: sel.size ? '#059669' : '#E4E2DC', borderColor: sel.size ? '#059669' : '#E4E2DC', color: sel.size ? '#fff' : '#A0A0A0', cursor: sel.size ? 'pointer' : 'not-allowed', padding: '10px 24px', borderRadius: 6, fontWeight: 700 }}>
-          ✓ Duyệt {sel.size>0?`${sel.size} hồ sơ lô`:'Batch'}
-        </button>
-        <button className="btn-ghost btn-sm" style={{ border: 'none' }} onClick={()=>nav('/audit')}>Xem Audit →</button>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderTop: '1px solid var(--line)', zIndex: 100 }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontSize: 13, color: 'var(--mute)' }}>
+            Đã chọn <strong style={{ color: 'var(--ink)' }}>{sel.size}</strong>/{MAX}
+            {sel.size>0 && <span> — tiết kiệm ~{sel.size*30}–{sel.size*35} phút thẩm định</span>}
+          </span>
+          <button onClick={confirm} disabled={!sel.size} className="btn-primary"
+            style={{ background: sel.size ? '#059669' : '#E4E2DC', borderColor: sel.size ? '#059669' : '#E4E2DC', color: sel.size ? '#fff' : '#A0A0A0', cursor: sel.size ? 'pointer' : 'not-allowed', padding: '10px 24px', borderRadius: 6, fontWeight: 700 }}>
+            ✓ Duyệt{sel.size>0?` ${sel.size} hồ sơ`:''}
+          </button>
+          <button disabled={!sel.size}
+            style={{ background: 'none', border: `1px solid ${sel.size ? '#D97706' : '#E4E2DC'}`, color: sel.size ? '#D97706' : '#A0A0A0', cursor: sel.size ? 'pointer' : 'not-allowed', padding: '10px 24px', borderRadius: 6, fontWeight: 600, fontSize: 14 }}>
+            ⚑ Cần xem xét lại
+          </button>
+        </div>
       </div>
     </div>
   );

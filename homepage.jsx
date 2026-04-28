@@ -225,7 +225,7 @@ function Navbar() {
               {p.label}
             </button>
           ))}
-          <button onClick={() => window.location.href = "/demo/apply"} className="btn-primary btn-sm">
+          <button onClick={() => window.location.href = "/demo/"} className="btn-primary btn-sm">
             Try Demo <Arrow size={12}/>
           </button>
         </div>
@@ -394,7 +394,7 @@ function Homepage() {
             </div>
 
             <div className="cta-row reveal" style={{animationDelay:"760ms"}}>
-              <button onClick={() => window.location.href="/demo/apply"} className="btn-primary btn-lg">
+              <button onClick={() => window.location.href="/demo/"} className="btn-primary btn-lg">
                 Try Demo
                 <span className="btn-arrow"><Arrow size={14}/></span>
               </button>

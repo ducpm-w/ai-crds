@@ -3,7 +3,6 @@ import ApplyPage from './pages/ApplyPage.jsx';
 import ScorePage from './pages/ScorePage.jsx';
 import BatchQueuePage from './pages/BatchQueuePage.jsx';
 import IndividualReviewPage from './pages/IndividualReviewPage.jsx';
-import AuditPage from './pages/AuditPage.jsx';
 
 function HomePage() {
   const nav = useNavigate();
@@ -62,7 +61,6 @@ function HomePage() {
             onMouseLeave={e=>e.currentTarget.style.background='#E8001D'}
             onClick={()=>nav('/apply')}>→ Bắt đầu Demo</button>
           <button style={S.secBtn} onClick={()=>nav('/review/batch')}>Batch Queue</button>
-          <button style={S.secBtn} onClick={()=>nav('/audit')}>Audit Log</button>
         </div>
       </div>
 
@@ -95,7 +93,6 @@ export default function App() {
       <Route path="/score/:id"      element={<ScorePage />} />
       <Route path="/review/batch"   element={<BatchQueuePage />} />
       <Route path="/review/:id"     element={<IndividualReviewPage />} />
-      <Route path="/audit"          element={<AuditPage />} />
     </Routes>
   );
 }

@@ -56,7 +56,6 @@ export default function ScorePage() {
         <div className="nav-right">
           <button className="nav-link" onClick={()=>nav('/apply')}>Hồ sơ mới</button>
           <button className="nav-link" onClick={()=>nav('/review/batch')}>Batch</button>
-          <button className="nav-link" onClick={()=>nav('/audit')}>Audit</button>
         </div>
       </nav>
 
@@ -251,7 +250,6 @@ export default function ScorePage() {
             </span>
           </button>
           
-          <button className="btn-ghost btn-lg" onClick={()=>nav('/audit')}>Audit Log</button>
         </div>
       </div>
     </div>

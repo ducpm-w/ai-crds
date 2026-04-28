@@ -82,7 +82,6 @@ export default function ApplyPage() {
         </button>
         <div className="nav-right">
           <button className="nav-link" onClick={()=>nav('/review/batch')}>Batch Queue</button>
-          <button className="nav-link" onClick={()=>nav('/audit')}>Audit Log</button>
         </div>
       </nav>
 
