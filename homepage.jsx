@@ -9,32 +9,35 @@ function getDocContent(fileId) {
   return MD_FILES[`/docs/${fileId}`] ?? null;
 }
 
-const PHASE_META = {
-  "phase-1": { label: "Phase 1 — Foundation",      weeks: "Week 1–16"  },
-  "phase-2": { label: "Phase 2 — MLOps & Workflow", weeks: "Week 17–32" },
-  "phase-3": { label: "Phase 3 — Deployment",       weeks: "Week 33–48" },
-  "phase-4": { label: "Phase 4 — Scale & Maturity", weeks: "Week 49–60" },
+const SECTION_META = {
+  "Foundation & Internal Proposal": { label: "Foundation & Internal Proposal", note: "W1–W12" },
 };
 
 function buildDocsTree(mdFiles) {
-  const phases = {};
+  const sections = {};
   Object.keys(mdFiles).sort().forEach(path => {
     const relative = path.replace("/docs/", "");
     const parts = relative.split("/");
     if (parts.length !== 3) return;
-    const [phaseId, weekId, filename] = parts;
-    if (!PHASE_META[phaseId]) return;
-    if (!phases[phaseId]) {
-      phases[phaseId] = { id: phaseId, label: PHASE_META[phaseId].label, weeks: PHASE_META[phaseId].weeks, folders: {} };
+    const [sectionId, folderId, filename] = parts;
+    if (!SECTION_META[sectionId]) return;
+    if (!sections[sectionId]) {
+      sections[sectionId] = { id: sectionId, label: SECTION_META[sectionId].label, note: SECTION_META[sectionId].note, folders: {} };
     }
-    if (!phases[phaseId].folders[weekId]) {
-      phases[phaseId].folders[weekId] = { id: `${phaseId}/${weekId}`, label: weekId.replace("week-", "Week "), files: [] };
+    if (!sections[sectionId].folders[folderId]) {
+      sections[sectionId].folders[folderId] = { id: `${sectionId}/${folderId}`, label: folderId, files: [] };
     }
-    phases[phaseId].folders[weekId].files.push({ id: relative, label: filename.replace(/\.md$/, "") });
+    sections[sectionId].folders[folderId].files.push({ id: relative, label: filename.replace(/\.md$/, "") });
   });
-  return Object.keys(phases).sort().map(phaseId => ({
-    ...phases[phaseId],
-    folders: Object.keys(phases[phaseId].folders).sort().map(weekId => phases[phaseId].folders[weekId]),
+  return Object.keys(sections).sort().map(sectionId => ({
+    ...sections[sectionId],
+    folders: Object.keys(sections[sectionId].folders)
+      .sort((a, b) => {
+        const numA = parseInt(a.match(/^W(\d+)/)?.[1] ?? "0");
+        const numB = parseInt(b.match(/^W(\d+)/)?.[1] ?? "0");
+        return numA - numB;
+      })
+      .map(folderId => sections[sectionId].folders[folderId]),
   }));
 }
 
@@ -555,9 +558,9 @@ function PrincipleCard({ n, title, body, tag, idx }) {
 
 // ─── DOCS PAGE (layout giữ nguyên, style đồng bộ) ────────────────────────────
 function DocsPage() {
-  const [openPhases, setOpenPhases] = useState({ "phase-1": true });
-  const [openWeeks, setOpenWeeks] = useState({ "phase-1/week-01": true });
-  const [selectedDoc, setSelectedDoc] = useState("phase-1/week-01/w01-01-use-case-shortlist.md");
+  const [openPhases, setOpenPhases] = useState({ "Foundation & Internal Proposal": true });
+  const [openWeeks, setOpenWeeks] = useState({ "Foundation & Internal Proposal/W1. Problem Framing": true });
+  const [selectedDoc, setSelectedDoc] = useState("Foundation & Internal Proposal/W1. Problem Framing/w01-01-use-case-shortlist.md");
   const contentRef = useRef(null);
   const [showTop, setShowTop] = useState(false);
 
@@ -569,7 +572,7 @@ function DocsPage() {
     return () => el.removeEventListener("scroll", h);
   }, []);
 
-  const PHASE_COLORS = ["#E8001D","#0A0A0A","#6B4FBB","#B45309"];
+  const PHASE_COLORS = ["#E8001D","#0A0A0A","#6B4FBB","#B45309","#0369A1","#059669","#D97706","#7C3AED","#DB2777","#0891B2","#65A30D","#DC2626"];
   const selectFile = (fileId) => { setSelectedDoc(fileId); contentRef.current?.scrollTo({ top: 0 }); };
   const docContent = getDocContent(selectedDoc);
 
@@ -578,7 +581,7 @@ function DocsPage() {
       <aside className="docs-side">
         <div className="docs-side-head">
           <div className="sec-code sec-code-s">§ DOCUMENTATION</div>
-          <div className="docs-side-note">60 weeks · 4 phases</div>
+          <div className="docs-side-note">Foundation · W1–W12</div>
         </div>
         <div className="docs-side-body">
           {DOCS_TREE.map((phase, pi) => {
@@ -591,7 +594,7 @@ function DocsPage() {
                   <span className="docs-phase-lbl">{phase.label}</span>
                   <span className={`docs-chev ${isPhaseOpen ? "" : "closed"}`}><ChevronDown/></span>
                 </button>
-                <div className="docs-phase-weeks" style={{ color: pc }}>{phase.weeks}</div>
+                <div className="docs-phase-weeks" style={{ color: pc }}>{phase.note}</div>
 
                 {isPhaseOpen && phase.folders.map(folder => {
                   const isWeekOpen = openWeeks[folder.id];
