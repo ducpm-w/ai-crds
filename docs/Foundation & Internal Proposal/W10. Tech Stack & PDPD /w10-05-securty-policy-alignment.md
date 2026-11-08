@@ -5,146 +5,117 @@
 
 ## Mục đích
 
-AI-CRDS phải align với Bank X security policies. Document các yêu cầu + gap analysis. Fill sau IT Security meeting.
-
-**⚠️ STATUS: CHƯA CONFIRM VỚI IT SECURITY.** Values là standard banking requirements + ước tính.
+AI-CRDS tuân thủ chính sách bảo mật của Bank X. Tài liệu mô tả thiết kế bảo mật của AI-CRDS theo các yêu cầu bảo mật tiêu chuẩn của ngân hàng. Chính sách chi tiết của Bank X trong tài liệu là giả định theo chuẩn ngành ngân hàng, được điều chỉnh theo chính sách thực tế của Bank X khi triển khai.
 
 ---
 
-## 1. AUTHENTICATION
+## 1. Xác thực
 
-| Requirement | Bank X policy (❓) | AI-CRDS design | Gap? | Action |
-|-----------|-------------------|---------------|------|--------|
-| **SSO integration** | ❓ Có SSO không? (AD/LDAP/SAML/OAuth?) | AI-CRDS CO login via Bank X SSO. Không tạo credential riêng. | ❓ | Confirm SSO type. Build SSO adapter. |
-| **MFA (Multi-factor)** | ❓ Bank X yêu cầu MFA cho internal apps? | AI-CRDS support MFA nếu bank policy yêu cầu. OTP via SMS/authenticator app. | ❓ | Confirm MFA requirement + method. |
-| **Session timeout** | ❓ Bank X session timeout policy? (30 min? 60 min?) | AI-CRDS follows bank policy. Auto-logout after timeout. Warn 5 min trước. | ❓ | Confirm timeout duration. |
-| **Password policy** | ❓ Bank X password complexity? Rotation? | N/A nếu SSO (password managed by SSO). Nếu separate login → follow bank policy. | ❓ | Confirm. Prefer SSO (no separate password). |
-| **Login audit** | ❓ Bank X log all logins? | AI-CRDS log: user_id, login_time, IP, device, success/fail. | ✅ Standard | Implement login audit table. |
-
----
-
-## 2. AUTHORIZATION (RBAC)
-
-| Role | Permissions | Bank X equivalent (❓) | Gap? |
-|------|-----------|---------------------|------|
-| **CO (Junior/Mid)** | View assigned applications. Approve/reject within authority. Override AI. Cannot change thresholds. Cannot view other CO decisions (except own queue). | ❓ Existing CO role in CBS? | ❓ |
-| **Senior CO** | All CO permissions + escalated cases. Higher authority limit. Can clear fraud flags. Can review other CO overrides. | ❓ Existing Senior CO role? | ❓ |
-| **Supervisor** | All Senior CO + override approval. View all CO performance metrics. Batch size adjustment. | ❓ Existing Supervisor role? | ❓ |
-| **Fraud Analyst** | State 3 cases. EDD checklist. Fraud clearing. SIMO reporting. Cannot approve credit (only clear fraud → route back to CO). | ❓ Existing Fraud role? | ❓ |
-| **Risk Manager** | View all dashboards + guardrails. Emergency threshold change (±0.05). Pause/resume AI. Cannot make individual credit decisions. | ❓ Existing Risk role? | ❓ |
-| **Compliance** | View audit trail. View bias metrics. Export SBV reports. View DPIA compliance status. Read-only (no decision authority). | ❓ Existing Compliance role? | ❓ |
-| **System Admin** | System configuration. User management. No access to PII/decisions (separation of duties). | ❓ Existing IT admin? | ❓ |
-| **Data Science** | Model deployment. Feature monitoring. Drift analysis. Access to aggregated/anonymized data only (no raw PII in production). | ❓ New role? | ❓ Map to Bank X IT/Analytics team |
-
-### RBAC Implementation
-
-| Principle | Implementation |
-|----------|---------------|
-| **Least privilege** | Each role has minimum permissions needed. CO cannot see threshold settings. DS cannot see individual customer PII. |
-| **Separation of duties** | System admin ≠ decision maker. DS ≠ CO. Compliance = read-only. |
-| **Maker-checker** | Threshold changes: DS propose → Risk Manager approve (threshold-framework.md). Override-to-approve when AI says reject: CO → Supervisor co-sign (override-governance.md). |
-| **Delegation** | When Senior CO absent → Supervisor can delegate authority to designated CO. Logged. Time-limited. |
-| **Audit trail** | All permission changes logged: who changed, what, when, approved by whom. |
+| Yêu cầu | Thiết kế AI-CRDS |
+|--------|-----------------|
+| SSO | CO đăng nhập qua SSO của Bank X (AD/LDAP, SAML hoặc OAuth2). AI-CRDS không tạo credential riêng |
+| MFA | Hỗ trợ MFA khi chính sách Bank X yêu cầu, bằng OTP qua SMS hoặc ứng dụng authenticator |
+| Session timeout | Theo chính sách Bank X (30 phút). Tự động đăng xuất, cảnh báo trước 5 phút |
+| Chính sách mật khẩu | Dùng SSO nên mật khẩu do SSO quản lý. Nếu có đăng nhập riêng thì theo chính sách Bank X |
+| Audit đăng nhập | Ghi user_id, thời điểm đăng nhập, IP, thiết bị, kết quả thành công hoặc thất bại |
 
 ---
 
-## 3. NETWORK SECURITY
+## 2. Phân quyền (RBAC)
 
-| Requirement | Bank X policy (❓) | AI-CRDS design | Gap? |
-|-----------|-------------------|---------------|------|
-| **Hosting location** | ❓ On-premise / VN cloud / Hybrid | Proposed: VN cloud (Viettel/FPT) for AI-CRDS compute + storage. Data stays in VN (avoid XLBG). | ❓ Bank X preference? |
-| **Network segmentation** | ❓ DMZ? Separate VLAN for internal apps? | AI-CRDS in separate network segment from CBS. API Gateway mediates. | ❓ |
-| **Firewall rules** | ❓ Outbound: which external APIs allowed? (CIC, eKYC). Inbound: which IP ranges can access AI-CRDS? | Whitelist: CIC API endpoint, eKYC API endpoint, notification gateways. Block all other outbound. | ❓ |
-| **VPN requirement** | ❓ Remote access to AI-CRDS via VPN? CO working from home? | AI-CRDS accessible only via bank internal network or VPN. No public internet access. | ❓ |
-| **TLS version** | ❓ Bank X minimum TLS version? | AI-CRDS: TLS 1.2+ for all connections. TLS 1.3 preferred. | ✅ Standard |
-| **API Gateway** | ❓ Bank X has existing API Gateway? | AI-CRDS APIs behind API Gateway: rate limiting, auth, logging, TLS termination. | ❓ Reuse existing or deploy new? |
+| Vai trò | Quyền |
+|--------|------|
+| CO (Junior/Mid) | Xem hồ sơ được giao. Phê duyệt hoặc từ chối trong phạm vi thẩm quyền. Override AI. Không đổi ngưỡng. Không xem quyết định của CO khác ngoài hàng đợi của mình |
+| Senior CO | Toàn bộ quyền của CO cộng hồ sơ được chuyển lên. Hạn mức thẩm quyền cao hơn. Gỡ cờ gian lận. Xem override của CO khác |
+| Supervisor | Toàn bộ quyền Senior CO cộng phê duyệt override. Xem chỉ số hiệu suất của CO. Điều chỉnh batch size |
+| Fraud Analyst | Xử lý hồ sơ State 3. Checklist EDD. Gỡ cờ gian lận. Báo cáo SIMO. Không phê duyệt tín dụng, chỉ gỡ cờ gian lận rồi chuyển lại cho CO |
+| Risk Manager | Xem toàn bộ dashboard và guardrail. Đổi ngưỡng khẩn cấp (±0.05). Tạm dừng hoặc tiếp tục AI. Không ra quyết định tín dụng cá nhân |
+| Compliance | Xem audit trail, chỉ số thiên lệch, xuất báo cáo SBV, xem trạng thái tuân thủ DPIA. Chỉ đọc |
+| System Admin | Cấu hình hệ thống, quản lý người dùng. Không truy cập PII và quyết định (tách biệt nhiệm vụ) |
+| Data Science | Triển khai mô hình, giám sát đặc trưng, phân tích drift. Chỉ truy cập dữ liệu tổng hợp hoặc ẩn danh, không truy cập PII thô ở production |
 
----
+### Nguyên tắc triển khai RBAC
 
-## 4. DATA SECURITY
-
-| Requirement | Bank X policy (❓) | AI-CRDS design | Gap? |
-|-----------|-------------------|---------------|------|
-| **Encryption at rest** | ❓ Algorithm? (AES-256 standard) | AES-256 for all databases containing PII. PostgreSQL: pgcrypto or TDE. | ❓ Confirm algorithm |
-| **Encryption at transit** | TLS 1.2+ (standard) | All API calls TLS 1.2+. Internal service-to-service: mTLS preferred. | ✅ |
-| **Key management** | ❓ HSM? KMS? Who manages keys? | Production keys in HSM or cloud KMS. Dev keys separate from prod. Key rotation: annually or per bank policy. | ❓ Bank X HSM available? |
-| **Data masking (non-prod)** | ❓ Bank X policy cho dev/staging? | MVP: synthetic data (no real PII). Staging: masked real data (CCCD → hash, name → pseudonym). Production: real data. | ❓ Confirm masking requirements |
-| **Backup policy** | ❓ Frequency? Retention? Encryption? | Audit trail: daily backup. Encrypted. Retained per data lifecycle (5-10 năm). Backup tested quarterly. | ❓ Align with Bank X SOP |
-| **Data destruction** | ❓ Bank X secure deletion standard? | When Tầng 1 PII deleted: cryptographic erasure (delete encryption key) or DoD 5220.22-M overwrite. | ❓ |
-| **PII in logs** | ❓ Bank X logging policy re: PII? | AI-CRDS application logs: NO PII. Use application_id, customer_hash_id. Never log CCCD, name, income in app logs. | ✅ Design principle |
+| Nguyên tắc | Triển khai |
+|-----------|-----------|
+| Least privilege | Mỗi vai trò chỉ có quyền tối thiểu cần thiết. CO không thấy cấu hình ngưỡng, Data Science không thấy PII của từng khách hàng |
+| Tách biệt nhiệm vụ | System Admin không phải người ra quyết định. Data Science khác CO. Compliance chỉ đọc |
+| Maker-checker | Đổi ngưỡng: Data Science đề xuất, Risk Manager phê duyệt (w06-01-threshold-framework.md). Override sang phê duyệt khi AI đề xuất từ chối: CO và Supervisor cùng ký (w09-03-override-governance.md) |
+| Ủy quyền | Khi Senior CO vắng, Supervisor ủy quyền cho CO được chỉ định. Có ghi log và giới hạn thời gian |
+| Audit trail | Mọi thay đổi quyền được ghi lại: ai đổi, đổi gì, khi nào, ai phê duyệt |
 
 ---
 
-## 5. AUDIT & MONITORING
+## 3. Bảo mật mạng
 
-| Requirement | Bank X policy (❓) | AI-CRDS design | Gap? |
-|-----------|-------------------|---------------|------|
-| **SIEM integration** | ❓ Bank X has SIEM? (Splunk/QRadar/ELK?) | AI-CRDS security logs feed into bank SIEM. Format: syslog/CEF/JSON. | ❓ Confirm SIEM + format |
-| **Intrusion detection** | ❓ IDS/IPS in place? | AI-CRDS behind bank IDS/IPS. Application-level: rate limiting, anomaly detection on login patterns. | ❓ |
-| **Security logging** | ❓ Bank X logging requirements? | AI-CRDS logs: (a) Access logs (who accessed what, when). (b) Authentication logs (login/logout/fail). (c) Authorization logs (permission changes). (d) Data access logs (PII access tracked). | ✅ Design principle |
-| **Security incident response** | ❓ Bank X SOP for security incidents? | AI-CRDS follows bank SOP. Additional: if AI system compromised → pause AI → fallback to manual. Notify Risk Manager + IT Security. | ❓ Get bank SOP |
-| **Penetration testing** | ❓ Required before production? Frequency? | Recommended: pen test before shadow testing (Week 35). Annually thereafter. | ❓ Confirm requirement |
-| **Vulnerability scanning** | ❓ Bank X scanning policy? | AI-CRDS: dependency scanning (OWASP), container scanning, code scanning (SAST). Monthly. | ❓ Align with bank schedule |
-
----
-
-## 6. COMPLIANCE-SPECIFIC SECURITY
-
-| Requirement | Source | AI-CRDS implementation |
-|-----------|--------|----------------------|
-| **Audit trail immutability** | TT 13/2018, SBV | Append-only database. No UPDATE/DELETE on audit records. Hash chain for tamper detection (future). |
-| **24-field audit per decision** | sbv-requirements.md | PostgreSQL table with 24+ mandatory fields. NOT NULL constraints. Write-once. |
-| **SBV inspection readiness** | Luật TCTD | Export any decision full trace within 15 minutes. Pre-built SBV report queries. |
-| **Breach notification 72h** | NĐ 356/2025 | Process: detect → assess → notify A05 + affected customers within 72h. Pre-drafted notification template. |
-| **DPIA security controls** | NĐ 356 Mẫu 10 | Document all security measures in DPIA. This document = source for DPIA security section. |
+| Yêu cầu | Thiết kế AI-CRDS |
+|--------|-----------------|
+| Vị trí hosting | Cloud trong nước (Viettel hoặc FPT) cho compute và storage. Dữ liệu ở lại Việt Nam, không phát sinh thủ tục chuyển dữ liệu xuyên biên giới |
+| Phân đoạn mạng | AI-CRDS nằm ở phân đoạn mạng riêng, tách khỏi CBS. API Gateway làm trung gian |
+| Firewall | Whitelist endpoint CIC, endpoint eKYC và gateway thông báo. Chặn mọi kết nối ra khác |
+| VPN | AI-CRDS chỉ truy cập được qua mạng nội bộ hoặc VPN, không mở ra internet công cộng |
+| TLS | TLS 1.2 trở lên cho mọi kết nối, ưu tiên TLS 1.3 |
+| API Gateway | API của AI-CRDS nằm sau API Gateway của Bank X: giới hạn tốc độ, xác thực, ghi log, kết thúc TLS |
 
 ---
 
-## 7. SECURITY GAP SUMMARY
+## 4. Bảo mật dữ liệu
 
-| # | Gap | Severity | Depends on | Action | Target |
-|---|-----|---------|-----------|--------|--------|
-| 1 | SSO integration method unknown | 🔴 High | IT meeting | Confirm SSO type. Build adapter. | Week 10 (confirm), Week 20 (build) |
-| 2 | MFA requirement unknown | 🟡 Medium | IT meeting | Confirm. Implement if required. | Week 10 |
-| 3 | Network architecture unknown | 🔴 High | IT meeting | Confirm hosting, firewall, VPN. | Week 10 |
-| 4 | Key management infrastructure unknown | 🟡 Medium | IT meeting | Confirm HSM/KMS availability. | Week 10 |
-| 5 | SIEM integration unknown | 🟡 Medium | IT meeting | Confirm SIEM + log format. | Week 10 |
-| 6 | Pen test requirement unknown | 🟡 Medium | IT Security | Confirm. Schedule if required (Week 35). | Week 10 |
-| 7 | Breach notification process undocumented | 🔴 High | Compliance | Design AI-CRDS specific breach process aligned with bank SOP. | Week 23 |
-| 8 | Data destruction method unconfirmed | 🟡 Medium | IT Security | Confirm bank standard. Implement for Tầng 1 PII deletion. | Week 20 |
-
----
-
-## 8. IT SECURITY MEETING QUESTIONS
-
-| # | Question | Priority |
-|---|---------|---------|
-| 1 | SSO system type? (AD/LDAP/SAML/OAuth2) | 🔴 |
-| 2 | MFA required for internal apps? Method? | 🟡 |
-| 3 | Session timeout policy? | 🟡 |
-| 4 | Can AI-CRDS be hosted on VN cloud? Or must be on-premise? | 🔴 |
-| 5 | Existing API Gateway? Can AI-CRDS use? | 🟡 |
-| 6 | HSM or KMS available for key management? | 🟡 |
-| 7 | SIEM system? Can AI-CRDS feed logs? | 🟡 |
-| 8 | Pen test required before production? When? | 🟡 |
-| 9 | Security incident response SOP — can we get a copy? | 🔴 |
-| 10 | Any security policies that would BLOCK a Python/FastAPI/PostgreSQL stack? | 🔴 |
+| Yêu cầu | Thiết kế AI-CRDS |
+|--------|-----------------|
+| Mã hóa khi lưu | AES-256 cho mọi database chứa PII. PostgreSQL dùng pgcrypto hoặc TDE |
+| Mã hóa khi truyền | TLS 1.2 trở lên. Giữa các service nội bộ dùng mTLS |
+| Quản lý khóa | Khóa production trên HSM hoặc KMS của cloud. Khóa dev tách khỏi production. Xoay khóa hằng năm hoặc theo chính sách Bank X |
+| Che dữ liệu ở non-prod | MVP dùng dữ liệu tổng hợp. Staging dùng dữ liệu thật đã che (CCCD thành hash, tên thành bí danh). Production dùng dữ liệu thật |
+| Sao lưu | Audit trail sao lưu hằng ngày, mã hóa, giữ theo vòng đời dữ liệu (5-10 năm), kiểm tra phục hồi hằng quý |
+| Hủy dữ liệu | Khi xóa PII tầng 1: xóa mật mã (hủy khóa mã hóa) hoặc ghi đè theo DoD 5220.22-M |
+| PII trong log | Log ứng dụng không chứa PII. Dùng application_id và customer_hash_id. Không ghi CCCD, tên, thu nhập vào log ứng dụng |
 
 ---
 
-## Tracking
+## 5. Audit và giám sát
 
-- [ ] IT Security meeting completed?
-- [ ] SSO integration confirmed?
-- [ ] Network architecture confirmed?
-- [ ] All security gaps (Section 7) addressed?
-- [ ] Security section ready for DPIA inclusion?
-- [ ] Pen test scheduled (if required)?
+| Yêu cầu | Thiết kế AI-CRDS |
+|--------|-----------------|
+| Tích hợp SIEM | Log bảo mật của AI-CRDS chuyển vào SIEM của Bank X theo định dạng syslog, CEF hoặc JSON |
+| Phát hiện xâm nhập | AI-CRDS nằm sau IDS/IPS của Bank X. Cấp ứng dụng: giới hạn tốc độ, phát hiện bất thường ở mẫu đăng nhập |
+| Log bảo mật | (a) Log truy cập: ai truy cập gì, khi nào. (b) Log xác thực: đăng nhập, đăng xuất, thất bại. (c) Log phân quyền: thay đổi quyền. (d) Log truy cập dữ liệu: theo dõi truy cập PII |
+| Ứng phó sự cố | Theo quy trình ứng phó sự cố của Bank X. Bổ sung: nếu hệ thống AI bị xâm phạm thì tạm dừng AI, chuyển sang xử lý thủ công, thông báo Risk Manager và IT Security |
+| Kiểm thử xâm nhập | Thực hiện trước khi chạy dữ liệu thật, sau đó hằng năm |
+| Quét lỗ hổng | Quét phụ thuộc (OWASP), quét container, quét mã nguồn (SAST) hằng tháng |
 
 ---
 
-## Ghi Chú
+## 6. Bảo mật theo yêu cầu tuân thủ
 
-1. **Security policies are NON-NEGOTIABLE.** AI-CRDS adapts to Bank X security, not the other way around.
-2. **"No PII in logs"** is critical design principle. Application logs use IDs only. PII only in audit trail DB (encrypted, access-controlled).
-3. **Cross-reference:** pdpd-checklist.md (NHÓM 5 Security), tech-stack-assessment.md (infrastructure), data-flow-diagram.md (PII flows requiring protection), guardrail-definitions.md (G-O4/G-O5 system guardrails).
+| Yêu cầu | Nguồn | Triển khai AI-CRDS |
+|--------|-------|-------------------|
+| Audit trail bất biến | TT 13/2018, SBV | Database chỉ ghi thêm, không UPDATE hoặc DELETE bản ghi audit. Hash chain để phát hiện can thiệp (giai đoạn sau) |
+| 24 trường audit cho mỗi quyết định | w02-04-sbv-requirements.md | Bảng PostgreSQL với từ 24 trường bắt buộc, ràng buộc NOT NULL, ghi một lần |
+| Sẵn sàng cho thanh tra SBV | Luật TCTD | Xuất toàn bộ dấu vết của một quyết định trong 15 phút. Có sẵn truy vấn báo cáo SBV |
+| Thông báo vi phạm trong 72 giờ | NĐ 356/2025 | Quy trình: phát hiện, đánh giá, thông báo A05 và khách hàng bị ảnh hưởng trong 72 giờ. Có mẫu thông báo soạn sẵn |
+| Biện pháp bảo mật cho DPIA | NĐ 356 Mẫu 10 | Tài liệu này là nguồn cho phần bảo mật của DPIA |
+
+---
+
+## 7. Biện pháp theo hạng mục
+
+| # | Hạng mục | Mức độ quan trọng | Biện pháp |
+|---|---------|------------------|----------|
+| 1 | Tích hợp SSO | Cao | Xây SSO adapter theo loại SSO của Bank X |
+| 2 | MFA | Trung bình | Bật MFA khi chính sách Bank X yêu cầu |
+| 3 | Kiến trúc mạng | Cao | Phân đoạn mạng riêng, firewall whitelist, truy cập qua VPN |
+| 4 | Hạ tầng quản lý khóa | Trung bình | Dùng HSM hoặc KMS cho khóa production |
+| 5 | Tích hợp SIEM | Trung bình | Chuyển log bảo mật theo định dạng SIEM yêu cầu |
+| 6 | Kiểm thử xâm nhập | Trung bình | Thực hiện trước khi chạy dữ liệu thật |
+| 7 | Quy trình thông báo vi phạm | Cao | Quy trình riêng cho AI-CRDS, gắn với quy trình sự cố của Bank X |
+| 8 | Phương pháp hủy dữ liệu | Trung bình | Xóa mật mã hoặc ghi đè cho PII tầng 1 |
+
+---
+
+## Tài liệu liên quan
+
+- w10-03-pdpd-checklist.md: nhóm 5 Bảo mật
+- w10-01-tech-stack-bank-x.md: hạ tầng
+- w10-02-data-flow-diagram.md: luồng PII cần bảo vệ
+- w07-04-guardrail-definitions.md: guardrail hệ thống

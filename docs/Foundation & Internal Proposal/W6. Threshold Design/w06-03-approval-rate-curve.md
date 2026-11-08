@@ -1,13 +1,16 @@
 # Approval Rate Curve — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
+
+
+> Số liệu trong tài liệu là giả định lập kế hoạch dựa trên phân phối điểm tổng hợp (synthetic); sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
 ## Mục đích
 
-Visualize trade-off: threshold ↔ approval rate ↔ NPL ↔ revenue. Risk Committee dùng document này để chọn threshold operating point.
+Visualize trade-off: threshold ↔ approval rate ↔ NPL ↔ revenue. Risk Committee dùng tài liệu này để chọn threshold operating point.
 
-**⚠️ Tất cả số liệu dựa trên assumed score distribution (synthetic).** Real curve chỉ biết sau khi train model trên real data + shadow testing. Document này illustrate concept + framework cho decision-making.
+Các đường cong dưới đây dựa trên phân phối điểm giả định. Đường cong thực tế của Bank X được hiệu chỉnh sau khi huấn luyện mô hình trên dữ liệu thực và hoàn tất shadow testing; tài liệu này trình bày khung ra quyết định.
 
 ---
 
@@ -17,16 +20,16 @@ Visualize trade-off: threshold ↔ approval rate ↔ NPL ↔ revenue. Risk Commi
 
 | TH_high | % State 1 (Auto-route) | % State 2 (Standard) | % State 3 (Fraud) | % State 4 (Escalate) | % State 5 (Need-info) | Est. Overall Approval Rate | Est. NPL |
 |---------|----------------------|--------------------|--------------------|---------------------|---------------------|--------------------------|---------|
-| **0.55** | 68% | 14% | 3% | 7% | 8% | ~72% | 🔴 4.5-5.5% (+30-60%) |
-| **0.60** | 62% | 20% | 3% | 7% | 8% | ~68% | 🔴 4.0-4.8% (+15-35%) |
-| **0.65** | 55% | 27% | 3% | 7% | 8% | ~65% | 🟡 3.7-4.2% (+5-20%) |
-| **0.70** | 47% | 35% | 3% | 7% | 8% | ~63% | 🟡 3.3-3.8% (-5 to +10%) |
-| **0.75** ← proposed | **37%** | **45%** | **3%** | **7%** | **8%** | **~60%** | 🟢 **3.0-3.5% (≈baseline)** |
-| **0.80** | 25% | 57% | 3% | 7% | 8% | ~57% | 🟢 2.7-3.2% (-5 to -15%) |
-| **0.85** | 15% | 67% | 3% | 7% | 8% | ~53% | 🟢 2.5-3.0% (-10 to -20%) |
-| **0.90** | 8% | 74% | 3% | 7% | 8% | ~50% | 🟢 2.3-2.8% (-15 to -25%) |
+| **0.55** | 68% | 14% | 3% | 7% | 8% | ~72% | 4.5-5.5% (+30-60%) |
+| **0.60** | 62% | 20% | 3% | 7% | 8% | ~68% | 4.0-4.8% (+15-35%) |
+| **0.65** | 55% | 27% | 3% | 7% | 8% | ~65% | 3.7-4.2% (+5-20%) |
+| **0.70** | 47% | 35% | 3% | 7% | 8% | ~63% | 3.3-3.8% (-5 to +10%) |
+| **0.75** ← proposed | **37%** | **45%** | **3%** | **7%** | **8%** | **~60%** | **3.0-3.5% (≈baseline)** |
+| **0.80** | 25% | 57% | 3% | 7% | 8% | ~57% | 2.7-3.2% (-5 to -15%) |
+| **0.85** | 15% | 67% | 3% | 7% | 8% | ~53% | 2.5-3.0% (-10 to -20%) |
+| **0.90** | 8% | 74% | 3% | 7% | 8% | ~50% | 2.3-2.8% (-15 to -25%) |
 
-**Note:** State 3 (Fraud 3%), State 4 (Escalate 7%), State 5 (Need-info 8%) ít bị ảnh hưởng bởi TH_high — chúng triggered bởi fraud score, confidence, và data completeness, không phải credit risk score.
+Ghi chú: State 3 (Fraud 3%), State 4 (Escalate 7%), State 5 (Need-info 8%) ít bị ảnh hưởng bởi TH_high — chúng triggered bởi fraud score, confidence, và data completeness, không phải credit risk score.
 
 ### 1.2 Approval Rate Curve (ASCII visualization)
 
@@ -80,18 +83,18 @@ Estimated NPL Rate vs TH_high
 
 ### 2.1 Revenue & Cost per Threshold
 
-Base: 3,000 apps/tháng. Costs from damage-model.md + cost-of-error-table.md.
+Base: 3,000 apps/tháng. Costs from w04-01-damage-model-bank-x.md + w06-02-cost-of-error-table.md.
 
 | TH_high | Approved/tháng | Revenue/năm (LTV) | FN cost/năm (NPL) | FP cost/năm (reject good) | Ops cost/năm | **Net Revenue Impact** | vs Baseline |
 |---------|---------------|-------------------|-------------------|--------------------------|-------------|----------------------|-------------|
-| **0.55** | ~2,160 | 77.8 tỷ | 38.9 tỷ | 24.2 tỷ | 1.3 tỷ | **13.4 tỷ** | ⚠️ More revenue but NPL explodes |
-| **0.60** | ~2,040 | 73.4 tỷ | 34.6 tỷ | 29.4 tỷ | 1.5 tỷ | **7.9 tỷ** | 🟡 Marginal vs risk |
-| **0.65** | ~1,950 | 70.2 tỷ | 31.5 tỷ | 34.6 tỷ | 1.7 tỷ | **2.4 tỷ** | 🟡 Approaching neutral |
+| **0.55** | ~2,160 | 77.8 tỷ | 38.9 tỷ | 24.2 tỷ | 1.3 tỷ | **13.4 tỷ** | More revenue but NPL explodes |
+| **0.60** | ~2,040 | 73.4 tỷ | 34.6 tỷ | 29.4 tỷ | 1.5 tỷ | **7.9 tỷ** | Marginal vs risk |
+| **0.65** | ~1,950 | 70.2 tỷ | 31.5 tỷ | 34.6 tỷ | 1.7 tỷ | **2.4 tỷ** | Approaching neutral |
 | **0.70** | ~1,890 | 68.0 tỷ | 28.8 tỷ | 39.7 tỷ | 1.8 tỷ | **-2.3 tỷ** | Baseline zone |
 | **0.75** ← | **~1,800** | **64.8 tỷ** | **26.5 tỷ** | **51.8 tỷ** | **2.1 tỷ** | **-15.6 tỷ** | **Baseline** |
-| **0.80** | ~1,710 | 61.6 tỷ | 22.7 tỷ | 60.5 tỷ | 2.6 tỷ | **-24.2 tỷ** | ↓ Revenue declines faster |
-| **0.85** | ~1,590 | 57.2 tỷ | 19.5 tỷ | 71.3 tỷ | 2.8 tỷ | **-36.4 tỷ** | ↓ Over-conservative |
-| **0.90** | ~1,500 | 54.0 tỷ | 17.0 tỷ | 79.1 tỷ | 2.9 tỷ | **-45.0 tỷ** | ↓ Severe revenue loss |
+| **0.80** | ~1,710 | 61.6 tỷ | 22.7 tỷ | 60.5 tỷ | 2.6 tỷ | **-24.2 tỷ** | Revenue declines faster |
+| **0.85** | ~1,590 | 57.2 tỷ | 19.5 tỷ | 71.3 tỷ | 2.8 tỷ | **-36.4 tỷ** | Over-conservative |
+| **0.90** | ~1,500 | 54.0 tỷ | 17.0 tỷ | 79.1 tỷ | 2.9 tỷ | **-45.0 tỷ** | Severe revenue loss |
 
 ### 2.2 Net Revenue Impact Curve
 
@@ -120,7 +123,7 @@ Higher = better for bank
    0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90
 ```
 
-**Observation:** Net revenue impact improves as TH_high decreases (approve more → more revenue). Nhưng NPL constraint (≤ 3.5%) limits how low TH_high can go.
+Net revenue impact tăng khi TH_high giảm (duyệt nhiều hơn, doanh thu cao hơn), nhưng ràng buộc NPL (≤ 3.5%) giới hạn mức giảm của TH_high.
 
 ---
 
@@ -139,7 +142,7 @@ Higher = better for bank
 | 0.85 | 450 | 30h | 2,010 | 838h | **1,043h** | **6.0** | 40% |
 | 0.90 | 240 | 16h | 2,220 | 925h | **1,116h** | **6.4** | 36% |
 
-**Note:** State 3/4/5 hours (~175h) constant across all TH_high values. Included in total but not shown per column.
+Ghi chú: State 3/4/5 hours (~175h) constant across all TH_high values. Included in total but not shown per column.
 
 ### 3.2 CO Capacity Curve
 
@@ -171,14 +174,14 @@ FTE Needed vs TH_high
 
 | TH_high | NPL constraint (≤3.5%) | Approval rate (≥50%) | CO saving (meaningful) | FP/FN cost balance | CO trust (not too much auto) | **Overall** |
 |---------|----------------------|---------------------|----------------------|-------------------|----------------------------|-----------|
-| 0.55 | ❌ Violates | ✅ 72% | ✅ 72% saving | ❌ FN explodes | ❌ CO may rubber-stamp | ❌ |
-| 0.60 | ❌ Likely violates | ✅ 68% | ✅ 68% saving | ⚠️ FN high | ⚠️ Too much auto | ❌ |
-| 0.65 | ⚠️ Borderline | ✅ 65% | ✅ 64% saving | ⚠️ FN elevated | ⚠️ High auto rate | ⚠️ |
-| 0.70 | ✅ Likely meets | ✅ 63% | ✅ 59% saving | ✅ Acceptable | ⚠️ Somewhat high | 🟡 |
-| **0.75** | **✅ Meets** | **✅ 60%** | **✅ 53% saving** | **✅ Balanced** | **✅ Manageable** | **✅ Recommended** |
-| 0.80 | ✅ Beats | ✅ 57% | 🟡 46% saving | ⚠️ FP rising | ✅ Conservative | 🟡 |
-| 0.85 | ✅ Well below | ✅ 53% | 🟡 40% saving | ❌ FP too high | ✅ Very conservative | ⚠️ |
-| 0.90 | ✅ Minimal NPL | ⚠️ 50% borderline | ❌ 36% (limited) | ❌ FP dominates | ✅ Ultra conservative | ❌ |
+| 0.55 | Violates | 72% | 72% saving | FN explodes | CO may rubber-stamp | Không phù hợp |
+| 0.60 | Likely violates | 68% | 68% saving | FN high | Too much auto | Không phù hợp |
+| 0.65 | Borderline | 65% | 64% saving | FN elevated | High auto rate | Cần cân nhắc |
+| 0.70 | Likely meets | 63% | 59% saving | Acceptable | Somewhat high | Chấp nhận được |
+| **0.75** | **Meets** | **60%** | **53% saving** | **Balanced** | **Manageable** | **Recommended** |
+| 0.80 | Beats | 57% | 46% saving | FP rising | Conservative | Chấp nhận được |
+| 0.85 | Well below | 53% | 40% saving | FP too high | Very conservative | Cần cân nhắc |
+| 0.90 | Minimal NPL | 50% borderline | 36% (limited) | FP dominates | Ultra conservative | Không phù hợp |
 
 ### 4.2 Feasible Range
 
@@ -198,7 +201,7 @@ Above 0.80: Insufficient operational benefit → Head of Cards unlikely to suppo
 
 ### 4.3 Starting Point Recommendation
 
-**TH_high = 0.75 cho first deployment (Week 37+).** Rationale:
+TH_high = 0.75 được đề xuất cho lần triển khai đầu tiên, với các lý do sau:
 
 | Factor | Evidence |
 |--------|---------|
@@ -212,9 +215,9 @@ Above 0.80: Insufficient operational benefit → Head of Cards unlikely to suppo
 ### 4.4 Post-Shadow Testing Optimization Path
 
 ```
-Week 37-40 (Shadow):  Observe actual score distribution → calibrate
-Week 41-43 (Limited):  Deploy at TH_high = 0.75 → measure real FP/FN/NPL
-Week 44+   (Tuning):   
+Giai đoạn shadow testing:  Observe actual score distribution → calibrate
+Giai đoạn triển khai giới hạn:  Deploy at TH_high = 0.75 → measure real FP/FN/NPL
+Giai đoạn tinh chỉnh:   
     │
     ├── IF NPL < 3.0% (headroom) AND FP rate > 8%:
     │   → Propose TH_high = 0.72 to Risk Committee (approve more)
@@ -272,11 +275,11 @@ Week 44+   (Tuning):
 
 ### 6.1 Current: Fixed Threshold
 
-Week 12-44: TH_high = fixed value (0.75), changed only by Risk Committee approval.
+Từ MVP đến hết giai đoạn tinh chỉnh: TH_high = fixed value (0.75), changed only by Risk Committee approval.
 
-### 6.2 Future: Dynamic Threshold (Week 49+, Phase 4)
+### 6.2 Định hướng: Dynamic Threshold (giai đoạn vận hành ổn định)
 
-Sau khi system stable + đủ data → có thể implement dynamic threshold:
+Khi hệ thống ổn định và có đủ dữ liệu, có thể triển khai dynamic threshold:
 
 | Approach | Mô tả | Benefit | Risk | Prerequisite |
 |---------|-------|---------|------|-------------|
@@ -284,25 +287,5 @@ Sau khi system stable + đủ data → có thể implement dynamic threshold:
 | **Portfolio-level feedback** | Auto-adjust TH_high based on rolling 30-day NPL of AI-approved cohort | Self-correcting | Lag (NPL = DPD 90 → 3 month delay). Overreaction risk. | ≥12 months outcome data |
 | **Segment-specific thresholds** | Different TH_high for existing vs new-to-bank, or by employer type | Better discrimination | Complexity. Bias risk (Luật AI 134/2025). | Enough data per segment |
 
-**⚠️ Dynamic thresholds are Phase 4+ (Week 49+).** First deployment = fixed threshold, manual adjustment by Risk Committee. Don't over-engineer v1.
+Dynamic threshold chỉ áp dụng sau khi hệ thống vận hành ổn định. Lần triển khai đầu tiên dùng ngưỡng cố định, do Risk Committee điều chỉnh thủ công.
 
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Risk Committee đã review approval rate curve chưa?
-- [ ] NPL ceiling đã agree? (≤ 3.5% hoặc stricter?)
-- [ ] Approval rate floor đã agree? (≥ 50%? ≥ 55%?)
-- [ ] Head of Cards view on operational saving target? (>50% CO saving?)
-- [ ] Feasible range [0.70-0.80] — Risk Committee comfortable?
-- [ ] Starting point 0.75 — formal approval hoặc concept approval?
-
----
-
-## Ghi Chú & Limitations
-
-1. **Tất cả con số dựa trên assumed score distribution.** Real approval rate curve sẽ khác — shape phụ thuộc model quality + real applicant population. Document này illustrate framework, không phải precise prediction.
-2. **NPL estimates per TH_high** assume linear-ish relationship — thực tế có thể non-linear (concentration of bad applicants near threshold). Shadow testing sẽ reveal actual shape.
-3. **"Overall Approval Rate"** bao gồm S1 auto-route + S2 CO approve. CO approval rate trong S2 assumed ~70% (ước tính). Actual CO behavior khác → actual approval rate khác.
-4. **Revenue calculation** assume all approved cards generate equal LTV — thực tế VIP cards generate more, basic cards less. Simplification cho analysis.
-5. **Cross-reference:** threshold-framework.md (threshold governance), cost-of-error-table.md (FP/FN costs), damage-model.md (NPL/fraud baseline), decision-architecture.md (state definitions).

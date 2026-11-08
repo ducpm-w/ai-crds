@@ -1,11 +1,14 @@
 # Sensitivity Analysis — AI-CRDS Threshold Scenarios
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
+
+
+> Số liệu trong tài liệu là giả định lập kế hoạch dựa trên phân phối điểm tổng hợp (synthetic); sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
 ## Mục đích
 
-Trả lời: "Nếu threshold sai, business impact là bao nhiêu?" Mỗi scenario có: quantified impact, probability, detection lag, recovery time. Dùng cho C-level proposal (Week 11) — show chúng ta đã anticipate risks.
+Trả lời: "Nếu threshold sai, business impact là bao nhiêu?" Mỗi scenario có: quantified impact, probability, detection lag, recovery time. Tài liệu được dùng trong đề xuất C-level để thể hiện các rủi ro về ngưỡng đã được lường trước.
 
 ---
 
@@ -63,11 +66,11 @@ TH_high = 0.85 (should be 0.75)
 
 | Attribute | Value |
 |-----------|-------|
-| **Probability of error** | 🟡 Medium (20-30%). Risk Committee may choose 0.80-0.85 if very risk-averse or after NPL spike scare. |
+| **Probability of error** | Medium (20-30%). Risk Committee may choose 0.80-0.85 if very risk-averse or after NPL spike scare. |
 | **Detection lag** | **2-4 weeks.** Visible quickly: approval rate drops, State 2 queue grows, SLA breach rate rises. Dashboard metrics will flag. |
 | **Business detection signals** | Approval rate < 55%. SLA breach > 15%. CO overtime requests. Head of Cards complaint about "too few approvals." |
 | **Recovery time** | **1-2 weeks.** Lower TH_high back to 0.75. Risk Committee emergency approval (±0.05 authority). Effect immediate after deploy. |
-| **Severity** | 🔴 **High.** Revenue impact (-80.6 tỷ/năm) far exceeds NPL saving (+10.1 tỷ). Net negative. |
+| **Severity** | **High.** Revenue impact (-80.6 tỷ/năm) far exceeds NPL saving (+10.1 tỷ). Net negative. |
 
 ### Mitigation
 
@@ -91,7 +94,7 @@ TH_high = 0.65 (should be 0.75)
     │   → 540 more apps/tháng in batch queue
     │
     ├── Batch queue includes riskier applicants
-    │   → CO batch-confirm in 3-5 min → may not catch risky ones
+    │   → CO xác nhận theo lô trong 3-5 min → may not catch risky ones
     │   → "Rubber stamp" risk: CO trusts AI too much for borderline cases
     │
     ├── NPL rate: 3.0-3.5% → 3.7-4.2% (+0.5-1.0pp)
@@ -124,7 +127,7 @@ Year 1:  Revenue ↑ (+64.8 tỷ) > Credit loss ↑ (+22.1 tỷ)  → Looks GOOD
 Year 2:  Revenue stable. Credit losses compound.            → Starts HURTING
 Year 3:  NPL spike visible. Regulator attention.            → PROBLEM
 
-⚠️ This is the classic "easy credit" trap.
+This is the classic "easy credit" trap.
    Revenue appears immediately. Losses appear 6-18 months later.
 ```
 
@@ -132,22 +135,22 @@ Year 3:  NPL spike visible. Regulator attention.            → PROBLEM
 
 | Attribute | Value |
 |-----------|-------|
-| **Probability of error** | 🟡 Medium (20-30%). Head of Cards may push for lower threshold ("approve more, grow portfolio"). Business pressure. |
-| **Detection lag** | **🔴 3-12 months.** This is the dangerous one. Revenue increase visible immediately (approval rate up). NPL increase visible only after 90+ days (DPD 90 definition). Full impact: 6-12 months. |
+| **Probability of error** | Medium (20-30%). Head of Cards may push for lower threshold ("approve more, grow portfolio"). Business pressure. |
+| **Detection lag** | **3-12 months.** This is the dangerous one. Revenue increase visible immediately (approval rate up). NPL increase visible only after 90+ days (DPD 90 definition). Full impact: 6-12 months. |
 | **Business detection signals** | NPL trending up (monthly monitoring). DPD 30+ trending up (early warning, 1-3 months). Override rate dropping (CO rubber-stamping). Vintage analysis shows newer cohorts worse. |
 | **Recovery time** | **3-6 months.** Raise TH_high back → stops new bad approvals. But existing bad loans take 6-12 months to fully manifest as NPL. Portfolio damage already done for approved cohort. |
-| **Severity** | 🔴 **High.** Delayed detection + slow recovery = most dangerous scenario. Potential regulatory scrutiny if NPL spikes visibly. |
+| **Severity** | **High.** Delayed detection + slow recovery = most dangerous scenario. Potential regulatory scrutiny if NPL spikes visibly. |
 
 ### Mitigation
 
 | # | Action | When |
 |---|--------|------|
-| 1 | **Early warning: DPD 30+ monitoring** by approval cohort (monthly vintage) | Monthly from Week 45+ |
+| 1 | **Early warning: DPD 30+ monitoring** by approval cohort (monthly vintage) | Hằng tháng, sau khi có dữ liệu cohort |
 | 2 | NPL trend alarm: NPL > 3.5% (baseline) → auto-alert Risk Manager | Monthly |
-| 3 | **Batch review guardrail:** Cap batch size (max X per confirm action) → force CO to actually look | Design (Week 9) |
-| 4 | CO training: "Batch confirm ≠ auto-approve. You are still liable." | Training (Week 34) |
+| 3 | **Batch review guardrail:** Cap batch size (max X mỗi lần xác nhận) → force CO to actually look | Thiết kế giao diện |
+| 4 | CO training: "Xác nhận theo lô không đồng nghĩa với duyệt tự động. You are still liable." | Đào tạo CO |
 | 5 | TH_high floor: Risk Committee sets minimum TH_high (e.g., ≥ 0.70) | Governance |
-| 6 | Quarterly vintage analysis: compare NPL by TH_high at time of approval | Analytics (Week 47+) |
+| 6 | Quarterly vintage analysis: compare NPL by TH_high at time of approval | Phân tích định kỳ |
 
 ---
 
@@ -189,11 +192,11 @@ TH_fraud_elevated = 0.30 (should be 0.40)
 
 | Attribute | Value |
 |-----------|-------|
-| **Probability of error** | 🟡 Medium (15-25%). After a fraud incident, knee-jerk reaction to tighten fraud threshold. "Better safe than sorry." |
+| **Probability of error** | Medium (15-25%). After a fraud incident, knee-jerk reaction to tighten fraud threshold. "Better safe than sorry." |
 | **Detection lag** | **1-2 weeks.** Quick to detect: State 3 queue doubles, false alarm rate spikes, customer complaints increase, fraud team overtime. |
 | **Business detection signals** | State 3 volume > 2x normal. Fraud false alarm rate > 70%. Customer complaints about "identity verification issues." |
 | **Recovery time** | **1-2 days.** Raise TH_fraud back to 0.40. Immediate effect. No lingering damage (unlike NPL scenarios). |
-| **Severity** | 🟡 **Medium.** Financial impact (-3.6 tỷ) moderate. Main risk: customer experience damage and fraud team burnout. Easily reversible. |
+| **Severity** | **Medium.** Financial impact (-3.6 tỷ) moderate. Main risk: customer experience damage and fraud team burnout. Easily reversible. |
 
 ### Mitigation
 
@@ -237,8 +240,8 @@ TH_fraud_elevated = 0.60 (should be 0.40)
 | **Additional fraud slip-through** | 2/tháng (base miss) | 12/tháng | +10 | |
 | **Additional fraud loss** | — | — | 10 × 50M × 12 | **-6.0 tỷ VND/năm** |
 | Fraud team cost saving | — | — | -0.3 FTE | +65M (negligible) |
-| SIMO compliance risk | Low | 🔴 High | — | Regulatory fine risk (unknown) |
-| Fraud ring formation risk | Low | 🔴 High | — | Exponential loss if unchecked |
+| SIMO compliance risk | Low | High | — | Regulatory fine risk (unknown) |
+| Fraud ring formation risk | Low | High | — | Exponential loss if unchecked |
 | **Net impact** | | | | **-6.0 tỷ VND/năm + regulatory + exponential risk** |
 
 ### The Compounding Problem
@@ -250,25 +253,25 @@ Month 7-12: Fraud ring forms → 25+ extra → exponential growth
             + SIMO non-compliance → SBV inquiry
             + Media coverage risk if systematic fraud discovered
 
-⚠️ Fraud compounds. Credit loss is linear. Fraud is exponential if unchecked.
+Fraud compounds. Credit loss is linear. Fraud is exponential if unchecked.
 ```
 
 ### Risk Assessment
 
 | Attribute | Value |
 |-----------|-------|
-| **Probability of error** | 🟢 Low (10-15%). Unlikely — fraud threshold usually set conservatively. But possible if: (a) false alarm complaints pressure team to relax, (b) cost-cutting reduces fraud team → raise threshold to reduce queue. |
-| **Detection lag** | **🔴 1-3 months.** Fraud losses appear gradually. Individual cases look like credit losses (default), not fraud, until pattern emerges. Fraud team may not notice they're catching fewer cases (reduced volume could look like "fraud is decreasing"). |
+| **Probability of error** | Low (10-15%). Unlikely — fraud threshold usually set conservatively. But possible if: (a) false alarm complaints pressure team to relax, (b) cost-cutting reduces fraud team → raise threshold to reduce queue. |
+| **Detection lag** | **1-3 months.** Fraud losses appear gradually. Individual cases look like credit losses (default), not fraud, until pattern emerges. Fraud team may not notice they're catching fewer cases (reduced volume could look like "fraud is decreasing"). |
 | **Business detection signals** | State 3 volume unexpectedly low. Post-approval fraud discovery rate increasing. Charge-off patterns inconsistent with credit risk (full limit maxed immediately → classic fraud pattern). SIMO reports decreasing despite stable environment. |
 | **Recovery time** | **1-2 days** to fix threshold. **3-6 months** to recover: (a) identify which approved applicants were fraud, (b) block accounts, (c) recover funds (unlikely for CC), (d) file SIMO reports retroactively, (e) address regulatory inquiry. |
-| **Severity** | 🔴 **Very High.** Financial loss + regulatory risk + reputation + exponential compounding. Most dangerous fraud scenario. |
+| **Severity** | **Very High.** Financial loss + regulatory risk + reputation + exponential compounding. Most dangerous fraud scenario. |
 
 ### Mitigation
 
 | # | Action | When |
 |---|--------|------|
-| 1 | **Fraud detection rate monitoring:** if State 3 → confirmed fraud ratio changes significantly → investigate threshold | Monthly |
-| 2 | **Post-approval fraud detection:** monitor for fraud patterns in approved accounts (full limit usage in first month, unusual transaction patterns) | Ongoing (Week 45+) |
+| 1 | **Fraud detection rate monitoring:** nếu tỷ lệ fraud xác thực trên State 3 changes significantly → investigate threshold | Monthly |
+| 2 | **Post-approval fraud detection:** monitor for fraud patterns in approved accounts (full limit usage in first month, unusual transaction patterns) | Liên tục sau khi triển khai |
 | 3 | **SIMO reporting reconciliation:** SIMO reports filed vs fraud detected — any gap? | Monthly |
 | 4 | **TH_fraud ceiling:** Risk Committee sets maximum TH_fraud (e.g., ≤ 0.50) — cannot relax beyond this | Governance |
 | 5 | **Fraud team independence:** fraud threshold changes require Fraud team + Risk Manager dual approval — not just PM/business | Governance |
@@ -280,12 +283,12 @@ Month 7-12: Fraud ring forms → 25+ extra → exponential growth
 | | **A: TH_high too HIGH** | **B: TH_high too LOW** | **C: TH_fraud too SENSITIVE** | **D: TH_fraud too LAX** |
 |--|----------------------|---------------------|---------------------------|---------------------|
 | **Annual cost** | -80.6 tỷ (revenue loss) | -22.1 tỷ (credit loss, delayed) | -3.6 tỷ (false alarms) | -6.0 tỷ + exponential |
-| **Probability** | 🟡 20-30% | 🟡 20-30% | 🟡 15-25% | 🟢 10-15% |
-| **Detection lag** | 2-4 weeks (fast) | 🔴 3-12 months (slow!) | 1-2 weeks (fast) | 🔴 1-3 months (slow) |
+| **Probability** | 20-30% | 20-30% | 15-25% | 10-15% |
+| **Detection lag** | 2-4 weeks (fast) | 3-12 months (slow!) | 1-2 weeks (fast) | 1-3 months (slow) |
 | **Recovery time** | 1-2 weeks | 3-6 months | 1-2 days | 1-2 days (threshold) + 3-6 months (damage) |
-| **Severity** | 🔴 High | 🔴 High (delayed) | 🟡 Medium | 🔴 Very High (exponential) |
+| **Severity** | High | High (delayed) | Medium | Very High (exponential) |
 | **Main victim** | Bank (revenue) + Customer (denied) | Bank (credit loss) + Regulator (NPL) | Customer (experience) + Fraud team (overload) | Bank (fraud loss) + Regulator (SIMO) |
-| **Reversibility** | ✅ Easy | ⚠️ Hard (damage done) | ✅ Easy | ⚠️ Hard (fraud compounds) |
+| **Reversibility** | Easy | Hard (damage done) | Easy | Hard (fraud compounds) |
 
 ### Risk-Ranked (highest to lowest)
 
@@ -327,8 +330,8 @@ Event: Threshold set incorrectly
     │   └── SLA impact visible (A, C detectable)
     │
     ├── T+1-2 weeks:
-    │   ├── Approval rate change confirmed (A, B)
-    │   ├── Fraud queue anomaly confirmed (C, D)
+    │   ├── Approval rate change xác nhận (A, B)
+    │   ├── Fraud queue anomaly xác nhận (C, D)
     │   └── Customer complaints start arriving (A, C)
     │
     ├── T+1-3 months:
@@ -340,7 +343,7 @@ Event: Threshold set incorrectly
     │   └── Fraud compounding visible for Scenario D
     │
     └── T+6-12 months:
-        └── Full vintage analysis confirms Scenario B damage
+        └── Full vintage analysis xác nhận Scenario B damage
 ```
 
 ---
@@ -388,36 +391,14 @@ Event: Threshold set incorrectly
 │    Why? Losses hide for 6-12 months, then appear.        │
 │                                                          │
 │    Our safeguards:                                       │
-│    ✓ Hard guardrails (can't go below 0.70 or above 0.85)│
-│    ✓ Monthly NPL monitoring by approval cohort           │
-│    ✓ Early warning: DPD 30+ trending before NPL hits     │
-│    ✓ Emergency change: Risk Manager can adjust in 24h    │
-│    ✓ Kill switch: pause AI entirely if needed             │
+│    - Hard guardrails (can't go below 0.70 or above 0.85)│
+│    - Monthly NPL monitoring by approval cohort           │
+│    - Early warning: DPD 30+ trending before NPL hits     │
+│    - Emergency change: Risk Manager can adjust in 24h    │
+│    - Kill switch: pause AI entirely if needed             │
 │                                                          │
 │    Starting at TH_high = 0.75: conservative, safe,       │
 │    with room to optimize in both directions."             │
 └─────────────────────────────────────────────────────────┘
 ```
 
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Cost-of-error table đã cross-check với W4 damage model chưa? ✅ (Section 2-5 sử dụng cùng cost inputs)
-- [ ] FP/FN ratio (29:1) đã discuss với Risk Manager chưa?
-- [ ] Threshold governance process đã align với Risk Committee chưa?
-- [ ] Approval rate floor (business requirement minimum) là bao nhiêu? (❓ cần Head of Cards confirm)
-- [ ] Risk Committee meeting đã schedule chưa? (Cần trước Week 11)
-- [ ] Shadow testing plan (Week 37) đã được reference chưa? ✅ (detection lag analysis references shadow testing)
-- [ ] Guardrails [0.70, 0.85] — Risk Committee đồng ý hard limits?
-- [ ] Scenario B (TH too low) — detection lag 3-12 months — Risk Manager aware?
-
----
-
-## Ghi Chú & Limitations
-
-1. **Tất cả quantified impacts là ước tính** dựa trên assumed score distribution + cost-of-error numbers (damage-model.md). Real impacts sẽ khác.
-2. **Detection lag cho Scenario B (3-12 months) là risk thực** — không phải theoretical. Nhiều bank đã gặp "easy credit" trap khi relax lending standards. DPD 30+ early warning giảm lag xuống 1-3 months nhưng vẫn không real-time.
-3. **Scenario D (fraud lax) exponential compounding** là worst case. Thực tế, other controls (eKYC, SIMO, CO review) sẽ catch một số fraud. Nhưng AI fraud threshold là layer quan trọng nhất cho origination fraud.
-4. **Probability estimates (10-30%)** là subjective. Không có data để calibrate. Dùng để rank scenarios, không phải precision.
-5. **Cross-reference:** threshold-framework.md (threshold governance), cost-of-error-table.md (cost inputs), approval-rate-curve.md (approval rate impact), assumptions-log.md (underlying assumptions).

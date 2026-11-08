@@ -1,111 +1,95 @@
-# Stakeholder Map — AI-Native CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+# Stakeholder Map — AI-CRDS
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
-## 1. STAKEHOLDER MATRIX
+## 1. Ma trận các bên liên quan
 
-| Stakeholder | Role in Project | Influence | Concern #1 | Concern #2 | What They Need to Hear | Status |
-|------------|----------------|----------|-----------|-----------|----------------------|--------|
-| **CEO** | Final approval | 🔴 Quyết định | ROI — có đáng đầu tư không? | Risk — nếu AI sai thì sao? | "Phase 0 = 365M, 8 tuần, zero risk. Full deploy saves 26 tỷ/năm. Kill switch tại mỗi gate." | ❓ Chưa pre-align |
-| **CFO** | Budget approval | 🔴 Quyết định | Budget justification | Break-even timeline | "Break-even Month 11. NPV +33.56 tỷ. Phase-gated: 365M now, 1.32 tỷ later, only if Phase 0 passes." | ❓ Chưa pre-align |
-| **Head of Cards** | Business sponsor | 🔴 Quyết định | Approval rate — có giảm không? Revenue impact | Speed — time-to-decision | "Approval rate duy trì 60% hoặc tăng nhẹ. TTD giảm từ 3-7 ngày → <1 ngày. False rejection -30% → recover 15 tỷ/năm revenue." | ❓ Chưa pre-align |
-| **Chief Risk Officer / Risk Manager** | Risk approval | 🔴 Quyết định | NPL — có tăng không? | Compliance — SBV audit ready? | "NPL guardrail: không vượt current baseline. Threshold do Risk Committee approve. Audit trail 24 fields. SBV inspection ready <15 phút." | ❓ Chưa pre-align |
-| **CTO / Head of IT** | Tech approval | 🟡 Ảnh hưởng | Integration complexity | Maintenance burden | "Phase 0 dùng synthetic data → zero IT impact. Phase 1: phased integration. Stack: Python/PostgreSQL, no exotic tech. IT owns deployment." | ❓ Chưa pre-align |
-| **Compliance Officer** | Compliance sign-off | 🟡 Ảnh hưởng | Luật AI 134/2025 | BVDLCN / PDPD | "AI label hiển thị. Human-in-the-loop bắt buộc. DPIA draft ready. Opt-out mechanism designed. Bias monitoring active." | ❓ Chưa pre-align |
-| **Head of Fraud** | Fraud domain expert | 🟡 Ảnh hưởng | Fraud detection accuracy | SIMO compliance (TT 45) | "Fraud detection layer mới (hiện không có). Multi-signal scoring. SIMO integration planned. Fraud miss -30%." | ❓ Chưa pre-align |
-| **Credit Officers** (end users) | Daily users | 🟢 Sử dụng | Job security — AI thay thế? | Usability — dễ dùng không? | "AI assists, không replace. CO ký mọi quyết định. Workload giảm (batch review 3-5 phút). Override luôn available." | ❓ Chưa interview (W9 pending) |
-| **Internal Audit** | Post-deploy oversight | 🟢 Giám sát | Audit trail completeness | Override governance | "24 fields, immutable, replay capable. Override logged with reason. SBV inspection ready." | ❓ Chưa engage |
+| Bên liên quan | Vai trò trong dự án | Mức ảnh hưởng | Mối quan tâm chính | Mối quan tâm thứ hai | Thông điệp chính |
+|---------------|---------------------|---------------|--------------------|----------------------|------------------|
+| CEO | Phê duyệt cuối cùng | Quyết định | ROI: có đáng đầu tư không | Rủi ro nếu AI sai | Giai đoạn 0 chi 365M trong 8 tuần, rủi ro rất thấp. Triển khai đầy đủ tiết kiệm khoảng 26 tỷ/năm. Có điểm dừng tại mỗi cổng. |
+| CFO | Phê duyệt ngân sách | Quyết định | Cơ sở của ngân sách | Thời gian hòa vốn | Hòa vốn tháng 11, NPV +33.56 tỷ. Giải ngân theo giai đoạn: 365M trước, 1.32 tỷ sau và chỉ khi Giai đoạn 0 đạt. |
+| Head of Cards | Đơn vị bảo trợ nghiệp vụ | Quyết định | Tỷ lệ phê duyệt, doanh thu | Tốc độ ra quyết định | Tỷ lệ phê duyệt duy trì khoảng 60% hoặc tăng nhẹ. Thời gian quyết định giảm từ 3-7 ngày xuống dưới 1 ngày. Giảm từ chối nhầm 30% thu hồi khoảng 15 tỷ/năm doanh thu. |
+| Chief Risk Officer / Risk Manager | Phê duyệt rủi ro | Quyết định | NPL có tăng không | Tuân thủ, sẵn sàng thanh tra SBV | NPL không vượt baseline hiện tại. Ngưỡng do Risk Committee phê duyệt. Audit trail 24 trường, sẵn sàng thanh tra trong dưới 15 phút. |
+| CTO / Head of IT | Phê duyệt kỹ thuật | Ảnh hưởng | Độ phức tạp tích hợp | Gánh nặng bảo trì | Giai đoạn 0 dùng dữ liệu tổng hợp nên không tác động hệ thống IT. Giai đoạn 1 tích hợp theo từng bước. Stack Python/PostgreSQL phổ biến, IT làm chủ khâu triển khai. |
+| Compliance Officer | Xác nhận tuân thủ | Ảnh hưởng | Luật AI 134/2025 | BVDLCN, PDPD | Nhãn AI hiển thị, bắt buộc có con người quyết định, hồ sơ DPIA, cơ chế từ chối AI và giám sát thiên lệch. |
+| Head of Fraud | Chuyên gia nghiệp vụ gian lận | Ảnh hưởng | Độ chính xác phát hiện gian lận | Tuân thủ SIMO (TT 45) | Bổ sung lớp phát hiện gian lận mới, chấm điểm đa tín hiệu, tích hợp SIMO, giảm bỏ sót gian lận 30%. |
+| Credit Officer (người dùng cuối) | Sử dụng hằng ngày | Sử dụng | Việc làm | Tính dễ dùng | AI hỗ trợ, không thay thế. CO ký mọi quyết định. Khối lượng công việc giảm nhờ review theo lô 3-5 phút. CO luôn có quyền override. |
+| Internal Audit | Giám sát sau triển khai | Giám sát | Tính đầy đủ của audit trail | Quản trị override | 24 trường, bất biến, có thể phát lại. Override được ghi nhận kèm lý do. Sẵn sàng thanh tra SBV. |
 
 ---
 
-## 2. INFLUENCE / INTEREST MAP
+## 2. Bản đồ ảnh hưởng và quan tâm
 
 ```
-                     HIGH INFLUENCE
+                     ẢNH HƯỞNG CAO
                           │
-       KEEP SATISFIED     │    MANAGE CLOSELY
-       (CTO, Head of IT) │    (CEO, CFO, Head of Cards,
+       GIỮ HÀI LÒNG       │    QUẢN LÝ SÁT SAO
+       (CTO, Head of IT)  │    (CEO, CFO, Head of Cards,
                           │     CRO/Risk Manager)
                           │
-    LOW ──────────────────┼────────────────── HIGH
-    INTEREST              │                   INTEREST
+    THẤP ─────────────────┼───────────────── CAO
+    QUAN TÂM              │                  QUAN TÂM
                           │
-       MONITOR            │    KEEP INFORMED
+       THEO DÕI           │    CẬP NHẬT THƯỜNG XUYÊN
        (Internal Audit)   │    (Compliance, Head of Fraud,
-                          │     Credit Officers)
+                          │     Credit Officer)
                           │
-                     LOW INFLUENCE
+                     ẢNH HƯỞNG THẤP
 ```
 
 ---
 
-## 3. PRE-ALIGNMENT STRATEGY
+## 3. Chiến lược làm việc với các bên liên quan
 
-### 3.1 Before Week 16 C-Level Presentation
+### 3.1 Trao đổi trước buổi trình bày C-level
 
-| # | Meeting | Who | Duration | Purpose | Key ask | Target week |
-|---|---------|-----|---------|---------|---------|------------|
-| 1 | **1-on-1 Direct Manager** | Direct manager | 30 min | Pre-align, get coaching on C-level dynamics | "Support my proposal in C-level meeting?" | Week 11-12 |
-| 2 | **1-on-1 Head of Cards** | Business sponsor | 45 min | Validate business case, confirm approval rate floor | "Bạn sẽ speak up support trong meeting?" | Week 12-13 |
-| 3 | **1-on-1 Risk Manager** | Risk gatekeeper | 45 min | Validate NPL constraint, threshold governance | "NPL ceiling 3.5% — đồng ý?" | Week 12-13 |
-| 4 | **1-on-1 CTO** | Tech gatekeeper | 30 min | Validate tech approach, integration feasibility | "CBS API available? Phase 0 IT support?" | Week 12-13 |
-| 5 | **1-on-1 Compliance** | Compliance sign-off | 30 min | Validate DPIA approach, Luật AI compliance | "Luật AI label wording OK?" | Week 13-14 |
-| 6 | **1-on-1 CFO** | Budget approve | 30 min | Walk through ROI, "even if" scenarios | "Phase 0 budget 365M — reasonable?" | Week 14 |
-| 7 | **1-on-1 CEO** (nếu possible) | Final approver | 15-30 min | Executive summary only, get temperature | "Any concerns I should address?" | Week 14-15 |
+| # | Cuộc làm việc | Đối tượng | Thời lượng | Mục đích | Nội dung chính |
+|---|---------------|-----------|------------|----------|----------------|
+| 1 | Làm việc riêng với Head of Cards | Đơn vị bảo trợ nghiệp vụ | 45 phút | Thống nhất business case và mức sàn tỷ lệ phê duyệt | Đơn vị bảo trợ ủng hộ đề xuất tại buổi trình bày |
+| 2 | Làm việc riêng với Risk Manager | Người kiểm soát rủi ro | 45 phút | Thống nhất ràng buộc NPL và quản trị ngưỡng | Trần NPL 3.5% |
+| 3 | Làm việc riêng với CTO | Người kiểm soát kỹ thuật | 30 phút | Thống nhất hướng kỹ thuật và khả năng tích hợp | API CBS, hỗ trợ IT cho Giai đoạn 0 |
+| 4 | Làm việc riêng với Compliance | Xác nhận tuân thủ | 30 phút | Thống nhất cách tiếp cận DPIA và tuân thủ Luật AI | Nội dung nhãn AI |
+| 5 | Làm việc riêng với CFO | Phê duyệt ngân sách | 30 phút | Trình bày ROI và các kịch bản "ngay cả khi" | Ngân sách Giai đoạn 0 là 365M |
+| 6 | Làm việc riêng với CEO | Phê duyệt cuối cùng | 15-30 phút | Trình bày tóm tắt điều hành | Các vấn đề cần giải đáp trước buổi trình bày |
 
-**Principle: No surprises in C-level meeting.** Mọi stakeholder đã biết proposal trước meeting. Objections đã addressed. Champions đã committed.
+Nguyên tắc: không có nội dung bất ngờ tại buổi trình bày C-level. Mọi bên liên quan nắm đề xuất từ trước, ý kiến được giải đáp và các bên ủng hộ đã thống nhất.
 
-### 3.2 Champion Network
+### 3.2 Mạng lưới ủng hộ
 
-| Champion | Why they should support | What they get |
-|---------|----------------------|-------------|
-| **Head of Cards** | Revenue increase (approval rate↑, TTD↓). Competitive positioning vs fintech. | More approvals, faster decisions, better customer experience |
-| **Risk Manager** | NPL reduction potential. SBV audit trail. Fraud detection layer (new). | Better risk management tools, compliance readiness |
-| **Direct Manager** | Visible innovation project. AI-Native capability for bank. | Department recognition, career opportunity for team |
+| Bên ủng hộ | Lý do ủng hộ | Lợi ích nhận được |
+|------------|--------------|-------------------|
+| Head of Cards | Tăng doanh thu (tỷ lệ phê duyệt tăng, thời gian quyết định giảm), nâng vị thế cạnh tranh với fintech | Nhiều hồ sơ được duyệt hơn, quyết định nhanh hơn, trải nghiệm khách hàng tốt hơn |
+| Risk Manager | Tiềm năng giảm NPL, audit trail cho SBV, lớp phát hiện gian lận mới | Công cụ quản trị rủi ro tốt hơn, sẵn sàng tuân thủ |
 
-### 3.3 Potential Objectors + Pre-responses
+### 3.3 Mối quan ngại dự kiến và phản hồi
 
-| Potential objector | Likely objection | Pre-response |
-|-------------------|-----------------|-------------|
-| **CFO** | "Budget tight, other priorities" | "Ask là 365M only (Phase 0). 0.38% of annual damage. Smallest meaningful investment." |
-| **CTO** | "Integration too complex. CBS doesn't have API." | "Phase 0 uses synthetic data — zero CBS integration needed. Phase 1 integration phased + adapter pattern." |
-| **Risk Manager** | "NPL might increase" | "Threshold do Risk Committee approve. Guardrail: NPL +200bps → emergency stop. Shadow testing trước khi affect real decisions." |
-| **Compliance** | "Luật AI mới, chưa rõ ràng" | "AI-CRDS designed WITH Luật AI 134/2025 from Day 1: labeling, human-in-the-loop, opt-out, DPIA. Proactive compliance, not reactive." |
-| **Credit Officers** | "AI will replace us" | "CO ký mọi quyết định. AI handles routine (batch), CO handles complex. Your expertise MORE valuable, not less." |
+| Bên liên quan | Mối quan ngại | Phản hồi |
+|---------------|---------------|----------|
+| CFO | Ngân sách hạn chế, có nhiều ưu tiên khác | Đề xuất chỉ 365M (Giai đoạn 0), bằng 0.38% thiệt hại hằng năm, là mức đầu tư nhỏ nhất có ý nghĩa. |
+| CTO | Tích hợp phức tạp, CBS không có API | Giai đoạn 0 dùng dữ liệu tổng hợp nên không cần tích hợp CBS. Giai đoạn 1 tích hợp theo từng bước với mẫu adapter. |
+| Risk Manager | NPL có thể tăng | Ngưỡng do Risk Committee phê duyệt. Guardrail: NPL tăng 200bps thì dừng khẩn cấp. Shadow testing trước khi ảnh hưởng quyết định thực. |
+| Compliance | Luật AI mới, quy định hướng dẫn đang hoàn thiện | AI-CRDS được thiết kế theo Luật AI 134/2025 ngay từ đầu: gắn nhãn, con người quyết định, từ chối AI, DPIA. |
+| Credit Officer | AI sẽ thay thế CO | CO ký mọi quyết định. AI xử lý hồ sơ thường quy theo lô, CO xử lý hồ sơ phức tạp. Chuyên môn của CO càng quan trọng hơn. |
 
 ---
 
-## 4. COMMUNICATION PLAN
+## 4. Kế hoạch truyền thông
 
-### Pre-Presentation (Week 11-15)
+### Trước buổi trình bày
 
-| Audience | Channel | Message | Frequency |
-|---------|---------|---------|-----------|
-| C-level (individual) | 1-on-1 meetings | Tailored per stakeholder (Section 3.1) | Once each |
-| Champions | Email/chat + in-person | "Here's the proposal. Your feedback?" | 2-3 touchpoints |
-| Credit Officers | Informal lunch/coffee | "We're exploring AI to help your workflow. What would help?" | 1-2 conversations |
-| IT team | Meeting | "We'll need your help for Phase 1. Phase 0 = no IT impact." | Once |
+| Đối tượng | Kênh | Thông điệp | Tần suất |
+|-----------|------|------------|----------|
+| C-level (từng người) | Làm việc riêng | Điều chỉnh theo từng bên liên quan (mục 3.1) | Một lần mỗi người |
+| Bên ủng hộ | Email/chat và gặp trực tiếp | Chia sẻ đề xuất và thu thập phản hồi | 2-3 lần |
+| Credit Officer | Trao đổi thân mật | Giới thiệu hướng hỗ trợ quy trình bằng AI và lắng nghe nhu cầu | 1-2 lần |
+| Đội IT | Họp | Giai đoạn 1 cần hỗ trợ từ IT, Giai đoạn 0 không tác động IT | Một lần |
 
-### Post-Presentation (Week 16+)
+### Sau buổi trình bày
 
-| Outcome | Communication |
-|---------|-------------|
-| **Approved** | Thank champions. Email summary to all stakeholders. Schedule Phase 0 kickoff. |
-| **Approved with conditions** | Document conditions. Address in Phase 0 plan. Communicate adjustments. |
-| **Deferred** | Ask: "What would change your mind?" Address concerns. Re-present in 4-8 weeks. |
-| **Rejected** | Debrief with champions. Understand objections. Document learnings. Consider: smaller scope? Different timing? |
-
----
-
-## Tracking
-
-- [ ] Direct manager pre-aligned?
-- [ ] Head of Cards pre-aligned? Will champion?
-- [ ] Risk Manager pre-aligned? NPL ceiling agreed?
-- [ ] CTO pre-aligned? No tech blockers?
-- [ ] Compliance pre-aligned? DPIA approach OK?
-- [ ] CFO pre-aligned? Budget reasonable?
-- [ ] CEO temperature check? Any unknown concerns?
-- [ ] Champions confirmed (≥2 people who will actively support)?
-- [ ] All potential objections have pre-responses?
+| Kết quả | Hành động truyền thông |
+|---------|------------------------|
+| Được phê duyệt | Cảm ơn các bên ủng hộ, gửi email tóm tắt đến tất cả bên liên quan, lên lịch khởi động Giai đoạn 0. |
+| Phê duyệt có điều kiện | Ghi nhận điều kiện, đưa vào kế hoạch Giai đoạn 0, thông báo các điều chỉnh. |
+| Hoãn | Tìm hiểu yếu tố cần thay đổi, giải đáp mối quan ngại, trình bày lại sau 4-8 tuần. |
+| Không được phê duyệt | Trao đổi lại với các bên ủng hộ, ghi nhận ý kiến phản đối, xem xét phạm vi nhỏ hơn hoặc thời điểm khác. |

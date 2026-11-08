@@ -1,337 +1,334 @@
 # Demo Script — AI-CRDS MVP v1
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Demo script cho Week 13 internal presentation. 3 scenarios, 15-20 phút total. Audience: Credit Officers, Risk Manager, Head of Cards, CTO.
+Kịch bản demo nội bộ cho AI-CRDS MVP v1 tại Bank X, gồm 3 tình huống, tổng thời lượng 15-20 phút. Đối tượng tham dự: Credit Officer, Risk Manager, Head of Cards, CTO.
 
-**⚠️ MỌI DATA TRONG DEMO LÀ SYNTHETIC — KHÔNG PHẢI KHÁCH HÀNG THẬT.**
-
----
-
-## 0. SETUP & OPENING (2 phút)
-
-### Before Demo
-
-- [ ] System running, data loaded (10K synthetic records)
-- [ ] 3 test applications pre-created (Scenario A/B/C)
-- [ ] Browser zoom 125% (readable from projector)
-- [ ] Backup screenshots ready (nếu live demo fail)
-- [ ] "SYNTHETIC DATA — DEMO ONLY" watermark visible
-
-### Opening Script
-
-```
-"Cảm ơn mọi người dành thời gian. Hôm nay tôi demo AI-CRDS —
-hệ thống AI hỗ trợ quyết định tín dụng cho CC.
-
-3 điều quan trọng trước khi bắt đầu:
-1. Data hoàn toàn synthetic — không phải khách hàng thật
-2. AI chỉ HỖ TRỢ — Credit Officer vẫn ký quyết định cuối cùng
-3. Đây là MVP — mục tiêu là show end-to-end flow, không phải production
-
-Tôi sẽ demo 3 scenarios:
-A. Hồ sơ tốt → AI score cao → batch confirm (3-5 phút thay vì 35 phút)
-B. Hồ sơ borderline → AI explain → CO full review → reject → adverse action
-C. Hồ sơ có fraud signal → AI flag → priority review
-
-Mỗi scenario ~5-7 phút. Xin hỏi sau mỗi scenario hoặc cuối demo."
-```
+Toàn bộ dữ liệu trong buổi demo là dữ liệu tổng hợp (synthetic), không phải khách hàng thật của Bank X.
 
 ---
 
-## 1. SCENARIO A — HAPPY PATH (State 1: Batch Approve)
+## 0. Chuẩn bị và mở đầu (2 phút)
 
-### Setup
+### Chuẩn bị trước buổi demo
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Nguyễn Văn An | Synthetic prefix |
-| CCCD | SYN-079123456 | Synthetic |
-| Age | 35 | Prime earning age |
-| Income | 25M/tháng | Above average |
-| Employer | FPT Software (FDI) | Stable, verifiable |
-| Employment | 36 tháng | Long tenure |
-| CIC Score | 740 | High |
-| DTI | 22% | Low |
-| DPD history | 0 | Clean |
-| eKYC | Pass (0.96) | High confidence |
+- Hệ thống đang chạy, đã nạp 10.000 bản ghi dữ liệu tổng hợp.
+- 3 hồ sơ kiểm thử (tình huống A, B, C) đã được tạo sẵn.
+- Trình duyệt đặt zoom 125% để đọc được trên máy chiếu.
+- Có sẵn bộ ảnh chụp màn hình dự phòng cho trường hợp demo trực tiếp gặp sự cố.
+- Hiển thị watermark "SYNTHETIC DATA — DEMO ONLY" trên mọi màn hình.
 
-### Demo Flow (5-7 phút)
+### Lời mở đầu
 
 ```
-STEP 1: Application Input (/apply)
-"Đây là form nhập hồ sơ. Trong production, data auto-fill từ online form
-hoặc branch nhập. Hôm nay tôi nhập manual cho demo."
-→ Fill form fields
-→ Click "Submit Application"
-→ "Hồ sơ đang được xử lý..."
+"Cảm ơn mọi người đã dành thời gian. Hôm nay tôi trình bày AI-CRDS,
+hệ thống hỗ trợ quyết định tín dụng thẻ tín dụng tại Bank X.
 
-STEP 2: AI Scoring Result (/score/[id])
-"Trong <30 giây, AI đã:
-- Query CIC (mock) → score 740
-- Run eKYC (mock) → pass
-- Calculate risk score → 0.82
-- Calculate confidence → 91%
-- Route to State 1 (Batch Review)"
+Ba điều cần lưu ý trước khi bắt đầu:
+1. Dữ liệu hoàn toàn là dữ liệu tổng hợp, không phải khách hàng thật.
+2. Hệ thống chỉ hỗ trợ; Credit Officer vẫn ký quyết định cuối cùng.
+3. Đây là bản MVP nhằm trình bày luồng xử lý end-to-end, chưa phải bản vận hành.
 
-Show trên screen:
-├── Risk Score: 0.82 (LOW RISK) [green gauge]
-├── Confidence: 91% [green bar]
-├── Fraud Score: 0.05 (CLEAR) [green]
-├── State: BATCH REVIEW (State 1)
-├── AI Recommendation: APPROVE
-├── Top 3 Positive: CIC 740, DTI 22%, 3yr employment
-└── "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
+Buổi demo gồm 3 tình huống:
+A. Hồ sơ tốt: điểm cao, xác nhận theo lô (3-5 phút thay vì 35 phút).
+B. Hồ sơ biên: có giải thích, Credit Officer thẩm định đầy đủ, từ chối và phát hành thông báo từ chối.
+C. Hồ sơ có tín hiệu gian lận: hệ thống cảnh báo và chuyển xử lý ưu tiên.
 
-→ "Chú ý AI label ở đây — bắt buộc theo Luật AI 134/2025."
-
-STEP 3: Batch Review Queue (/review/batch)
-"Đây là queue của Credit Officer. 12 hồ sơ AI recommends approve.
-CO xem summary, có thể expand detail, rồi confirm."
-
-→ Show batch queue (12 records)
-→ Expand 1-2 records (show detail panel)
-→ Select 4 records (including Nguyễn Văn An)
-→ Click "Confirm Selected (4)"
-→ "4 hồ sơ đã được approve."
-
-→ "Thời gian: 3-5 phút cho 4 hồ sơ. Trước đây: 35 phút × 4 = 140 phút.
-   Giảm 85% thời gian review cho high-confidence cases."
-
-STEP 4: Audit Log (/audit)
-"Mọi quyết định được ghi nhận tự động. 24+ fields."
-
-→ Show audit log entry cho Nguyễn Văn An
-→ Point out: decision_id, model_version, ai_score, human_decision,
-             co_review_seconds, ai_label_displayed, batch_review_flag
-→ "SBV có thể inspect bất kỳ quyết định nào — đầy đủ thông tin."
-```
-
-### Key Message (nói cho audience)
-
-```
-"State 1 = 35-45% volume. Từ 35 phút manual → 3-5 phút batch confirm.
-CO vẫn review và confirm — AI chỉ pre-screen và route.
-Đây là nguồn operational saving lớn nhất."
+Mỗi tình huống khoảng 5-7 phút. Mời đặt câu hỏi sau mỗi tình huống hoặc cuối buổi."
 ```
 
 ---
 
-## 2. SCENARIO B — BORDERLINE (State 2: Individual Review → Reject)
+## 1. Tình huống A: Hồ sơ tốt (State 1: Duyệt theo lô)
 
-### Setup
+### Dữ liệu hồ sơ
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Phạm Thị Bình | Synthetic |
-| CCCD | SYN-024987654 | Synthetic |
-| Age | 29 | Younger |
-| Income | 18M/tháng | Moderate |
-| Employer | Công ty ABC (SME) | Less stable |
-| Employment | 8 tháng | Short |
-| CIC Score | 650 | Adequate but not strong |
-| DTI | 42% | Borderline high |
-| DPD history | 0 | Clean |
-| Inquiries 6M | 2 | Multiple recent inquiries |
-| eKYC | Pass (0.91) | OK |
+| Trường | Giá trị | Ghi chú |
+|-------|---------|---------|
+| Họ tên | SYN-Nguyễn Văn An | Tiền tố dữ liệu tổng hợp |
+| CCCD | SYN-079123456 | Dữ liệu tổng hợp |
+| Tuổi | 35 | Độ tuổi thu nhập ổn định |
+| Thu nhập | 25 triệu/tháng | Trên mức trung bình |
+| Đơn vị công tác | FPT Software (FDI) | Ổn định, dễ xác minh |
+| Thời gian làm việc | 36 tháng | Thâm niên dài |
+| Điểm CIC | 740 | Cao |
+| DTI | 22% | Thấp |
+| Lịch sử quá hạn (DPD) | 0 | Sạch |
+| eKYC | Đạt (0,96) | Độ tin cậy cao |
 
-### Demo Flow (5-7 phút)
-
-```
-STEP 1: AI Scoring Result
-→ Risk Score: 0.52 (MEDIUM) [yellow gauge]
-→ Confidence: 72% [yellow bar]
-→ State: STANDARD REVIEW (State 2)
-→ AI Recommendation: REVIEW NEEDED
-
-STEP 2: Individual Review Screen (/review/[id])
-"Đây là screen CO dùng cho State 2 — full review."
-
-Show 2-column layout:
-LEFT (AI Panel):
-├── Risk Score: 0.52 MEDIUM
-├── Confidence: 72%
-├── ⚠️ TOP 3 RISK:
-│   ❶ DTI 42% (borderline)
-│   ❷ Employment 8 tháng (short)
-│   ❸ 2 inquiries/6M (multiple recent)
-├── ✅ TOP 3 POSITIVE:
-│   ❶ CIC 650 (adequate)
-│   ❷ No DPD history
-│   ❸ eKYC verified
-
-RIGHT (Applicant Data):
-├── Demographics, income, employer
-├── CIC Report summary
-├── eKYC details
-
-→ "AI không nói 'reject' — AI nói 'review needed' và explain WHY.
-   CO thấy cả risk VÀ positive factors. CO quyết định."
-
-STEP 3: CO Decision — REJECT
-"Trong demo này, CO quyết định reject vì DTI 42% + employment 8 tháng."
-
-→ Click "REJECT"
-→ System tự động generate adverse action notice
-
-STEP 4: Adverse Action Notice
-"Khi reject, hệ thống tự động tạo thông báo cho khách."
-
-Show notice:
-├── "CHƯA ĐÁP ỨNG ĐIỀU KIỆN PHÁT HÀNH THẺ"
-├── Lý do:
-│   ① Tỷ lệ nghĩa vụ nợ hiện tại so với thu nhập vượt mức cho phép
-│   ② Thời gian làm việc tại đơn vị hiện tại chưa đủ yêu cầu
-│   ③ Số lượng yêu cầu vay vốn gần đây cao bất thường
-├── Quyền của khách: CIC check, human review, khiếu nại, apply lại
-├── "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
-└── Hotline + email khiếu nại
-
-→ "3 lý do plain language — không phải 'không đủ điều kiện' chung chung.
-   Khách hiểu tại sao bị từ chối. Comply NĐ 356 + Luật AI 134/2025."
-```
-
-### Key Message
+### Diễn biến demo (5-7 phút)
 
 ```
-"AI explain WHY → CO quyết định informed hơn → khách hiểu tại sao bị từ chối.
-Trước đây: CO check 10+ fields, 35 phút, lý do reject = 'không đủ điều kiện'.
-Bây giờ: AI highlight top 3 risk + top 3 positive, CO focus review, adverse action tự động."
+BƯỚC 1: Nhập hồ sơ (/apply)
+"Đây là form nhập hồ sơ. Khi vận hành, dữ liệu được điền tự động từ form
+online hoặc do chi nhánh nhập. Trong demo này tôi nhập thủ công."
+- Điền các trường thông tin
+- Chọn "Submit Application"
+- Hệ thống hiển thị "Hồ sơ đang được xử lý..."
+
+BƯỚC 2: Kết quả chấm điểm (/score/[id])
+"Trong vòng 30 giây, hệ thống đã:
+- Truy vấn CIC (mô phỏng): điểm 740
+- Chạy eKYC (mô phỏng): đạt
+- Tính điểm rủi ro: 0,82
+- Tính độ tin cậy: 91%
+- Định tuyến sang State 1 (Duyệt theo lô)"
+
+Màn hình hiển thị:
+- Risk Score: 0,82 (rủi ro thấp), thang màu xanh
+- Confidence: 91%, thanh màu xanh
+- Fraud Score: 0,05 (không có dấu hiệu), màu xanh
+- State: BATCH REVIEW (State 1)
+- Đề xuất của hệ thống: APPROVE
+- Ba yếu tố tích cực hàng đầu: CIC 740, DTI 22%, thâm niên 3 năm
+- Nhãn: "Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
+
+"Nhãn này là yêu cầu bắt buộc theo Luật AI 134/2025."
+
+BƯỚC 3: Hàng đợi duyệt theo lô (/review/batch)
+"Đây là hàng đợi của Credit Officer, gồm 12 hồ sơ được hệ thống đề xuất phê duyệt.
+Credit Officer xem tóm tắt, có thể mở chi tiết rồi xác nhận."
+
+- Hiển thị hàng đợi 12 hồ sơ
+- Mở chi tiết 1-2 hồ sơ
+- Chọn 4 hồ sơ (gồm Nguyễn Văn An)
+- Chọn "Confirm Selected (4)"
+- "4 hồ sơ đã được phê duyệt."
+
+"Thời gian xử lý 4 hồ sơ là 3-5 phút. Quy trình hiện tại: 35 phút x 4 = 140 phút,
+tức giảm khoảng 85% thời gian thẩm định cho nhóm hồ sơ độ tin cậy cao."
+
+BƯỚC 4: Nhật ký kiểm toán (/audit)
+"Mọi quyết định được ghi nhận tự động với 28 trường thông tin."
+
+- Mở bản ghi của Nguyễn Văn An
+- Chỉ ra: decision_id, model_version, ai_risk_score, human_decision,
+  co_review_seconds, ai_label_displayed, batch_review_flag
+- "NHNN có thể kiểm tra bất kỳ quyết định nào với đầy đủ thông tin."
+```
+
+### Thông điệp chính
+
+```
+"State 1 chiếm khoảng 35-45% khối lượng hồ sơ. Thời gian xử lý giảm từ 35 phút
+thủ công xuống 3-5 phút xác nhận theo lô. Credit Officer vẫn xem xét và xác nhận;
+hệ thống chỉ sàng lọc sơ bộ và định tuyến. Đây là nguồn tiết kiệm vận hành lớn nhất."
+```
+
+Tỷ trọng State 1 và mức giảm thời gian là giả định lập kế hoạch, sẽ được thay bằng số đo thực tế của Bank X khi có dữ liệu.
+
+---
+
+## 2. Tình huống B: Hồ sơ biên (State 2: Thẩm định riêng lẻ, từ chối)
+
+### Dữ liệu hồ sơ
+
+| Trường | Giá trị | Ghi chú |
+|-------|---------|---------|
+| Họ tên | SYN-Phạm Thị Bình | Dữ liệu tổng hợp |
+| CCCD | SYN-024987654 | Dữ liệu tổng hợp |
+| Tuổi | 29 | Trẻ |
+| Thu nhập | 18 triệu/tháng | Trung bình |
+| Đơn vị công tác | Công ty ABC (SME) | Mức ổn định thấp hơn |
+| Thời gian làm việc | 8 tháng | Ngắn |
+| Điểm CIC | 650 | Đạt nhưng không mạnh |
+| DTI | 42% | Cao ở mức biên |
+| Lịch sử quá hạn (DPD) | 0 | Sạch |
+| Số lần truy vấn tín dụng 6 tháng | 2 | Nhiều truy vấn gần đây |
+| eKYC | Đạt (0,91) | Chấp nhận được |
+
+### Diễn biến demo (5-7 phút)
+
+```
+BƯỚC 1: Kết quả chấm điểm
+- Risk Score: 0,52 (trung bình), thang màu vàng
+- Confidence: 72%, thanh màu vàng
+- State: STANDARD REVIEW (State 2)
+- Đề xuất của hệ thống: REVIEW NEEDED
+
+BƯỚC 2: Màn hình thẩm định riêng lẻ (/review/[id])
+"Đây là màn hình Credit Officer dùng cho State 2, thẩm định đầy đủ."
+
+Bố cục hai cột:
+CỘT TRÁI (Bảng hệ thống):
+- Risk Score: 0,52 (trung bình)
+- Confidence: 72%
+- Ba yếu tố rủi ro hàng đầu:
+  1. DTI 42% (mức biên)
+  2. Thời gian làm việc 8 tháng (ngắn)
+  3. 2 truy vấn tín dụng trong 6 tháng (nhiều truy vấn gần đây)
+- Ba yếu tố tích cực hàng đầu:
+  1. CIC 650 (đạt)
+  2. Không có lịch sử quá hạn
+  3. eKYC đã xác minh
+
+CỘT PHẢI (Dữ liệu khách hàng):
+- Thông tin nhân khẩu, thu nhập, đơn vị công tác
+- Tóm tắt báo cáo CIC
+- Chi tiết eKYC
+
+"Hệ thống không kết luận 'từ chối'. Hệ thống đề xuất 'cần thẩm định' và giải thích lý do.
+Credit Officer thấy cả yếu tố rủi ro lẫn yếu tố tích cực, và là người quyết định."
+
+BƯỚC 3: Quyết định của Credit Officer: từ chối
+"Trong demo này, Credit Officer từ chối vì DTI 42% và thời gian làm việc 8 tháng."
+
+- Chọn "REJECT"
+- Hệ thống tự động tạo thông báo từ chối gửi khách hàng
+
+BƯỚC 4: Thông báo từ chối
+"Khi từ chối, hệ thống tự động tạo thông báo cho khách hàng."
+
+Nội dung thông báo:
+- Tiêu đề: "CHƯA ĐÁP ỨNG ĐIỀU KIỆN PHÁT HÀNH THẺ"
+- Lý do:
+  1. Tỷ lệ nghĩa vụ nợ hiện tại so với thu nhập vượt mức cho phép
+  2. Thời gian làm việc tại đơn vị hiện tại chưa đủ yêu cầu
+  3. Số lượng yêu cầu vay vốn gần đây cao bất thường
+- Quyền của khách hàng: kiểm tra CIC, yêu cầu con người xem xét lại, khiếu nại, nộp hồ sơ lại
+- Nhãn: "Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo"
+- Hotline và email tiếp nhận khiếu nại
+
+"Ba lý do được diễn đạt rõ ràng, không dùng câu chung chung 'không đủ điều kiện'.
+Khách hàng hiểu lý do bị từ chối. Nội dung này đáp ứng NĐ 356 và Luật AI 134/2025."
+```
+
+### Thông điệp chính
+
+```
+"Hệ thống giải thích lý do, Credit Officer ra quyết định trên cơ sở đầy đủ thông tin,
+khách hàng hiểu vì sao hồ sơ bị từ chối. Quy trình hiện tại: Credit Officer kiểm tra
+hơn 10 trường dữ liệu trong 35 phút và lý do từ chối chỉ là 'không đủ điều kiện'.
+Với AI-CRDS: ba yếu tố rủi ro và ba yếu tố tích cực hàng đầu được làm nổi bật,
+Credit Officer tập trung thẩm định, thông báo từ chối được tạo tự động."
 ```
 
 ---
 
-## 3. SCENARIO C — FRAUD DETECTION (State 3)
+## 3. Tình huống C: Phát hiện gian lận (State 3)
 
-### Setup
+### Dữ liệu hồ sơ
 
-| Field | Value | Why |
-|-------|-------|-----|
-| Name | SYN-Trần Văn Cường | Synthetic |
-| CCCD | SYN-036111222 | Synthetic |
-| Age | 28 | Young |
-| Income | 30M/tháng | Suspiciously high for profile |
-| Employer | "Tập đoàn XYZ" | Unverifiable |
-| Employment | 24 tháng | Claims 2 years |
-| eKYC | Face match: 0.58 (LOW) | Possible identity fraud |
-| Velocity | 3 applications same device/24h | Fraud signal |
-| CIC | No record (thin file) | No credit history |
+| Trường | Giá trị | Ghi chú |
+|-------|---------|---------|
+| Họ tên | SYN-Trần Văn Cường | Dữ liệu tổng hợp |
+| CCCD | SYN-036111222 | Dữ liệu tổng hợp |
+| Tuổi | 28 | Trẻ |
+| Thu nhập | 30 triệu/tháng | Cao bất thường so với hồ sơ |
+| Đơn vị công tác | "Tập đoàn XYZ" | Không xác minh được |
+| Thời gian làm việc | 24 tháng | Khai báo 2 năm |
+| eKYC | Face match 0,58 (thấp) | Khả năng giả mạo danh tính |
+| Tần suất nộp hồ sơ | 3 hồ sơ cùng thiết bị trong 24 giờ | Tín hiệu gian lận |
+| CIC | Không có dữ liệu (thin file) | Không có lịch sử tín dụng |
 
-### Demo Flow (5-7 phút)
-
-```
-STEP 1: AI Scoring Result
-→ Risk Score: 0.38 (HIGH RISK) [red gauge]
-→ Fraud Score: 0.71 (ELEVATED) [red alert]
-→ State: PRIORITY FRAUD REVIEW (State 3) [red badge]
-→ 🔴 FRAUD SIGNAL DETECTED banner
-
-STEP 2: Fraud Review Screen
-"State 3 = priority fraud review. Fraud analyst hoặc Senior CO xử lý."
-
-Show fraud-specific UI:
-├── 🔴 FRAUD SIGNALS DETECTED
-│   ├── Face match score: 0.58 (below 0.80 threshold)
-│   ├── Application velocity: 3 apps / same device / 24h
-│   ├── Employer: không tìm thấy trong ĐKKD
-│   └── Income: 30M mâu thuẫn với thin file (no CIC record)
-├── Recommended action: Enhanced Due Diligence
-└── EDD Checklist available
-
-→ "AI phát hiện 4 fraud signals mà process hiện tại có thể miss.
-   eKYC chỉ cho pass/fail — AI cross-check nhiều signals."
-
-STEP 3: Decision — REJECT (Fraud)
-→ Click "REJECT — Fraud Confirmed"
-→ Audit log: fraud_decision = true
-→ SIMO report flag = filed
-→ Internal blacklist updated
-
-STEP 4: Adverse Action (Fraud template)
-Show fraud template:
-├── "Không thể hoàn tất xác minh thông tin cá nhân theo quy định"
-├── KHÔNG nêu chi tiết fraud signals
-└── Hướng khách đến branch nếu muốn re-verify
-
-→ "Lưu ý: thông báo cho khách KHÔNG nêu 'nghi ngờ gian lận'.
-   Chỉ nói 'không thể xác minh'. Bảo vệ bank khỏi defamation risk
-   VÀ không giúp fraudster biết bị phát hiện bằng cách nào."
-```
-
-### Key Message
+### Diễn biến demo (5-7 phút)
 
 ```
-"Hiện tại Bank X chỉ có eKYC pass/fail — không có fraud scoring layer.
-AI-CRDS thêm multi-signal fraud detection:
-- Face match anomaly
-- Application velocity
-- Employer verification
-- Income-profile mismatch
+BƯỚC 1: Kết quả chấm điểm
+- Risk Score: 0,38 (rủi ro cao), thang màu đỏ
+- Fraud Score: 0,71 (ở mức cao), cảnh báo đỏ
+- State: PRIORITY FRAUD REVIEW (State 3), huy hiệu đỏ
+- Banner "PHÁT HIỆN TÍN HIỆU GIAN LẬN"
 
-Fraud rate ~0.8% × 3,000 apps = 24 fraud cases/tháng × 50M = 14.4 tỷ/năm.
-AI catch thêm 30% → save 4.32 tỷ/năm."
+BƯỚC 2: Màn hình thẩm định gian lận
+"State 3 là luồng thẩm định gian lận ưu tiên, do chuyên viên phòng chống gian lận
+hoặc Credit Officer cấp cao xử lý."
+
+Giao diện riêng cho gian lận:
+- Các tín hiệu gian lận được phát hiện:
+  - Điểm face match: 0,58 (dưới ngưỡng 0,80)
+  - Tần suất nộp hồ sơ: 3 hồ sơ cùng thiết bị trong 24 giờ
+  - Đơn vị công tác: không tìm thấy trong dữ liệu đăng ký kinh doanh
+  - Thu nhập: 30 triệu mâu thuẫn với hồ sơ không có dữ liệu CIC
+- Hành động đề xuất: Thẩm định tăng cường (Enhanced Due Diligence)
+- Có sẵn danh mục kiểm tra EDD
+
+"Hệ thống phát hiện 4 tín hiệu gian lận mà quy trình hiện tại có thể bỏ sót.
+eKYC chỉ trả kết quả đạt hoặc không đạt; AI-CRDS đối chiếu nhiều tín hiệu cùng lúc."
+
+BƯỚC 3: Quyết định: từ chối do gian lận
+- Chọn "REJECT — Fraud Confirmed"
+- Nhật ký kiểm toán ghi fraud_decision = true
+- Cờ báo cáo SIMO được ghi nhận
+- Danh sách đen nội bộ được cập nhật
+
+BƯỚC 4: Thông báo từ chối (mẫu dành cho gian lận)
+Nội dung mẫu:
+- "Không thể hoàn tất xác minh thông tin cá nhân theo quy định"
+- Không nêu chi tiết các tín hiệu gian lận
+- Hướng dẫn khách hàng đến chi nhánh nếu muốn xác minh lại
+
+"Lưu ý: thông báo gửi khách hàng không nêu 'nghi ngờ gian lận', chỉ nêu
+'không thể xác minh'. Cách này bảo vệ Bank X khỏi rủi ro pháp lý về danh dự
+và không cho đối tượng gian lận biết cách hệ thống phát hiện."
+```
+
+### Thông điệp chính
+
+```
+"Hiện tại Bank X chỉ có kết quả eKYC đạt/không đạt, chưa có lớp chấm điểm gian lận.
+AI-CRDS bổ sung phát hiện gian lận đa tín hiệu:
+- Bất thường điểm face match
+- Tần suất nộp hồ sơ
+- Xác minh đơn vị công tác
+- Mâu thuẫn giữa thu nhập và hồ sơ
+
+Tỷ lệ gian lận khoảng 0,8% x 3.000 hồ sơ/tháng = 24 trường hợp/tháng x 50 triệu
+= 14,4 tỷ đồng/năm. Phát hiện thêm 30% giúp giảm thiệt hại khoảng 4,32 tỷ đồng/năm."
+```
+
+Các số liệu trên (tỷ lệ gian lận, số hồ sơ mỗi tháng, hạn mức trung bình, mức cải thiện 30%) là giả định lập kế hoạch, sẽ được thay bằng dữ liệu thực của Bank X khi có.
+
+---
+
+## 4. Kết thúc (2 phút)
+
+```
+"Tóm tắt 3 tình huống:
+
+A. Hồ sơ tốt: từ 35 phút thủ công xuống 3-5 phút xác nhận theo lô, tiết kiệm khoảng 85% thời gian.
+B. Hồ sơ biên: hệ thống giải thích, Credit Officer thẩm định đầy đủ thông tin,
+   thông báo từ chối được tạo tự động.
+C. Gian lận: hệ thống phát hiện đa tín hiệu, chặn ngay tại khâu tiếp nhận, trước khi thẻ được phát hành.
+
+Trong cả ba tình huống:
+- Credit Officer vẫn ký quyết định cuối cùng.
+- Nhật ký kiểm toán 28 trường, sẵn sàng cho thanh tra NHNN.
+- Nhãn AI được hiển thị theo Luật AI 134/2025.
+- Dữ liệu 100% là dữ liệu tổng hợp, chỉ dùng cho MVP demo.
+
+Mời mọi người dùng thử hệ thống và góp ý."
 ```
 
 ---
 
-## 4. CLOSING (2 phút)
+## 5. Câu hỏi thường gặp
 
-```
-"Tóm tắt 3 scenarios:
+| # | Câu hỏi | Trả lời |
+|---|--------|---------|
+| 1 | "Điểm số dựa trên cơ sở nào?" | "MVP dùng chấm điểm theo luật (điểm CIC, DTI, thâm niên, lịch sử quá hạn). Bản vận hành dùng mô hình học máy (từ hồi quy logistic đến gradient boosting) huấn luyện trên dữ liệu thực của Bank X." |
+| 2 | "Độ chính xác là bao nhiêu?" | "MVP chạy trên dữ liệu tổng hợp nên chỉ số độ chính xác chưa có ý nghĩa. Giai đoạn shadow testing trên dữ liệu thực thuộc Phase 0 sẽ cho con số thật. Mục tiêu là mức đồng thuận với Credit Officer từ 70% trở lên." |
+| 3 | "Nếu hệ thống đề xuất sai thì sao?" | "Credit Officer luôn có quyền ghi đè. Mọi lần ghi đè được ghi nhận và theo dõi. Nếu hệ thống sai có hệ thống, mô hình được huấn luyện lại. Rào chắn an toàn: NPL tăng 200 bps thì dừng khẩn cấp." |
+| 4 | "Credit Officer có bị thay thế không?" | "Không. Credit Officer ký mọi quyết định. Hệ thống xử lý hồ sơ thường quy (theo lô), Credit Officer tập trung vào hồ sơ phức tạp, nơi chuyên môn có giá trị cao hơn." |
+| 5 | "Khi nào dùng dữ liệu thật?" | "Sau khi Phase 0 được phê duyệt, hồ sơ đánh giá tác động xử lý dữ liệu cá nhân (DPIA) được nộp và việc tích hợp với hệ thống CNTT hoàn tất. Mốc thời gian cụ thể nằm trong lộ trình triển khai tại w11-06-implementation-roadmap.md." |
+| 6 | "Ngân sách bao nhiêu?" | "Phase 0: 365 triệu đồng, 8 tuần. Chi tiết trong w11-06-implementation-roadmap.md." |
+| 7 | "Tại sao không mua giải pháp của nhà cung cấp?" | "Tự xây dựng giúp Bank X sở hữu 100% tài sản trí tuệ, chi phí 3 năm thấp hơn khoảng 40-50%, phù hợp quy định Việt Nam và tận dụng dữ liệu CBS/CIC nội bộ." |
 
-A. Hồ sơ tốt → 35 phút manual → 3-5 phút batch = TIẾT KIỆM 85% THỜI GIAN
-B. Hồ sơ borderline → AI explain → CO review informed → adverse action tự động
-C. Fraud → AI detect multi-signal → catch tại origination, TRƯỚC KHI card phát hành
-
-Tất cả: CO vẫn ký quyết định cuối cùng.
-Tất cả: Audit trail 24 fields, SBV ready.
-Tất cả: AI label display (Luật AI 134/2025).
-Tất cả: Data 100% synthetic — MVP demo only.
-
-Next step: Week 13 — usability test với Credit Officers.
-Xin mọi người thử dùng và cho feedback."
-```
+Các con số về ngân sách và chênh lệch chi phí là ước tính lập kế hoạch, sẽ được cập nhật theo số liệu thực của Bank X.
 
 ---
 
-## 5. FAQ — Prepare for Q&A
+## 6. Phương án dự phòng khi demo trực tiếp gặp sự cố
 
-| # | Likely question | Answer |
-|---|----------------|--------|
-| 1 | "AI score dựa trên cái gì?" | "MVP dùng rule-based scoring (CIC score, DTI, employment, DPD). Production sẽ dùng ML model (logistic regression → gradient boosting) trained trên real data." |
-| 2 | "Accuracy bao nhiêu?" | "MVP trên synthetic data — accuracy chưa meaningful. Shadow testing trên real data (Phase 0, 4 tuần) sẽ cho con số thật. Mục tiêu: AI agree với CO ≥70%." |
-| 3 | "Nếu AI sai thì sao?" | "CO luôn có quyền override. Override logged + tracked. Nếu AI consistently sai → model retrain. Guardrail: NPL +200bps → emergency stop." |
-| 4 | "CO có bị thay thế không?" | "Không. CO ký mọi quyết định. AI xử lý routine (batch), CO xử lý complex. CO expertise MORE valuable — focus vào cases khó." |
-| 5 | "Khi nào dùng real data?" | "Sau khi: (1) Phase 0 approved, (2) DPIA submitted, (3) IT integration done. Ước tính: shadow testing Week 37 (nếu Phase 0 approved Week 16)." |
-| 6 | "Budget bao nhiêu?" | "Phase 0: 365M, 8 tuần. Chi tiết trong proposal file 06-implementation-roadmap.md." |
-| 7 | "Tại sao không mua vendor?" | "In-house: IP 100% Bank X, chi phí 3 năm thấp hơn 40-50%, regulatory fit cho VN, tận dụng CBS/CIC data nội bộ." |
+| Sự cố | Phương án dự phòng |
+|-------|--------------------|
+| Hệ thống ngừng hoạt động | Chuyển sang bộ ảnh chụp màn hình đã chuẩn bị cho cả 3 tình huống |
+| Lỗi bộ chấm điểm | Hiển thị kết quả cố định từ dữ liệu kiểm thử đã nạp sẵn |
+| Giao diện lỗi | Trình bày theo bản wireframe (w09-02-ux-wireframes-v1.md) |
+| Dữ liệu không tải được | Demo với 1 bản ghi nạp sẵn cho mỗi tình huống |
+| Sự cố máy chiếu | Chia sẻ màn hình qua Zoom hoặc Teams (có sẵn liên kết) |
 
----
-
-## 6. CONTINGENCY — Nếu Live Demo Fail
-
-| Problem | Backup |
-|---------|--------|
-| System down | Switch to screenshot deck (pre-captured for all 3 scenarios) |
-| Scoring engine error | Show hardcoded results (pre-populated test data) |
-| UI broken | Walk through wireframe mockups (ux-wireframes-notes.md) |
-| Data not loading | Demo with 1 pre-loaded record per scenario |
-| Projector issue | Share screen via Zoom/Teams (have link ready) |
-
-**Rule: Nếu live demo fail > 2 phút → switch to backup. Không debug on stage.**
-
----
-
-## Tracking
-
-- [ ] 3 test applications pre-created?
-- [ ] Scoring engine returns correct scores for 3 scenarios?
-- [ ] Audit log ghi đủ 24+ fields?
-- [ ] AI label visible on every screen?
-- [ ] Adverse action notice generates correctly?
-- [ ] Backup screenshots captured?
-- [ ] FAQ answers rehearsed?
-- [ ] Demo time ≤ 20 phút (timed)?
+Nguyên tắc: nếu demo trực tiếp lỗi quá 2 phút thì chuyển sang phương án dự phòng, không xử lý lỗi trước người xem.

@@ -1,53 +1,51 @@
 # PDPD Impact Assessment — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) · **Khách hàng:** Bank X
 
 ---
 
 ## Mục đích
 
-Đánh giá tác động của pháp luật bảo vệ dữ liệu cá nhân đến thiết kế và vận hành AI-CRDS. Document này ảnh hưởng trực tiếp đến architecture decisions.
+Đánh giá tác động của pháp luật bảo vệ dữ liệu cá nhân đến thiết kế và vận hành AI-CRDS tại Bank X. Tài liệu là cơ sở cho các quyết định kiến trúc về dữ liệu, đồng ý, lưu trữ và quyền của chủ thể dữ liệu.
 
-**⚠️ Lưu ý quan trọng:** NĐ 13/2023/NĐ-CP đã **hết hiệu lực từ 01/01/2026**. Framework hiện hành là **Luật BVDLCN 91/2025/QH15 + NĐ 356/2025/NĐ-CP**. Tài liệu này reference framework mới. Roadmap ban đầu ghi "NĐ13" — cần update.
-
-**Không phải tư vấn pháp lý.** Cần legal review trước khi triển khai.
+Khung pháp lý áp dụng là **Luật BVDLCN 91/2025/QH15** và **Nghị định 356/2025/NĐ-CP** (hiệu lực từ 01/01/2026), thay thế Nghị định 13/2023/NĐ-CP. Tài liệu không thay thế tư vấn pháp lý chính thức.
 
 ---
 
-## 1. Data Inventory — AI-CRDS xử lý những PII nào?
+## 1. Danh Mục Dữ Liệu Cá Nhân Được Xử Lý
 
 ### 1.1 Phân loại dữ liệu theo NĐ 356/2025
 
-NĐ 356/2025 phân dữ liệu thành 2 loại với mức bảo vệ khác nhau. AI-CRDS xử lý **cả hai loại**.
+AI-CRDS xử lý cả hai loại dữ liệu cá nhân: cơ bản và nhạy cảm.
 
 #### Dữ liệu cá nhân cơ bản (Điều 3 NĐ 356)
 
-| # | Data field | Mục đích trong AI-CRDS | Nguồn | Bắt buộc? |
-|---|-----------|----------------------|-------|----------|
-| 1 | Họ tên | Định danh applicant, match CIC | Application form | Có |
-| 2 | Ngày sinh | Feature scoring (age-based risk) | Application form / eKYC | Có |
-| 3 | Giới tính | ⚠️ Protected attribute — dùng cho bias monitoring, KHÔNG dùng làm scoring feature | Application form | Bias monitoring only |
-| 4 | CCCD/CMND | Định danh, query CIC, eKYC verification | Application form / eKYC | Có |
-| 5 | Địa chỉ | Feature scoring (geography-based risk) | Application form | Có |
-| 6 | Số điện thoại | Verify chính chủ (TT 45/2025), liên hệ | Application form | Có |
-| 7 | Email | Liên hệ, gửi adverse action notice | Application form | Không bắt buộc |
-| 8 | Nghề nghiệp / employer | Feature scoring (employment stability) | Application form | Có |
-| 9 | Thông tin vợ/chồng | ⚠️ NĐ 356 bổ sung vào danh mục cơ bản. Có thể dùng cho debt-to-income nếu joint application | Application form | Tùy product |
+| # | Trường dữ liệu | Mục đích trong AI-CRDS | Nguồn | Bắt buộc |
+|---|---------------|----------------------|-------|----------|
+| 1 | Họ tên | Định danh người nộp hồ sơ, đối chiếu CIC | Hồ sơ đăng ký | Có |
+| 2 | Ngày sinh | Đặc trưng chấm điểm (rủi ro theo độ tuổi) | Hồ sơ đăng ký, eKYC | Có |
+| 3 | Giới tính | Thuộc tính nhạy cảm về công bằng: chỉ dùng để giám sát thiên lệch, không dùng làm đặc trưng chấm điểm | Hồ sơ đăng ký | Chỉ cho giám sát thiên lệch |
+| 4 | CCCD/CMND | Định danh, truy vấn CIC, xác minh eKYC | Hồ sơ đăng ký, eKYC | Có |
+| 5 | Địa chỉ | Đặc trưng chấm điểm (rủi ro theo địa bàn) | Hồ sơ đăng ký | Có |
+| 6 | Số điện thoại | Xác minh chính chủ (TT 45/2025), liên hệ | Hồ sơ đăng ký | Có |
+| 7 | Email | Liên hệ, gửi thông báo từ chối | Hồ sơ đăng ký | Không |
+| 8 | Nghề nghiệp, đơn vị công tác | Đặc trưng chấm điểm (ổn định việc làm) | Hồ sơ đăng ký | Có |
+| 9 | Thông tin vợ/chồng | NĐ 356 bổ sung vào danh mục cơ bản; dùng cho tính tỷ lệ nợ trên thu nhập khi hồ sơ vay chung | Hồ sơ đăng ký | Tùy sản phẩm |
 
-#### Dữ liệu cá nhân nhạy cảm (Điều 4 NĐ 356) — YÊU CẦU BẢO VỆ CAO NHẤT
+#### Dữ liệu cá nhân nhạy cảm (Điều 4 NĐ 356), yêu cầu bảo vệ cao nhất
 
-| # | Data field | Mục đích trong AI-CRDS | Nguồn | Phân loại nhạy cảm |
-|---|-----------|----------------------|-------|-------------------|
-| 10 | Thu nhập / sao kê lương | Core scoring feature (repayment capacity) | Payslip / bank statement | Dữ liệu tài chính |
-| 11 | Lịch sử tín dụng CIC | Core scoring feature (credit history) | CIC API | Dữ liệu tài chính — NĐ 356 quy định rõ lịch sử giao dịch tài khoản NH là nhạy cảm |
-| 12 | CIC score | Scoring input | CIC API | Dữ liệu tài chính |
-| 13 | Số dư nợ hiện tại | Debt-to-income calculation | CIC API / bank internal | Dữ liệu tài chính |
-| 14 | Lịch sử giao dịch ngân hàng | Behavioral scoring, income verification | Bank internal (nếu existing customer) | NĐ 356 quy định rõ: lịch sử giao dịch tài khoản NH = nhạy cảm |
-| 15 | Thông tin thẻ ngân hàng | Fraud detection (existing card check) | Bank internal | NĐ 356: thông tin thẻ NH = nhạy cảm |
-| 16 | Dữ liệu sinh trắc học | eKYC verification (TT 45/2025 bắt buộc) | eKYC provider | Sinh trắc = nhạy cảm |
-| 17 | Ảnh CCCD / khuôn mặt | eKYC matching | eKYC provider | Hình ảnh gắn liền cá nhân |
-| 18 | Dữ liệu vi phạm pháp luật | Fraud blacklist check | CIC / internal blacklist | NĐ 356 mở rộng: MỌI vi phạm PL = nhạy cảm (trước đây chỉ hình sự) |
+| # | Trường dữ liệu | Mục đích trong AI-CRDS | Nguồn | Phân loại |
+|---|---------------|----------------------|-------|-----------|
+| 10 | Thu nhập, sao kê lương | Đặc trưng chấm điểm cốt lõi (khả năng trả nợ) | Bảng lương, sao kê | Dữ liệu tài chính |
+| 11 | Lịch sử tín dụng CIC | Đặc trưng chấm điểm cốt lõi | API CIC | Dữ liệu tài chính |
+| 12 | Điểm CIC | Đầu vào chấm điểm | API CIC | Dữ liệu tài chính |
+| 13 | Dư nợ hiện tại | Tính tỷ lệ nợ trên thu nhập | API CIC, hệ thống nội bộ | Dữ liệu tài chính |
+| 14 | Lịch sử giao dịch ngân hàng | Chấm điểm hành vi, xác minh thu nhập | Hệ thống nội bộ (khách hàng hiện hữu) | NĐ 356 quy định là nhạy cảm |
+| 15 | Thông tin thẻ ngân hàng | Phát hiện gian lận (kiểm tra thẻ hiện có) | Hệ thống nội bộ | NĐ 356 quy định là nhạy cảm |
+| 16 | Dữ liệu sinh trắc học | Xác minh eKYC (TT 45/2025 bắt buộc) | Nhà cung cấp eKYC | Sinh trắc học |
+| 17 | Ảnh CCCD, khuôn mặt | Đối chiếu eKYC | Nhà cung cấp eKYC | Hình ảnh gắn với cá nhân |
+| 18 | Dữ liệu vi phạm pháp luật | Kiểm tra danh sách đen gian lận | CIC, danh sách đen nội bộ | NĐ 356 mở rộng: mọi vi phạm pháp luật đều là nhạy cảm |
 
-### 1.2 Data flow diagram (simplified)
+### 1.2 Sơ đồ luồng dữ liệu rút gọn
 
 ```
 Khách hàng nộp hồ sơ (online/app)
@@ -55,8 +53,8 @@ Khách hàng nộp hồ sơ (online/app)
         │  [DLCN cơ bản + nhạy cảm]
         ▼
 ┌───────────────────┐
-│ Bank Application  │  ← Thu thập: họ tên, CCCD, thu nhập, employer
-│ System            │     Consent lấy tại đây
+│ Bank Application  │  ← Thu thập: họ tên, CCCD, thu nhập, đơn vị công tác
+│ System            │     Đồng ý được lấy tại đây
 └───────┬───────────┘
         │
         ├──────────────────┐──────────────────┐
@@ -91,131 +89,129 @@ Khách hàng nộp hồ sơ (online/app)
                │
                ▼
         ┌───────────────┐
-        │ Credit Officer │  ← Human decision
+        │ Credit Officer │  ← Quyết định của con người
         │ Review UI     │     Override nếu cần
         └──────┬────────┘
                │
                ▼
         ┌───────────────┐
-        │  Audit Log    │  ← Lưu trữ: input, output, decision,
-        │  (immutable)  │     override reason, timestamp, model version
+        │  Audit Log    │  ← Lưu trữ: đầu vào, kết quả, quyết định,
+        │  (immutable)  │     lý do override, thời điểm, phiên bản mô hình
         └───────────────┘
 ```
 
-### 1.3 Tổng hợp data inventory
+### 1.3 Tổng hợp danh mục dữ liệu
 
-| Loại | Số fields | Ví dụ | Yêu cầu bảo vệ |
+| Loại | Số trường | Ví dụ | Yêu cầu bảo vệ |
 |------|----------|-------|----------------|
-| DLCN cơ bản | 9 | Họ tên, CCCD, địa chỉ, SĐT | Tiêu chuẩn |
-| DLCN nhạy cảm | 9 | Thu nhập, CIC, sinh trắc, giao dịch NH | Cao nhất — cần DPO, thông báo chủ thể, biện pháp bảo mật tăng cường |
-| **Tổng** | **18** | | |
+| DLCN cơ bản | 9 | Họ tên, CCCD, địa chỉ, số điện thoại | Tiêu chuẩn |
+| DLCN nhạy cảm | 9 | Thu nhập, CIC, sinh trắc, giao dịch ngân hàng | Cao nhất: DPO, thông báo chủ thể, biện pháp bảo mật tăng cường |
+| Tổng | 18 | | |
 
 ---
 
-## 2. Legal Basis cho xử lý dữ liệu
+## 2. Cơ Sở Pháp Lý Cho Xử Lý Dữ Liệu
 
-### 2.1 Các legal basis theo Luật BVDLCN 2025
+### 2.1 Các cơ sở pháp lý theo Luật BVDLCN 2025
 
-Luật 91/2025 quy định xử lý DLCN phải có legal basis. Các basis chính applicable cho AI-CRDS:
+Luật 91/2025 yêu cầu mọi hoạt động xử lý DLCN phải có cơ sở pháp lý. Mức áp dụng với AI-CRDS:
 
-| Legal basis | Mô tả | Applicable cho AI-CRDS? |
-|------------|-------|------------------------|
-| **Đồng ý (Consent)** | Chủ thể dữ liệu đồng ý rõ ràng, tự nguyện | ✅ Primary basis |
-| **Thực hiện hợp đồng** | Cần xử lý để thực hiện hợp đồng với chủ thể | ✅ Khi khách đã ký hợp đồng vay/mở thẻ |
-| **Nghĩa vụ pháp luật** | Xử lý theo yêu cầu pháp luật | ✅ CIC query theo quy định SBV |
-| **Lợi ích công cộng** | Xử lý vì lợi ích công cộng quan trọng | ❌ Không applicable |
-| **Lợi ích hợp pháp** | Bên kiểm soát có lợi ích hợp pháp | ⚠️ Luật VN chưa quy định rõ "legitimate interest" như GDPR — không nên dựa vào basis này |
+| Cơ sở pháp lý | Mô tả | Áp dụng cho AI-CRDS |
+|--------------|-------|---------------------|
+| Đồng ý | Chủ thể dữ liệu đồng ý rõ ràng, tự nguyện | Cơ sở chính |
+| Thực hiện hợp đồng | Cần xử lý để thực hiện hợp đồng với chủ thể | Áp dụng khi khách đã ký hợp đồng vay hoặc mở thẻ |
+| Nghĩa vụ pháp luật | Xử lý theo yêu cầu của pháp luật | Áp dụng cho truy vấn CIC theo quy định của NHNN |
+| Lợi ích công cộng | Xử lý vì lợi ích công cộng quan trọng | Không áp dụng |
+| Lợi ích hợp pháp | Bên kiểm soát có lợi ích hợp pháp | Pháp luật Việt Nam chưa quy định rõ như GDPR nên AI-CRDS không dựa vào cơ sở này |
 
-### 2.2 Legal basis per data type — AI-CRDS
+### 2.2 Cơ sở pháp lý theo loại dữ liệu
 
-| # | Data | Legal basis | Lý do | Consent cần nêu rõ |
-|---|------|-----------|-------|-------------------|
-| 1 | Thông tin cá nhân cơ bản (tên, CCCD, SĐT) | Consent + Hợp đồng | Cần để mở thẻ tín dụng | Mục đích: xét duyệt thẻ tín dụng |
-| 2 | Thu nhập / employer | Consent | Không bắt buộc theo luật, nhưng cần cho scoring | Mục đích: đánh giá khả năng trả nợ |
-| 3 | CIC credit history | Consent + Nghĩa vụ PL | SBV yêu cầu TCTD thẩm định → CIC query hợp pháp. Nhưng NĐ 356 yêu cầu consent rõ ràng cho chấm điểm tín dụng | Mục đích: tra cứu lịch sử tín dụng tại CIC để chấm điểm |
-| 4 | Giao dịch ngân hàng | Consent | Dữ liệu nhạy cảm — cần consent riêng | Mục đích: phân tích hành vi giao dịch để đánh giá rủi ro |
-| 5 | Sinh trắc học | Consent + Nghĩa vụ PL | TT 45/2025 bắt buộc đối chiếu sinh trắc. Nhưng consent vẫn cần | Mục đích: xác minh danh tính theo quy định phát hành thẻ |
-| 6 | **AI scoring output** | ⚠️ Đây là dữ liệu phái sinh | AI score, risk category, fraud flag — dù không phải PII gốc, nhưng gắn liền với cá nhân cụ thể → vẫn là DLCN | Phải nêu trong consent: dữ liệu sẽ được xử lý tự động (AI scoring) |
+| # | Dữ liệu | Cơ sở pháp lý | Lý do | Nội dung nêu rõ trong đồng ý |
+|---|---------|---------------|-------|------------------------------|
+| 1 | Thông tin cá nhân cơ bản (tên, CCCD, SĐT) | Đồng ý và hợp đồng | Cần để mở thẻ tín dụng | Mục đích: xét duyệt thẻ tín dụng |
+| 2 | Thu nhập, đơn vị công tác | Đồng ý | Luật không bắt buộc nhưng cần cho chấm điểm | Mục đích: đánh giá khả năng trả nợ |
+| 3 | Lịch sử tín dụng CIC | Đồng ý và nghĩa vụ pháp luật | NHNN yêu cầu TCTD thẩm định nên truy vấn CIC hợp pháp; NĐ 356 yêu cầu đồng ý rõ ràng cho chấm điểm tín dụng | Mục đích: tra cứu lịch sử tín dụng tại CIC để chấm điểm |
+| 4 | Giao dịch ngân hàng | Đồng ý | Dữ liệu nhạy cảm, cần đồng ý riêng | Mục đích: phân tích hành vi giao dịch để đánh giá rủi ro |
+| 5 | Sinh trắc học | Đồng ý và nghĩa vụ pháp luật | TT 45/2025 bắt buộc đối chiếu sinh trắc học; vẫn cần đồng ý | Mục đích: xác minh danh tính theo quy định phát hành thẻ |
+| 6 | Kết quả chấm điểm của AI | Dữ liệu phái sinh | Điểm AI, nhóm rủi ro, cờ gian lận gắn với cá nhân cụ thể nên được coi là DLCN và đưa vào DPIA | Nêu rõ trong đồng ý: dữ liệu được xử lý tự động (chấm điểm bằng AI) |
 
-### 2.3 Consent requirements đặc biệt cho lĩnh vực ngân hàng (NĐ 356)
+### 2.3 Yêu cầu đồng ý đặc thù cho lĩnh vực ngân hàng (NĐ 356)
 
-NĐ 356 quy định khi xử lý DLCN trong lĩnh vực tài chính, ngân hàng, consent phải nêu rõ:
+Khi xử lý DLCN trong lĩnh vực tài chính, ngân hàng, văn bản đồng ý nêu rõ:
 
-1. **Các mục đích xử lý**, bao gồm hoạt động chấm điểm, xếp hạng tín dụng, đánh giá thông tin tín dụng
-2. **Thời gian lưu trữ** dữ liệu cá nhân
-3. **Nguồn thu thập** dữ liệu cá nhân (CIC, eKYC provider, bank internal)
-4. **Các bên thu thập, chia sẻ** dữ liệu cá nhân liên quan (AI-CRDS vendor, CIC, eKYC provider)
+1. **Các mục đích xử lý**, bao gồm chấm điểm, xếp hạng tín dụng, đánh giá thông tin tín dụng.
+2. **Thời gian lưu trữ** dữ liệu cá nhân.
+3. **Nguồn thu thập** dữ liệu (CIC, nhà cung cấp eKYC, hệ thống nội bộ của Bank X).
+4. **Các bên thu thập, chia sẻ** dữ liệu liên quan (nhà cung cấp AI-CRDS, CIC, nhà cung cấp eKYC).
 
-**→ Consent form cho AI-CRDS phải bao gồm tất cả 4 nội dung trên. Generic consent "đồng ý xử lý dữ liệu" là KHÔNG ĐỦ.**
+Văn bản đồng ý của AI-CRDS bao gồm đầy đủ bốn nội dung trên. Đồng ý chung chung "đồng ý xử lý dữ liệu" không đáp ứng yêu cầu.
 
-### 2.4 Action items — Legal basis
+### 2.4 Nguyên tắc thiết kế đồng ý
 
-- [ ] **Thiết kế consent form** nêu rõ 4 nội dung NĐ 356 yêu cầu cho lĩnh vực ngân hàng
-- [ ] **Tách consent** cho: (a) thẩm định tín dụng, (b) AI scoring tự động, (c) chia sẻ với bên thứ ba (CIC, eKYC)
-- [ ] **Xác định legal basis per data type** — bảng 2.2 cần được confirm với legal counsel
-- [ ] **Xác nhận:** AI scoring output (risk score, fraud flag) có phải DLCN không? → Cần legal opinion. Nếu có → phải include trong DPIA.
+- Văn bản đồng ý nêu rõ bốn nội dung theo NĐ 356.
+- Tách đồng ý riêng cho: (a) thẩm định tín dụng, (b) chấm điểm tự động bằng AI, (c) chia sẻ với bên thứ ba (CIC, eKYC).
+- Cơ sở pháp lý cho từng loại dữ liệu theo bảng 2.2.
+- Kết quả chấm điểm của AI được coi là DLCN và nằm trong phạm vi DPIA.
 
 ---
 
-## 3. Data Minimization — Chỉ collect cái cần
+## 3. Tối Thiểu Hóa Dữ Liệu
 
 ### 3.1 Nguyên tắc
 
-Luật 91/2025 Điều 3: "Dữ liệu cá nhân thu thập phải phù hợp và giới hạn trong phạm vi, mục đích cần xử lý."
+Luật 91/2025 Điều 3: dữ liệu cá nhân thu thập phải phù hợp và giới hạn trong phạm vi, mục đích cần xử lý. AI-CRDS chỉ thu thập và xử lý các trường thực sự cần cho chấm điểm và phát hiện gian lận, không thu thập dự phòng.
 
-AI-CRDS phải tuân thủ: chỉ thu thập và xử lý data fields thực sự cần cho scoring + fraud detection. Không thu thập "phòng xa."
+### 3.2 Ma trận tối thiểu hóa dữ liệu
 
-### 3.2 Data minimization matrix
-
-| # | Data field | Cần cho Scoring? | Cần cho Fraud? | Cần cho Compliance? | Kết luận |
-|---|-----------|-----------------|---------------|-------------------|---------|
-| 1 | Họ tên | Không (match CIC) | Có (identity check) | Có (audit trail) | ✅ Thu thập |
-| 2 | CCCD | Không trực tiếp | Có (identity fraud) | Có (định danh) | ✅ Thu thập |
-| 3 | Ngày sinh / tuổi | Có (age-risk) | Có (age fraud pattern) | Không | ✅ Thu thập — nhưng xem xét dùng age range thay vì DOB chính xác cho model |
-| 4 | Giới tính | ❌ KHÔNG dùng cho scoring | Không | Có (bias monitoring) | ⚠️ Thu thập cho bias monitoring ONLY — không đưa vào model features |
-| 5 | Địa chỉ | Có (geography risk) | Có (address fraud) | Có (adverse action) | ✅ Thu thập — xem xét dùng district/city level thay vì full address cho model |
-| 6 | SĐT | Không | Có (SIM fraud) | Có (verify TT45) | ✅ Thu thập |
-| 7 | Thu nhập | Có (core feature) | Có (income fraud) | Không | ✅ Thu thập |
-| 8 | Employer / nghề nghiệp | Có (stability) | Có (fake employer) | Không | ✅ Thu thập |
-| 9 | CIC score + history | Có (core feature) | Có (identity fraud) | Có (SBV thẩm định) | ✅ Thu thập |
-| 10 | Giao dịch NH | Có (behavioral) | Có (transaction fraud) | Không | ⚠️ Chỉ thu thập nếu existing customer + consent riêng. Không bắt buộc cho new-to-bank |
-| 11 | Sinh trắc | Không | Có (liveness check) | Có (TT 45) | ✅ Thu thập — nhưng AI-CRDS chỉ nhận kết quả pass/fail + confidence, KHÔNG lưu raw biometric |
-| 12 | Ảnh CCCD | Không | Có (document fraud) | Có (eKYC) | ⚠️ AI-CRDS không cần lưu ảnh — chỉ nhận kết quả eKYC verification |
-| 13 | Tôn giáo / dân tộc | ❌ KHÔNG | ❌ KHÔNG | ❌ KHÔNG | ❌ KHÔNG thu thập — không relevant, tăng bias risk |
-| 14 | Tình trạng hôn nhân | Có thể (DTI) | Không | Không | ⚠️ Chỉ thu thập nếu joint income/liability calculation cần. Không mặc định |
-| 15 | Mạng xã hội / online behavior | ❌ | ❌ | ❌ | ❌ KHÔNG thu thập — NĐ 356 coi dữ liệu hành vi online là nhạy cảm, risk cao, value thấp cho VN credit scoring |
+| # | Trường dữ liệu | Cần cho chấm điểm | Cần cho phát hiện gian lận | Cần cho tuân thủ | Quyết định |
+|---|---------------|-------------------|----------------------------|------------------|-----------|
+| 1 | Họ tên | Không (dùng đối chiếu CIC) | Có (kiểm tra danh tính) | Có (audit trail) | Thu thập |
+| 2 | CCCD | Không trực tiếp | Có (gian lận danh tính) | Có (định danh) | Thu thập |
+| 3 | Ngày sinh, tuổi | Có (rủi ro theo tuổi) | Có (mẫu gian lận theo tuổi) | Không | Thu thập; mô hình dùng nhóm tuổi thay cho ngày sinh chính xác |
+| 4 | Giới tính | Không | Không | Có (giám sát thiên lệch) | Thu thập chỉ để giám sát thiên lệch, không đưa vào đặc trưng của mô hình |
+| 5 | Địa chỉ | Có (rủi ro địa bàn) | Có (gian lận địa chỉ) | Có (thông báo từ chối) | Thu thập; mô hình dùng cấp quận/thành phố thay cho địa chỉ đầy đủ |
+| 6 | Số điện thoại | Không | Có (gian lận SIM) | Có (xác minh theo TT 45) | Thu thập |
+| 7 | Thu nhập | Có (đặc trưng cốt lõi) | Có (gian lận thu nhập) | Không | Thu thập |
+| 8 | Đơn vị công tác, nghề nghiệp | Có (ổn định) | Có (đơn vị giả) | Không | Thu thập |
+| 9 | Điểm và lịch sử CIC | Có (đặc trưng cốt lõi) | Có (gian lận danh tính) | Có (thẩm định theo NHNN) | Thu thập |
+| 10 | Giao dịch ngân hàng | Có (hành vi) | Có (gian lận giao dịch) | Không | Chỉ thu thập với khách hàng hiện hữu và có đồng ý riêng; không bắt buộc với khách hàng mới |
+| 11 | Sinh trắc học | Không | Có (kiểm tra người thật) | Có (TT 45) | AI-CRDS chỉ nhận kết quả đạt/không đạt và độ tin cậy, không lưu dữ liệu sinh trắc gốc |
+| 12 | Ảnh CCCD | Không | Có (gian lận giấy tờ) | Có (eKYC) | AI-CRDS không lưu ảnh, chỉ nhận kết quả xác minh eKYC |
+| 13 | Tôn giáo, dân tộc | Không | Không | Không | Không thu thập, không liên quan và làm tăng rủi ro thiên lệch |
+| 14 | Tình trạng hôn nhân | Có thể (tỷ lệ nợ trên thu nhập) | Không | Không | Chỉ thu thập khi cần tính thu nhập hoặc nghĩa vụ chung |
+| 15 | Mạng xã hội, hành vi trực tuyến | Không | Không | Không | Không thu thập: NĐ 356 coi là dữ liệu nhạy cảm, rủi ro cao, giá trị thấp cho chấm điểm tín dụng tại Việt Nam |
 
 ### 3.3 Nguyên tắc thiết kế
 
-1. **AI-CRDS KHÔNG lưu raw biometric** — chỉ nhận kết quả eKYC (pass/fail/confidence)
-2. **AI-CRDS KHÔNG lưu ảnh CCCD** — chỉ nhận extracted fields từ eKYC
-3. **Giới tính KHÔNG là scoring feature** — chỉ dùng cho bias monitoring
-4. **Tôn giáo / dân tộc KHÔNG thu thập** — zero relevance, high bias risk
-5. **Giao dịch NH chỉ khi existing customer** + consent riêng
-6. **Data retention có thời hạn** — không giữ vô thời hạn (xem Section 6)
+1. AI-CRDS không lưu dữ liệu sinh trắc học gốc, chỉ nhận kết quả eKYC (đạt, không đạt, độ tin cậy).
+2. AI-CRDS không lưu ảnh CCCD, chỉ nhận các trường đã trích xuất từ eKYC.
+3. Giới tính không phải đặc trưng chấm điểm, chỉ dùng cho giám sát thiên lệch.
+4. Tôn giáo và dân tộc không được thu thập.
+5. Giao dịch ngân hàng chỉ dùng với khách hàng hiện hữu và có đồng ý riêng.
+6. Dữ liệu được lưu trữ có thời hạn (xem mục 4.4).
 
 ---
 
-## 4. Quyền của Chủ Thể Dữ Liệu
+## 4. Quyền Của Chủ Thể Dữ Liệu
 
-### 4.1 Các quyền theo Luật 91/2025 và ảnh hưởng đến AI-CRDS
+### 4.1 Các quyền theo Luật 91/2025 và cách AI-CRDS đáp ứng
 
-| # | Quyền | Mô tả | Ảnh hưởng đến AI-CRDS | Implementation |
-|---|-------|-------|----------------------|---------------|
-| 1 | **Quyền được biết** | Chủ thể được biết dữ liệu đang được xử lý thế nào | AI-CRDS phải có transparency page/notice: data nào được thu thập, AI xử lý thế nào, ai truy cập | Consent form + Privacy notice |
-| 2 | **Quyền đồng ý** | Xử lý phải có đồng ý rõ ràng, tự nguyện. Cấm "mặc định đồng ý" | Consent form phải opt-in (không pre-checked). Sự im lặng ≠ đồng ý | Consent UI: checkbox không pre-checked |
-| 3 | **Quyền truy cập** | Chủ thể có quyền xem dữ liệu của mình | Khách hàng có thể yêu cầu xem: data AI-CRDS đang giữ về họ, AI score, lý do quyết định | Data access request workflow |
-| 4 | **Quyền rút lại đồng ý** | Chủ thể rút consent bất cứ lúc nào. NĐ 356: bên kiểm soát phải ngừng xử lý theo thời hạn quy định | Nếu khách rút consent giữa chừng scoring → phải dừng xử lý. Application = reject (do thiếu data). Phải có quy trình rõ ràng | Consent withdrawal flow + impact notification |
-| 5 | **Quyền xóa dữ liệu** | Chủ thể yêu cầu xóa DLCN | ⚠️ **Xung đột:** SBV yêu cầu giữ audit trail cho credit decision. Luật BVDLCN cho phép giữ dữ liệu nếu có nghĩa vụ pháp luật → giữ audit trail nhưng xóa/ẩn danh data không cần thiết | Xóa raw data, giữ anonymized audit trail. Cần legal opinion cho retention period |
-| 6 | **Quyền hạn chế xử lý** | Yêu cầu hạn chế mục đích xử lý | Khách đồng ý scoring nhưng không đồng ý marketing → phải tách được | Granular consent + purpose limitation |
-| 7 | **Quyền phản đối xử lý tự động** (NĐ 356 Điều 9) | Chủ thể chọn không tham gia xử lý tự động | **Quan trọng:** Khách có quyền opt-out khỏi AI scoring → application phải được xử lý manual 100%. AI-CRDS cần workflow cho opt-out case | Opt-out flag → route to manual review |
-| 8 | **Quyền yêu cầu human review** | Quyết định dựa hoàn toàn trên xử lý tự động → chủ thể có quyền yêu cầu human review | AI-CRDS design đã có human-in-the-loop → comply by default. Nhưng cần communicate rõ cho khách | Adverse action notice ghi: "Quý khách có quyền yêu cầu xem xét lại bởi nhân viên" |
-| 9 | **Quyền khiếu nại** | Chủ thể có quyền khiếu nại lên cơ quan chuyên trách (A05) | AI-CRDS cần complaint handling workflow. Bank partner cần internal complaint resolution trước khi lên A05 | Complaint workflow + escalation |
-| 10 | **Quyền yêu cầu bồi thường** | Chủ thể có quyền yêu cầu bồi thường thiệt hại | AI reject nhầm → khách mất cơ hội tín dụng → có thể yêu cầu bồi thường. AI-CRDS cần: audit trail đầy đủ để chứng minh quyết định hợp lý | Audit trail + explainability |
+| # | Quyền | Mô tả | Ảnh hưởng đến AI-CRDS | Cách đáp ứng |
+|---|-------|-------|----------------------|--------------|
+| 1 | Quyền được biết | Biết dữ liệu được xử lý như thế nào | Thông báo minh bạch: dữ liệu nào được thu thập, AI xử lý ra sao, ai được truy cập | Văn bản đồng ý và thông báo quyền riêng tư |
+| 2 | Quyền đồng ý | Xử lý phải có đồng ý rõ ràng, tự nguyện; cấm đồng ý mặc định | Đồng ý dạng chủ động (opt-in), không tích sẵn; im lặng không phải đồng ý | Giao diện đồng ý với ô chọn không tích sẵn |
+| 3 | Quyền truy cập | Xem dữ liệu của mình | Khách hàng có thể yêu cầu xem dữ liệu AI-CRDS lưu về họ, điểm AI và lý do quyết định | Quy trình yêu cầu truy cập dữ liệu |
+| 4 | Quyền rút lại đồng ý | Rút đồng ý bất cứ lúc nào; bên kiểm soát ngừng xử lý theo thời hạn quy định | Nếu khách rút đồng ý giữa chừng thì dừng xử lý; hồ sơ bị từ chối do thiếu dữ liệu | Luồng rút đồng ý và thông báo tác động |
+| 5 | Quyền xóa dữ liệu | Yêu cầu xóa DLCN | Có xung đột với nghĩa vụ lưu audit trail của NHNN; luật cho phép giữ dữ liệu khi có nghĩa vụ pháp luật | Xóa dữ liệu gốc, giữ audit trail đã ẩn danh hóa (mục 4.4) |
+| 6 | Quyền hạn chế xử lý | Hạn chế mục đích xử lý | Khách đồng ý chấm điểm nhưng không đồng ý tiếp thị thì phải tách được | Đồng ý chi tiết theo mục đích |
+| 7 | Quyền phản đối xử lý tự động (NĐ 356 Điều 9) | Chọn không tham gia xử lý tự động | Khách có quyền từ chối chấm điểm bằng AI; hồ sơ được xử lý thủ công hoàn toàn | Cờ từ chối, chuyển thẩm định thủ công |
+| 8 | Quyền yêu cầu con người xem xét | Với quyết định dựa hoàn toàn trên xử lý tự động | Thiết kế human-in-the-loop của AI-CRDS đáp ứng sẵn; cần thông báo rõ cho khách | Thông báo từ chối ghi: "Quý khách có quyền yêu cầu xem xét lại bởi nhân viên" |
+| 9 | Quyền khiếu nại | Khiếu nại lên cơ quan chuyên trách (A05) | Quy trình xử lý khiếu nại nội bộ của Bank X trước khi lên A05 | Luồng khiếu nại và leo thang |
+| 10 | Quyền yêu cầu bồi thường | Yêu cầu bồi thường thiệt hại | Quyết định từ chối sai có thể dẫn đến yêu cầu bồi thường; audit trail đầy đủ để chứng minh quyết định hợp lý | Audit trail và khả năng giải thích |
 
-### 4.2 Adverse Action Notice — Template fields
+### 4.2 Mẫu thông báo từ chối cấp tín dụng
 
-Khi AI-CRDS recommend reject và Credit Officer đồng ý:
+Khi AI-CRDS khuyến nghị từ chối và cán bộ tín dụng đồng ý:
 
 ```
 THÔNG BÁO TỪ CHỐI CẤP TÍN DỤNG
@@ -225,13 +221,13 @@ Kính gửi: [Họ tên khách hàng]
 Ngày: [DD/MM/YYYY]
 Mã hồ sơ: [Application ID]
 
-Ngân hàng [Tên bank] thông báo hồ sơ đề nghị mở thẻ tín dụng
+Bank X thông báo hồ sơ đề nghị mở thẻ tín dụng
 của Quý khách không được chấp thuận.
 
 LÝ DO CHÍNH:
-1. [Top reason — ví dụ: Tỷ lệ nợ trên thu nhập vượt ngưỡng cho phép]
-2. [Second reason — ví dụ: Thời gian công tác tại đơn vị hiện tại chưa đủ]
-3. [Third reason — ví dụ: Lịch sử thanh toán tại CIC có ghi nhận chậm trả]
+1. [Lý do 1 — ví dụ: Tỷ lệ nợ trên thu nhập vượt ngưỡng cho phép]
+2. [Lý do 2 — ví dụ: Thời gian công tác tại đơn vị hiện tại chưa đủ]
+3. [Lý do 3 — ví dụ: Lịch sử thanh toán tại CIC có ghi nhận chậm trả]
 
 QUYỀN CỦA QUÝ KHÁCH:
 • Yêu cầu xem xét lại bởi nhân viên ngân hàng
@@ -246,286 +242,255 @@ của Quý khách và không ngăn cản Quý khách nộp hồ sơ trong
 tương lai khi điều kiện thay đổi.
 ```
 
-### 4.3 Action items — Quyền chủ thể
+### 4.3 Các luồng nghiệp vụ hỗ trợ quyền chủ thể
 
-- [ ] Thiết kế **opt-out workflow**: khách chọn không dùng AI → route 100% manual
-- [ ] Thiết kế **data access request flow**: khách yêu cầu xem data AI giữ về họ
-- [ ] Thiết kế **consent withdrawal flow**: khách rút consent giữa chừng → impact gì
-- [ ] Xác định **data deletion policy**: xóa gì, giữ gì (audit trail), bao lâu → cần legal opinion về xung đột SBV retention vs BVDLCN deletion
-- [ ] Thiết kế **adverse action notice template** → validate với Compliance
-- [ ] Thiết kế **complaint handling workflow**: internal resolution → A05 escalation
+- **Luồng từ chối chấm điểm bằng AI:** khách chọn không dùng AI, hồ sơ chuyển 100% thẩm định thủ công.
+- **Luồng yêu cầu truy cập dữ liệu:** khách yêu cầu xem dữ liệu AI-CRDS lưu về họ.
+- **Luồng rút đồng ý:** khách rút đồng ý giữa chừng, hệ thống dừng xử lý và thông báo tác động.
+- **Chính sách xóa dữ liệu:** xóa dữ liệu gốc, giữ audit trail đã ẩn danh hóa (mục 4.4).
+- **Mẫu thông báo từ chối:** theo mục 4.2.
+- **Luồng xử lý khiếu nại:** giải quyết nội bộ, sau đó leo thang lên A05 khi cần.
 
-### 4.4 Proposed Resolution: SBV Retention vs BVDLCN Deletion Conflict 🆕
+### 4.4 Giải quyết xung đột giữa nghĩa vụ lưu trữ của NHNN và quyền xóa dữ liệu
 
 #### Bản chất xung đột
 
 | Yêu cầu | Nguồn | Nội dung |
 |---------|-------|---------|
-| **Giữ data** | TT 13/2018 (KSNB) + Luật TCTD 2024 + thực tiễn SBV | Mọi quyết định tín dụng phải traceable. SBV có thể yêu cầu xuất trình hồ sơ bất kỳ lúc nào. Hồ sơ tín dụng thường giữ 5-10 năm. Audit trail phải immutable. |
-| **Xóa data** | Luật BVDLCN 91/2025 Điều 15 | Chủ thể dữ liệu có quyền yêu cầu xóa DLCN. Bên kiểm soát phải xóa trong thời hạn quy định. |
-| **Ngoại lệ cho phép giữ** | Luật BVDLCN 91/2025 Điều 15 (khoản ngoại lệ) | Được phép giữ DLCN nếu "cần thiết để thực hiện nghĩa vụ theo quy định của pháp luật" hoặc "phục vụ lợi ích công cộng trong lĩnh vực y tế, ngân hàng, tài chính." |
+| Giữ dữ liệu | TT 13/2018 (KSNB), Luật TCTD 2024, thực tiễn của NHNN | Mọi quyết định tín dụng phải truy vết được. NHNN có thể yêu cầu xuất trình hồ sơ bất kỳ lúc nào. Hồ sơ tín dụng thường được giữ 5 đến 10 năm. Audit trail không thể sửa đổi (immutable). |
+| Xóa dữ liệu | Luật BVDLCN 91/2025 Điều 15 | Chủ thể dữ liệu có quyền yêu cầu xóa DLCN; bên kiểm soát xóa trong thời hạn quy định. |
+| Ngoại lệ cho phép giữ | Luật BVDLCN 91/2025 Điều 15 | Được giữ DLCN nếu cần thiết để thực hiện nghĩa vụ theo quy định của pháp luật hoặc phục vụ lợi ích công cộng trong lĩnh vực y tế, ngân hàng, tài chính. |
 
-#### Proposed Resolution — Tiered Data Lifecycle
+#### Mô hình vòng đời dữ liệu ba tầng
 
-**Nguyên tắc: Tách data thành 3 tầng với lifecycle khác nhau.**
+Dữ liệu được tách thành 3 tầng với vòng đời khác nhau.
 
 ```
-Tầng 1: RAW PII (CCCD, SĐT, địa chỉ cụ thể, ảnh, sinh trắc)
+Tầng 1: DỮ LIỆU CÁ NHÂN GỐC (CCCD, SĐT, địa chỉ cụ thể, ảnh, sinh trắc)
     │
-    │  Retention: Ngắn nhất có thể
-    │  Xóa khi: (a) Khách yêu cầu xóa, HOẶC
-    │            (b) Hết mục đích xử lý + hết thời hạn retention
-    │  Thời hạn đề xuất: 1 năm sau quyết định
-    │  (hoặc hết thời hạn hợp đồng thẻ + 1 năm buffer)
-    │
-    ▼
-Tầng 2: PSEUDONYMIZED AUDIT RECORD
-    │
-    │  Thay CCCD → hash ID
-    │  Thay tên → pseudonym hoặc bỏ
-    │  GIỮ: AI score, features đã dùng, model version,
-    │        threshold version, recommendation, human decision,
-    │        override reason, timestamp
-    │  Retention: 5-10 năm (align SBV audit requirement)
-    │  Cơ sở pháp lý giữ: Nghĩa vụ pháp luật (TT 13 + Luật TCTD)
-    │  → Ngoại lệ Điều 15 Luật BVDLCN: "cần thiết để thực hiện
-    │    nghĩa vụ theo quy định pháp luật"
+    │  Thời hạn lưu: ngắn nhất có thể
+    │  Xóa khi: (a) khách yêu cầu xóa, hoặc
+    │            (b) hết mục đích xử lý và hết thời hạn lưu
+    │  Thời hạn áp dụng: 1 năm sau quyết định
+    │  (hoặc hết thời hạn hợp đồng thẻ + 1 năm)
     │
     ▼
-Tầng 3: ANONYMIZED STATISTICAL DATA
+Tầng 2: BẢN GHI AUDIT ĐÃ GIẢ DANH HÓA
     │
-    │  Aggregated data: approval rate, NPL by vintage,
-    │  model performance metrics
-    │  KHÔNG gắn liền cá nhân → không phải DLCN
-    │  Retention: Vĩnh viễn (phục vụ model improvement)
+    │  Thay CCCD bằng mã băm (hash ID)
+    │  Thay tên bằng bút danh hoặc bỏ
+    │  GIỮ: điểm AI, đặc trưng đã dùng, phiên bản mô hình,
+    │        phiên bản ngưỡng, khuyến nghị, quyết định của con người,
+    │        lý do override, thời điểm
+    │  Thời hạn lưu: 5-10 năm (theo yêu cầu kiểm toán của NHNN)
+    │  Cơ sở giữ: nghĩa vụ pháp luật (TT 13 và Luật TCTD),
+    │    thuộc ngoại lệ Điều 15 Luật BVDLCN
     │
     ▼
-    Không bị ảnh hưởng bởi deletion request
+Tầng 3: DỮ LIỆU THỐNG KÊ ĐÃ ẨN DANH
+    │
+    │  Dữ liệu tổng hợp: tỷ lệ phê duyệt, NPL theo vintage,
+    │  chỉ số hiệu năng mô hình
+    │  Không gắn với cá nhân nên không phải DLCN
+    │  Thời hạn lưu: không giới hạn (phục vụ cải tiến mô hình)
+    │
+    ▼
+    Không bị ảnh hưởng bởi yêu cầu xóa dữ liệu
 ```
 
-#### Chi tiết xử lý khi khách yêu cầu xóa
+#### Quy trình khi khách yêu cầu xóa dữ liệu
 
-| Bước | Action | Data affected | Legal basis |
-|------|--------|--------------|-----------|
-| 1 | Nhận yêu cầu xóa từ khách | — | Luật BVDLCN Điều 15 |
-| 2 | Xác minh danh tính người yêu cầu | — | NĐ 356 |
-| 3 | Xóa Tầng 1 (raw PII): CCCD, tên, SĐT, địa chỉ, ảnh, sinh trắc | Raw PII | Comply Luật BVDLCN |
-| 4 | Giữ Tầng 2 (pseudonymized audit): thay PII → hash, giữ AI decision record | Audit record | Ngoại lệ: nghĩa vụ pháp luật (TT 13/Luật TCTD) |
-| 5 | Giữ Tầng 3 (anonymized stats): không ảnh hưởng | Aggregated data | Không phải DLCN |
-| 6 | Thông báo khách: "DLCN đã xóa. Hồ sơ quyết định tín dụng được giữ dạng ẩn danh theo yêu cầu pháp luật ngân hàng." | — | Transparency |
-| 7 | Log deletion request trong audit trail | Deletion record | KSNB |
+| Bước | Hành động | Dữ liệu liên quan | Cơ sở pháp lý |
+|------|----------|-------------------|---------------|
+| 1 | Nhận yêu cầu xóa từ khách | Không | Luật BVDLCN Điều 15 |
+| 2 | Xác minh danh tính người yêu cầu | Không | NĐ 356 |
+| 3 | Xóa Tầng 1: CCCD, tên, SĐT, địa chỉ, ảnh, sinh trắc | DLCN gốc | Tuân thủ Luật BVDLCN |
+| 4 | Giữ Tầng 2: thay DLCN bằng mã băm, giữ bản ghi quyết định AI | Bản ghi audit | Ngoại lệ nghĩa vụ pháp luật (TT 13, Luật TCTD) |
+| 5 | Giữ Tầng 3: không bị ảnh hưởng | Dữ liệu tổng hợp | Không phải DLCN |
+| 6 | Thông báo khách: "DLCN đã được xóa. Hồ sơ quyết định tín dụng được lưu dưới dạng ẩn danh theo yêu cầu pháp luật ngân hàng." | Không | Minh bạch |
+| 7 | Ghi nhận yêu cầu xóa vào audit trail | Bản ghi xóa | KSNB |
 
-#### Replay capability sau khi xóa Tầng 1
+#### Khả năng tái hiện quyết định sau khi xóa Tầng 1
 
-Sau khi xóa raw PII, audit record (Tầng 2) vẫn giữ:
-- Input features (income range, CIC score, debt ratio — values, không phải PII gốc)
-- Model version + threshold version
-- AI recommendation + explanation
-- Human decision + override reason
+Sau khi xóa dữ liệu gốc, bản ghi audit (Tầng 2) vẫn giữ:
 
-→ Vẫn replay được quyết định (same features + same model + same threshold = same output) mà **không cần raw PII**.
+- Đặc trưng đầu vào (khoảng thu nhập, điểm CIC, tỷ lệ nợ: là giá trị, không phải DLCN gốc).
+- Phiên bản mô hình và phiên bản ngưỡng.
+- Khuyến nghị và giải thích của AI.
+- Quyết định của con người và lý do override.
 
-SBV inspector hỏi "tại sao approve khoản này?" → trả lời được từ Tầng 2 mà không cần biết khách tên gì, CCCD gì.
+Quyết định vẫn được tái hiện (cùng đặc trưng, cùng mô hình, cùng ngưỡng cho cùng kết quả) mà không cần dữ liệu gốc. Khi NHNN hỏi lý do phê duyệt một khoản vay, Bank X trả lời được từ Tầng 2 mà không cần biết tên hay số CCCD của khách.
 
-#### Lưu ý quan trọng
+#### Các điểm cần lưu ý khi áp dụng
 
-1. **Đây là proposed resolution — CHƯA PHẢI legal opinion.** Cần confirm với Compliance Officer và legal counsel rằng "ngoại lệ nghĩa vụ pháp luật" trong Luật BVDLCN đủ cover việc giữ pseudonymized audit trail.
-2. **SBV chưa có hướng dẫn cụ thể** về cách xử lý xung đột này cho AI system. Proposed resolution dựa trên nguyên tắc chung + best practice quốc tế (GDPR Article 17(3)(b) có ngoại lệ tương tự cho "legal obligation").
-3. **Thời hạn retention Tầng 2 (5-10 năm)** cần confirm: SBV yêu cầu giữ hồ sơ tín dụng bao lâu? Luật kế toán yêu cầu giữ chứng từ bao lâu? Lấy thời hạn dài nhất.
-4. **Pseudonymization ≠ anonymization.** Pseudonymized data (hash ID) vẫn có thể re-identify nếu có mapping table → vẫn là DLCN theo Luật BVDLCN. Nhưng ngoại lệ "nghĩa vụ pháp luật" cho phép giữ.
-5. **Anonymized data (Tầng 3)** — nếu thực sự anonymous (không thể re-identify) → không phải DLCN → không bị ảnh hưởng bởi deletion request. Nhưng phải đảm bảo anonymization đủ mạnh.
-6. **Luật AI 134/2025** bổ sung: AI phải có trách nhiệm giải trình → cần audit trail để giải trình → strengthen case cho việc giữ Tầng 2.
+1. Mô hình này dựa trên ngoại lệ "nghĩa vụ pháp luật" của Luật BVDLCN và thông lệ quốc tế (GDPR Điều 17(3)(b) có ngoại lệ tương tự). Bank X áp dụng thời hạn lưu Tầng 2 theo thời hạn dài nhất trong các quy định về lưu trữ hồ sơ tín dụng và chứng từ kế toán.
+2. Dữ liệu giả danh hóa (mã băm) vẫn là DLCN nếu tồn tại bảng ánh xạ; việc giữ dữ liệu này dựa trên ngoại lệ nghĩa vụ pháp luật.
+3. Dữ liệu ẩn danh hóa (Tầng 3) chỉ không phải DLCN khi không thể xác định lại danh tính, do đó quy trình ẩn danh hóa đạt độ mạnh tương ứng.
+4. Luật AI 134/2025 yêu cầu trách nhiệm giải trình, củng cố cơ sở lưu Tầng 2.
 
-#### Action items
+#### Các hạng mục triển khai
 
-- [ ] Confirm proposed resolution với Compliance Officer + legal counsel
-- [ ] Xác định retention period Tầng 2 (align SBV + Luật kế toán)
-- [ ] Thiết kế pseudonymization process (hash algorithm, key management)
-- [ ] Thiết kế deletion workflow (Tầng 1 xóa, Tầng 2 giữ, Tầng 3 không ảnh hưởng)
-- [ ] Thiết kế thông báo cho khách khi xóa (nêu rõ giữ audit theo pháp luật)
-- [ ] Test: sau khi xóa Tầng 1, replay quyết định từ Tầng 2 có hoạt động không?
+- Quy trình giả danh hóa (thuật toán băm, quản lý khóa).
+- Luồng xóa dữ liệu (xóa Tầng 1, giữ Tầng 2, Tầng 3 không ảnh hưởng).
+- Nội dung thông báo cho khách khi xóa (nêu rõ giữ audit theo pháp luật).
+- Kiểm thử: sau khi xóa Tầng 1, tái hiện quyết định từ Tầng 2.
 
 ---
 
-## 5. Data Residency — Dữ liệu phải ở đâu?
+## 5. Lưu Trữ Dữ Liệu Trong Nước
 
 ### 5.1 Yêu cầu pháp lý
 
 | Yêu cầu | Nguồn | Chi tiết |
 |---------|-------|---------|
-| Chuyển DLCN xuyên biên giới | Luật 91/2025 Điều 27; NĐ 356 Điều 20-21 | Phải có: (1) Hồ sơ đánh giá tác động (Mẫu 09). (2) Thông báo Bộ Công an/A05 (Mẫu 01a). (3) Văn bản thỏa thuận ràng buộc pháp lý với bên nhận. (4) Bên nhận phải bảo vệ tương đương VN. |
-| IT hệ thống sandbox đặt tại VN | NĐ 94/2025 | Nếu bank partner tham gia sandbox credit scoring → IT phải đặt tại VN |
-| SBV data sovereignty | Thực tiễn SBV | SBV truyền thống yêu cầu data ngân hàng lưu tại VN. Chưa có quy định cấm cloud nước ngoài cho AI processing, nhưng expectation rõ ràng. |
+| Chuyển DLCN xuyên biên giới | Luật 91/2025 Điều 27; NĐ 356 Điều 20, 21 | (1) Hồ sơ đánh giá tác động (Mẫu 09). (2) Thông báo Bộ Công an/A05 (Mẫu 01a). (3) Thỏa thuận ràng buộc pháp lý với bên nhận. (4) Bên nhận bảo vệ dữ liệu tương đương Việt Nam. |
+| Hệ thống CNTT trong sandbox đặt tại Việt Nam | NĐ 94/2025 | Nếu Bank X tham gia sandbox chấm điểm tín dụng, hệ thống CNTT đặt tại Việt Nam |
+| Chủ quyền dữ liệu | Thực tiễn của NHNN | NHNN truyền thống yêu cầu dữ liệu ngân hàng lưu tại Việt Nam. Chưa có quy định cấm cloud nước ngoài cho xử lý AI nhưng kỳ vọng này rõ ràng |
 
-### 5.2 Phương án architecture
+### 5.2 Các phương án kiến trúc
 
-| Phương án | Mô tả | Ưu điểm | Nhược điểm | Compliance level |
-|----------|-------|---------|-----------|-----------------|
-| **A. VN Cloud Only** | Toàn bộ AI-CRDS deploy trên Viettel Cloud / FPT Cloud / CMC Cloud | Không cần hồ sơ XLBG. SBV comfortable. Sandbox-ready | Service limitations (GPU, ML tools). Ít kinh nghiệm ML workload. Giá có thể cao hơn | ✅ Cao nhất |
-| **B. Foreign Cloud + Hồ sơ XLBG** | Deploy trên AWS/GCP/Azure Singapore + hồ sơ đầy đủ | ML tooling tốt nhất. Scaling dễ. Ecosystem mature | Compliance cost cao (DPIA + hồ sơ XLBG). Thời gian approve lâu. SBV có thể push back | ⚠️ Phụ thuộc approve |
-| **C. Hybrid** | PII processing tại VN (scoring, storage). Non-PII analytics tại foreign cloud (model training trên anonymized data) | Balance giữa compliance và capability | Architecture phức tạp hơn. Phải đảm bảo PII thực sự không rời VN | ✅ Tốt nếu implement đúng |
+| Phương án | Mô tả | Ưu điểm | Nhược điểm | Mức tuân thủ |
+|----------|-------|---------|-----------|--------------|
+| A. Chỉ dùng cloud trong nước | Toàn bộ AI-CRDS triển khai trên Viettel Cloud, FPT Cloud hoặc CMC Cloud | Không cần hồ sơ xuyên biên giới; phù hợp kỳ vọng NHNN; sẵn sàng cho sandbox | Hạn chế dịch vụ (GPU, công cụ ML); chi phí có thể cao hơn | Cao nhất |
+| B. Cloud nước ngoài và hồ sơ xuyên biên giới | Triển khai trên AWS/GCP/Azure tại Singapore kèm hồ sơ đầy đủ | Công cụ ML tốt nhất, mở rộng dễ | Chi phí tuân thủ cao (DPIA, hồ sơ xuyên biên giới); thời gian phê duyệt dài | Phụ thuộc phê duyệt |
+| C. Kết hợp | Xử lý DLCN tại Việt Nam (chấm điểm, lưu trữ); phân tích không chứa DLCN tại cloud nước ngoài (huấn luyện trên dữ liệu ẩn danh) | Cân bằng tuân thủ và năng lực | Kiến trúc phức tạp hơn; phải bảo đảm DLCN không rời Việt Nam | Tốt nếu triển khai đúng |
 
-### 5.3 Đề xuất — cần validate
+### 5.3 Phương án lựa chọn
 
-**Phương án C (Hybrid) là practical nhất cho AI-CRDS SaaS:**
+AI-CRDS áp dụng **Phương án C (kết hợp)**:
 
 ```
-VN Cloud (Viettel/FPT/CMC):
-├── Scoring engine (real-time inference)
-├── PII storage (encrypted at rest)
+Cloud trong nước (Viettel/FPT/CMC):
+├── Scoring engine (suy luận thời gian thực)
+├── Lưu trữ DLCN (mã hóa khi lưu)
 ├── Audit trail (immutable)
-├── Consent management
+├── Quản lý đồng ý
 └── API gateway
 
-Foreign Cloud (nếu cần):
-├── Model training (trên anonymized/synthetic data ONLY)
-├── Monitoring dashboard (aggregated metrics, no PII)
-└── Development/staging environment (synthetic data)
+Cloud nước ngoài (nếu cần):
+├── Huấn luyện mô hình (chỉ trên dữ liệu ẩn danh hoặc dữ liệu tổng hợp)
+├── Dashboard giám sát (chỉ số tổng hợp, không có DLCN)
+└── Môi trường phát triển/staging (dữ liệu tổng hợp)
 ```
 
-**Điều kiện:** PII KHÔNG BAO GIỜ rời VN. Model training chỉ trên data đã anonymize hoặc synthetic. Nếu không cần foreign cloud cho training → Phương án A đơn giản nhất.
+Điều kiện: DLCN không rời Việt Nam. Việc huấn luyện chỉ dùng dữ liệu đã ẩn danh hoặc dữ liệu tổng hợp. Nếu không cần cloud nước ngoài cho huấn luyện, hệ thống triển khai theo Phương án A.
 
-### 5.4 Cloud providers VN — preliminary assessment
+### 5.4 Nhà cung cấp cloud trong nước
 
-| Provider | ML Workload | GPU | Compliance | Lưu ý |
-|---------|------------|-----|-----------|-------|
-| Viettel Cloud | Cơ bản | Có (limited) | ✅ SOC compliant | Lớn nhất VN, partnership với VMware |
-| FPT Cloud | Cơ bản | Có (limited) | ✅ | FPT có AI division riêng |
-| CMC Cloud | Cơ bản | ❓ Chưa verify | ⚠️ Chưa verify | Nhỏ hơn |
-| VNG Cloud | Mới | ❓ | ⚠️ | Mới launch, chưa proven cho banking |
+Thông tin dưới đây là đánh giá sơ bộ dựa trên thông tin công khai, được cập nhật khi Bank X chốt nhà cung cấp.
 
-**⚠️ Chưa verify chi tiết** — cần evaluate cụ thể GPU availability, ML framework support, SLA, pricing khi đến Week 10 (Tech Stack).
+| Nhà cung cấp | Khối lượng ML | GPU | Tuân thủ | Ghi chú |
+|-------------|--------------|-----|---------|---------|
+| Viettel Cloud | Cơ bản | Có (giới hạn) | Đạt chuẩn SOC | Lớn nhất Việt Nam, hợp tác với VMware |
+| FPT Cloud | Cơ bản | Có (giới hạn) | Đạt | FPT có khối AI riêng |
+| CMC Cloud | Cơ bản | Theo đánh giá chi tiết | Theo đánh giá chi tiết | Quy mô nhỏ hơn |
+| VNG Cloud | Mới triển khai | Theo đánh giá chi tiết | Theo đánh giá chi tiết | Mới ra mắt, chưa có tham chiếu trong ngân hàng |
 
-### 5.5 Action items — Data residency
-
-- [ ] **Quyết định architecture** (A/B/C) — target Week 10
-- [ ] Nếu chọn B hoặc C: **chuẩn bị hồ sơ XLBG** (Mẫu 09 NĐ 356)
-- [ ] **Evaluate VN cloud providers** chi tiết (GPU, ML framework, SLA, pricing)
-- [ ] **Confirm với bank partner** data residency expectation của họ
+Chi tiết về GPU, framework ML, SLA và giá được trình bày trong w10-01-tech-stack-bank-x.
 
 ---
 
-## 6. DPIA — Data Protection Impact Assessment
+## 6. DPIA — Đánh Giá Tác Động Xử Lý Dữ Liệu Cá Nhân
 
-### 6.1 Tại sao DPIA bắt buộc cho AI-CRDS?
+### 6.1 Lý do DPIA là bắt buộc
 
-NĐ 356 Điều 19: Bên kiểm soát/xử lý DLCN phải lập và lưu giữ hồ sơ DPIA từ thời điểm bắt đầu xử lý.
+NĐ 356 Điều 19: bên kiểm soát và xử lý DLCN lập và lưu giữ hồ sơ DPIA từ thời điểm bắt đầu xử lý. AI-CRDS thuộc diện bắt buộc vì:
 
-AI-CRDS trigger DPIA vì:
+| Điều kiện kích hoạt | Giải thích |
+|--------------------|-----------|
+| Xử lý DLCN nhạy cảm | Thu nhập, CIC, giao dịch ngân hàng, sinh trắc học đều nhạy cảm theo NĐ 356 |
+| Xử lý tự động | NĐ 356 Điều 9: xử lý dữ liệu lớn, phân tích hành vi, dự đoán xu hướng, phân loại người dùng |
+| Quyết định có ảnh hưởng đáng kể | Chấm điểm AI ảnh hưởng trực tiếp đến khả năng tiếp cận tín dụng |
+| Xử lý quy mô lớn | Hàng nghìn hồ sơ mỗi ngày ở quy mô mục tiêu |
 
-| Trigger | Giải thích |
-|---------|-----------|
-| **Xử lý DLCN nhạy cảm** | Thu nhập, CIC, giao dịch NH, sinh trắc — tất cả nhạy cảm theo NĐ 356 |
-| **Xử lý tự động / AI** | NĐ 356 Điều 9: xử lý dữ liệu lớn, phân tích hành vi, dự đoán xu hướng, phân loại người dùng |
-| **Quyết định ảnh hưởng đáng kể** | AI scoring ảnh hưởng trực tiếp đến khả năng tiếp cận tín dụng của cá nhân |
-| **Xử lý quy mô lớn** | Target: hàng nghìn applications/ngày |
-
-**→ DPIA là bắt buộc, không phải tùy chọn.**
-
-### 6.2 DPIA phải nộp cho ai, khi nào?
+### 6.2 Trách nhiệm và thời hạn nộp DPIA
 
 | Mục | Yêu cầu |
 |-----|---------|
-| **Ai lập?** | Bên kiểm soát DLCN (= bank partner). AI-CRDS vendor hỗ trợ cung cấp thông tin cho DPIA. |
-| **Mẫu** | Mẫu số 10 ban hành kèm NĐ 356/2025 |
-| **Nộp cho** | Cục An ninh mạng và phòng chống tội phạm sử dụng công nghệ cao (A05), Bộ Công an |
-| **Thời hạn** | 60 ngày kể từ ngày bắt đầu xử lý DLCN |
-| **Cập nhật** | Khi có thay đổi nội dung xử lý (thêm data type, thay model, thêm third party) |
+| Bên lập | Bên kiểm soát DLCN (Bank X). Nhà cung cấp AI-CRDS cung cấp thông tin hỗ trợ |
+| Mẫu | Mẫu số 10 ban hành kèm NĐ 356/2025 |
+| Nơi nộp | Cục An ninh mạng và phòng chống tội phạm sử dụng công nghệ cao (A05), Bộ Công an |
+| Thời hạn | 60 ngày kể từ ngày bắt đầu xử lý DLCN |
+| Cập nhật | Khi thay đổi nội dung xử lý (thêm loại dữ liệu, thay mô hình, thêm bên thứ ba) |
 
-### 6.3 DPIA Content Outline cho AI-CRDS
+### 6.3 Dàn ý nội dung DPIA cho AI-CRDS
 
-Theo Mẫu 10 NĐ 356, DPIA cần bao gồm (adapted cho AI-CRDS):
+Theo Mẫu 10 NĐ 356, điều chỉnh cho AI-CRDS:
 
 **Phần 1 — Thông tin chung**
-- Tên tổ chức (bank partner)
-- Tên hệ thống/hoạt động xử lý (AI-CRDS — Origination Scoring + Fraud Detection)
-- DPO contact
+- Tên tổ chức: Bank X
+- Tên hệ thống, hoạt động xử lý: AI-CRDS (chấm điểm origination và phát hiện gian lận)
+- Thông tin liên hệ DPO
 - Mục đích xử lý: hỗ trợ quyết định cấp thẻ tín dụng
 
 **Phần 2 — Mô tả hoạt động xử lý**
-- Loại DLCN được xử lý (bảng Section 1 của tài liệu này)
-- Nguồn thu thập (application form, CIC, eKYC, bank internal)
-- Phương thức xử lý (automated scoring + human review)
-- Bên thứ ba tham gia (AI-CRDS vendor, CIC, eKYC provider)
+- Loại DLCN được xử lý (bảng mục 1)
+- Nguồn thu thập (hồ sơ đăng ký, CIC, eKYC, hệ thống nội bộ)
+- Phương thức xử lý (chấm điểm tự động và con người xem xét)
+- Bên thứ ba tham gia (nhà cung cấp AI-CRDS, CIC, nhà cung cấp eKYC)
 - Thời gian lưu trữ
-- Phạm vi chuyển DLCN (trong nước / xuyên biên giới)
+- Phạm vi chuyển DLCN (trong nước, xuyên biên giới)
 
 **Phần 3 — Đánh giá rủi ro**
-- Rủi ro cho chủ thể: reject nhầm (mất cơ hội tín dụng), data breach, bias/phân biệt đối xử, thiếu transparency
-- Xác suất và mức độ nghiêm trọng per rủi ro
-- Biện pháp giảm thiểu per rủi ro
+- Rủi ro cho chủ thể: từ chối nhầm (mất cơ hội tín dụng), lộ lọt dữ liệu, thiên lệch hoặc phân biệt đối xử, thiếu minh bạch
+- Xác suất và mức độ nghiêm trọng của từng rủi ro
+- Biện pháp giảm thiểu cho từng rủi ro
 
 **Phần 4 — Biện pháp bảo vệ**
-- Biện pháp kỹ thuật: encryption at rest + in transit, access control, audit logging, data minimization, anonymization
-- Biện pháp tổ chức: DPO, training, incident response, consent management
-- Biện pháp đặc biệt cho xử lý tự động: human-in-the-loop, explainability, opt-out, override governance
+- Biện pháp kỹ thuật: mã hóa khi lưu và khi truyền, kiểm soát truy cập, audit log, tối thiểu hóa dữ liệu, ẩn danh hóa
+- Biện pháp tổ chức: DPO, đào tạo, ứng phó sự cố, quản lý đồng ý
+- Biện pháp riêng cho xử lý tự động: human-in-the-loop, khả năng giải thích, quyền từ chối, quản trị override
 
 **Phần 5 — Kết luận**
-- Rủi ro còn lại sau biện pháp giảm thiểu
-- Kế hoạch review và cập nhật DPIA
+- Rủi ro còn lại sau khi áp dụng biện pháp giảm thiểu
+- Kế hoạch rà soát và cập nhật DPIA
 
-### 6.4 Risk assessment matrix cho DPIA
+### 6.4 Ma trận đánh giá rủi ro DPIA
 
-| # | Rủi ro | Xác suất | Nghiêm trọng | Mức rủi ro | Biện pháp giảm thiểu |
-|---|--------|---------|-------------|-----------|---------------------|
-| 1 | AI reject nhầm → khách mất cơ hội tín dụng | Trung bình | Cao | 🔴 Cao | Human-in-the-loop, adverse action notice, quyền khiếu nại, threshold tuning |
-| 2 | AI approve nhầm → NPL + loss | Trung bình | Cao | 🔴 Cao | Threshold governance, model monitoring, drift detection, override option |
-| 3 | Data breach → lộ DLCN nhạy cảm | Thấp | Rất cao | 🔴 Cao | Encryption, access control, breach notification 72h, incident response plan |
-| 4 | Bias/phân biệt (gender, geography) | Trung bình | Cao | 🔴 Cao | Bias monitoring, protected attributes không là features, fairness metrics, regular audit |
-| 5 | Model opacity → khách không hiểu lý do reject | Cao | Trung bình | 🟡 Trung bình | Explainability module, adverse action notice top 3 reasons, counterfactual |
-| 6 | Consent không đầy đủ → vi phạm NĐ 356 | Trung bình | Cao | 🔴 Cao | Granular consent form, consent storage, withdrawal flow |
-| 7 | Data retention quá lâu → vi phạm minimization | Trung bình | Trung bình | 🟡 Trung bình | Retention policy, automated deletion, anonymization sau retention period |
-| 8 | Third-party breach (CIC/eKYC) → lộ DLCN | Thấp | Cao | 🟡 Trung bình | Vendor assessment, DPA với third parties, monitoring |
-| 9 | Model drift → quyết định sai hệ thống | Trung bình | Cao | 🔴 Cao | Drift monitoring, champion-challenger, automatic alerts, rollback plan |
+| # | Rủi ro | Xác suất | Mức nghiêm trọng | Mức rủi ro | Biện pháp giảm thiểu |
+|---|--------|---------|------------------|-----------|---------------------|
+| 1 | AI từ chối nhầm, khách mất cơ hội tín dụng | Trung bình | Cao | Cao | Human-in-the-loop, thông báo từ chối, quyền khiếu nại, hiệu chỉnh ngưỡng |
+| 2 | AI phê duyệt nhầm, phát sinh NPL và tổn thất | Trung bình | Cao | Cao | Quản trị ngưỡng, giám sát mô hình, phát hiện lệch dữ liệu, quyền override |
+| 3 | Lộ lọt dữ liệu nhạy cảm | Thấp | Rất cao | Cao | Mã hóa, kiểm soát truy cập, thông báo vi phạm 72 giờ, kế hoạch ứng phó sự cố |
+| 4 | Thiên lệch, phân biệt đối xử (giới tính, địa bàn) | Trung bình | Cao | Cao | Giám sát thiên lệch, thuộc tính nhạy cảm không là đặc trưng, chỉ số công bằng, kiểm toán định kỳ |
+| 5 | Mô hình thiếu minh bạch, khách không hiểu lý do bị từ chối | Cao | Trung bình | Trung bình | Module giải thích, thông báo từ chối nêu 3 lý do chính, phân tích phản thực tế |
+| 6 | Đồng ý không đầy đủ, vi phạm NĐ 356 | Trung bình | Cao | Cao | Đồng ý chi tiết, lưu trữ đồng ý, luồng rút đồng ý |
+| 7 | Lưu dữ liệu quá lâu, vi phạm nguyên tắc tối thiểu hóa | Trung bình | Trung bình | Trung bình | Chính sách lưu trữ, xóa tự động, ẩn danh hóa sau thời hạn lưu |
+| 8 | Bên thứ ba (CIC, eKYC) để lộ DLCN | Thấp | Cao | Trung bình | Đánh giá nhà cung cấp, thỏa thuận xử lý dữ liệu, giám sát |
+| 9 | Lệch mô hình dẫn đến quyết định sai hệ thống | Trung bình | Cao | Cao | Giám sát lệch dữ liệu, champion-challenger, cảnh báo tự động, kế hoạch khôi phục |
 
-### 6.5 Action items — DPIA
+### 6.5 Tài liệu kèm theo DPIA
 
-- [ ] **Lập DPIA template** adapted cho AI-CRDS theo Mẫu 10 NĐ 356 — target Week 10
-- [ ] **Risk assessment chi tiết** per rủi ro (bảng 6.4 là starting point, cần refine)
-- [ ] **Xác định retention period** cho từng loại data — cần legal opinion (SBV retention vs BVDLCN minimization)
-- [ ] **Chuẩn bị DPA (Data Processing Agreement)** template cho bank partner ↔ AI-CRDS vendor
-- [ ] **Chuẩn bị DPA cho third parties** (CIC, eKYC provider)
-
----
-
-## 7. Tổng Hợp — Impact on Architecture
-
-PDPD requirements ảnh hưởng trực tiếp đến AI-CRDS architecture:
-
-| Architecture Decision | Driver | Deadline |
-|----------------------|--------|---------|
-| Consent management module | NĐ 356 — granular consent cho banking | Trước pilot |
-| Explainability module | NĐ 356 Điều 9 — giải thích thuật toán | Trước pilot |
-| Opt-out workflow | NĐ 356 Điều 9 — quyền không tham gia xử lý tự động | Trước pilot |
-| Data access / portability API | Luật 91/2025 — quyền truy cập | Trước pilot |
-| Consent withdrawal flow | NĐ 356 — quyền rút consent | Trước pilot |
-| Audit trail (immutable, ≥20 fields) | TT 13/2018 + Luật BVDLCN | Trước pilot |
-| Data residency (VN cloud hoặc hybrid) | NĐ 356 Điều 20-21 + SBV expectation | Week 10 |
-| Encryption at rest + in transit | NĐ 356 biện pháp bảo mật | From day 1 |
-| Anonymization pipeline | Data minimization + model training | Nếu training trên real data |
-| Breach notification workflow | NĐ 356 Điều 28 — 72h notification | Trước pilot |
-| Adverse action notice generator | Luật TCTD + NĐ 356 right to explanation | Week 9 |
-| Bias monitoring dashboard | Proactive — chưa bắt buộc nhưng best practice | Week 23 |
+- Mẫu DPIA riêng cho AI-CRDS theo Mẫu 10 NĐ 356 (xem w10-03-pdpd-checklist).
+- Đánh giá rủi ro chi tiết cho từng rủi ro trong bảng 6.4.
+- Thời hạn lưu trữ theo từng loại dữ liệu (mục 4.4).
+- Mẫu thỏa thuận xử lý dữ liệu (DPA) giữa Bank X và nhà cung cấp AI-CRDS.
+- Mẫu DPA cho bên thứ ba (CIC, nhà cung cấp eKYC).
 
 ---
 
-## 8. Tracking — Tự hỏi cuối tuần
+## 7. Tổng Hợp Tác Động Đến Kiến Trúc
 
-- [ ] Data inventory đã đầy đủ chưa? Có data field nào AI-CRDS xử lý mà chưa list?
-- [ ] Legal basis per data type đã được confirm với legal counsel chưa?
-- [ ] Consent form draft đã bao gồm 4 nội dung NĐ 356 yêu cầu cho banking chưa?
-- [ ] Data residency architecture đã quyết chưa? (A/B/C)
-- [ ] DPIA template đã bắt đầu soạn chưa?
-- [ ] Xung đột SBV retention vs BVDLCN deletion đã có legal opinion chưa?
-- [ ] Opt-out workflow cho AI automated decision đã thiết kế chưa?
+| Quyết định kiến trúc | Căn cứ | Thời điểm |
+|---------------------|--------|----------|
+| Module quản lý đồng ý | NĐ 356: đồng ý chi tiết cho ngân hàng | Trước thí điểm |
+| Module giải thích kết quả | NĐ 356 Điều 9: giải thích thuật toán | Trước thí điểm |
+| Luồng từ chối xử lý tự động | NĐ 356 Điều 9: quyền không tham gia xử lý tự động | Trước thí điểm |
+| API truy cập và chuyển dữ liệu | Luật 91/2025: quyền truy cập | Trước thí điểm |
+| Luồng rút đồng ý | NĐ 356: quyền rút đồng ý | Trước thí điểm |
+| Audit trail (immutable, tối thiểu 20 trường) | TT 13/2018 và Luật BVDLCN | Trước thí điểm |
+| Lưu trữ dữ liệu trong nước (cloud trong nước hoặc kết hợp) | NĐ 356 Điều 20, 21 và kỳ vọng của NHNN | Ngay từ thiết kế kiến trúc |
+| Mã hóa khi lưu và khi truyền | Biện pháp bảo mật của NĐ 356 | Ngay từ ngày đầu |
+| Quy trình ẩn danh hóa | Tối thiểu hóa dữ liệu và huấn luyện mô hình | Khi huấn luyện trên dữ liệu thực |
+| Luồng thông báo vi phạm | NĐ 356 Điều 28: thông báo trong 72 giờ | Trước thí điểm |
+| Bộ tạo thông báo từ chối | Luật TCTD và quyền được giải thích theo NĐ 356 | Trước thí điểm |
+| Dashboard giám sát thiên lệch | Luật AI 134/2025 Điều 4 | Trước thí điểm |
 
 ---
 
-## 9. Ghi Chú & Limitations
+## 8. Phạm Vi Áp Dụng
 
-1. **Không phải tư vấn pháp lý.** Cần legal review cho: legal basis per data type, retention period, deletion vs retention xung đột, DPIA nộp A05.
-2. **NĐ 356/2025 rất mới** (hiệu lực 01/01/2026) — practice chưa settle. Có thể có hướng dẫn bổ sung từ A05.
-3. **Chế tài xử phạt** — Luật 91/2025 có khung phạt nhưng NĐ xử phạt chi tiết chưa rõ. Follow sát.
-4. **"Legitimate interest"** — Luật VN không quy định rõ ràng như GDPR Điều 6(1)(f). Không nên dựa vào basis này.
-5. **VN cloud provider evaluation** ở Section 5.4 là preliminary — cần evaluate chi tiết tại Week 10.
-6. **Cross-reference:** regulatory-mapping.md và compliance-gap-analysis.md cho context đầy đủ.
+1. Tài liệu không thay thế tư vấn pháp lý; cơ sở pháp lý theo loại dữ liệu, thời hạn lưu trữ, mô hình ba tầng và hồ sơ DPIA nộp A05 được rà soát với tư vấn pháp lý của Bank X trước khi triển khai.
+2. Nghị định 356/2025 có hiệu lực từ 01/01/2026; thực tiễn áp dụng và hướng dẫn bổ sung của A05 được cập nhật vào tài liệu khi ban hành.
+3. Luật 91/2025 có khung xử phạt; mức xử phạt chi tiết theo nghị định xử phạt riêng được cập nhật khi ban hành.
+4. Chi tiết các văn bản pháp lý xem w02-01-regulatory-mapping; khoảng cách tuân thủ xem w02-02-compliance-gap-analysis.

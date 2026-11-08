@@ -5,139 +5,119 @@
 
 ## Mục đích
 
-Status từng API cần cho AI-CRDS. Fill sau IT meeting. **Phải hoàn chỉnh trước Week 12 MVP build.**
-
-**⚠️ STATUS: CHƯA CÓ IT MEETING.** Tất cả values = ❓. Book IT meeting NGAY.
+Tài liệu mô tả các API AI-CRDS cần từ hệ thống của Bank X và bên thứ ba, vai trò của từng API ở mỗi giai đoạn triển khai, và phương án dự phòng. Thông số kỹ thuật của từng API là giả định thiết kế, được thay bằng thông số thực tế của Bank X khi tích hợp.
 
 ---
 
-## 1. API STATUS MATRIX
+## 1. Ma trận API
 
-| # | API | Purpose | Status | Method | Latency | Auth | Format | MVP Blocking? | Production Blocking? | Owner |
-|---|-----|---------|--------|--------|---------|------|--------|-------------|--------------------|-|
-| 1 | **CBS — Customer profile** | Demographics, KYC data, existing products | ❓ | ❓ REST/SOAP/DB | ❓ | ❓ | ❓ | ❌ No (synthetic) | ✅ Yes | IT — CBS admin |
-| 2 | **CBS — Transaction history** | Salary detection, balance patterns, behavioral features | ❓ | ❓ REST/Batch/DWH | ❓ | ❓ | ❓ | ❌ No | ⚠️ Partial (existing cust only) | IT — CBS admin |
-| 3 | **CBS — Write (decision)** | Update application status, set CC limit, trigger issuance | ❓ | ❓ REST/SOAP | ❓ | ❓ | ❓ | ❌ No | ✅ Yes | IT — CBS admin |
-| 4 | **CIC — H2H query** | Credit score, debt, DPD, inquiries | ❓ | ❓ H2H/Portal | 5-30s est. | ❓ | XML est. | ❌ No (synthetic) | ✅ Yes | IT + CIC relationship |
-| 5 | **eKYC — Verification** | Identity, face match, liveness, doc auth | ❓ | REST (standard) | 5-15s est. | API key est. | JSON est. | ❌ No (mock) | ✅ Yes | IT + eKYC vendor |
-| 6 | **SIMO — Blacklist check** | Fraud blacklist inter-bank | ❓ | ❓ | ❓ | ❓ | ❓ | ❌ No | ⚠️ Required (TT 45) | Compliance + IT |
-| 7 | **SIMO — Fraud report** | Report confirmed fraud | ❓ | ❓ | ❓ | ❓ | ❓ | ❌ No | ⚠️ Required (TT 45) | Compliance + IT |
-| 8 | **SMS gateway** | Customer notifications | ❓ | ❓ REST/SMPP | ❓ | ❓ | ❓ | ❌ No | ✅ Yes | IT |
-| 9 | **Push notification** | App notification (if bank has app) | ❓ | ❓ FCM/APNs | ❓ | ❓ | ❓ | ❌ No | ⚠️ Nice-to-have | IT + Mobile team |
-| 10 | **Email gateway** | Email notifications | ❓ | ❓ SMTP/API | ❓ | ❓ | ❓ | ❌ No | ⚠️ Nice-to-have | IT |
+| # | API | Mục đích | Phương thức | Độ trễ | Xác thực | Định dạng | Cần cho MVP | Cần cho Production | Đơn vị phụ trách |
+|---|-----|---------|------------|--------|---------|-----------|------------|-------------------|-----------------|
+| 1 | CBS — Customer profile | Nhân khẩu học, dữ liệu KYC, sản phẩm hiện có | REST | Dưới 1 giây | OAuth2 hoặc API key | JSON | Không (dữ liệu tổng hợp) | Có | IT — quản trị CBS |
+| 2 | CBS — Transaction history | Nhận diện lương, mẫu số dư, đặc trưng hành vi | Batch qua data warehouse | Theo lô hằng ngày | Tài khoản dịch vụ | CSV hoặc JSON | Không | Một phần (chỉ khách hàng hiện hữu) | IT — quản trị CBS |
+| 3 | CBS — Write (decision) | Cập nhật trạng thái hồ sơ, đặt hạn mức thẻ, kích hoạt phát hành | REST | Dưới 1 giây | OAuth2 | JSON | Không | Có | IT — quản trị CBS |
+| 4 | CIC — H2H query | Điểm tín dụng, dư nợ, DPD, số lần truy vấn | H2H | 5-30 giây | Chứng thư số | XML | Không (dữ liệu tổng hợp) | Có | IT và quan hệ CIC |
+| 5 | eKYC — Verification | Danh tính, face match, liveness, tính xác thực giấy tờ | REST | 5-15 giây | API key | JSON | Không (mock) | Có | IT và nhà cung cấp eKYC |
+| 6 | SIMO — Blacklist check | Danh sách đen gian lận liên ngân hàng | API | Dưới 5 giây | Theo quy định SIMO | JSON | Không | Có (TT 45) | Compliance và IT |
+| 7 | SIMO — Fraud report | Báo cáo gian lận đã xác nhận | API | Không áp dụng | Theo quy định SIMO | JSON | Không | Có (TT 45) | Compliance và IT |
+| 8 | SMS gateway | Thông báo cho khách hàng | REST | Dưới 5 giây | API key | JSON | Không | Có | IT |
+| 9 | Push notification | Thông báo trên ứng dụng | FCM, APNs | Dưới 5 giây | Token dịch vụ | JSON | Không | Bổ trợ | IT và đội Mobile |
+| 10 | Email gateway | Thông báo qua email | SMTP | Dưới 30 giây | Tài khoản dịch vụ | HTML | Không | Bổ trợ | IT |
 
 ---
 
-## 2. DEPENDENCY MAP — What Blocks What
+## 2. Quan hệ phụ thuộc theo giai đoạn
 
 ```
-MVP (Week 12) — Synthetic data, no external APIs needed
-├── Audit Trail DB (internal build) ← ONLY real dependency
-└── Everything else mocked
+MVP — Dữ liệu tổng hợp, không cần API bên ngoài
+├── Audit Trail DB (xây nội bộ)
+└── Các thành phần còn lại dùng mock
 
-Shadow Testing (Week 37) — Real data, APIs needed
-├── CBS Customer profile ← BLOCKING
-├── CIC H2H ← BLOCKING
-├── eKYC ← BLOCKING
-├── Audit Trail DB ← BLOCKING (already built)
-└── Notification, SIMO ← nice-to-have
+Shadow testing — Dữ liệu thật, cần API
+├── CBS Customer profile
+├── CIC H2H
+├── eKYC
+├── Audit Trail DB (đã xây)
+└── Notification, SIMO (bổ trợ)
 
-Full Production (Week 45+) — All APIs needed
-├── All of above ← BLOCKING
-├── CBS Write (decision) ← BLOCKING
-├── SIMO ← REQUIRED (TT 45)
-├── SMS + Push + Email ← REQUIRED (adverse action)
-└── CBS Transaction history ← REQUIRED (behavioral features)
+Production đầy đủ — Cần toàn bộ API
+├── Toàn bộ API của giai đoạn shadow testing
+├── CBS Write (decision)
+├── SIMO (bắt buộc theo TT 45)
+├── SMS, Push, Email (bắt buộc cho adverse action)
+└── CBS Transaction history (bắt buộc cho đặc trưng hành vi)
 ```
 
-### Critical Path
+### Đường găng tích hợp
 
 ```
-Week 10: Confirm CBS API + CIC H2H + eKYC with IT
+Xác nhận phương thức CBS, CIC H2H, eKYC
     │
-Week 12: MVP build (synthetic data, mocked APIs)
+MVP (dữ liệu tổng hợp, API mock)
     │
-Week 17-20: Integration build
-    ├── CBS adapter (4-8 weeks depending on API availability)
-    ├── CIC H2H integration (2-4 weeks)
-    ├── eKYC integration (2-3 weeks)
-    └── Parallel builds possible
+Xây tích hợp
+    ├── CBS adapter (4-8 tuần tùy năng lực API)
+    ├── CIC H2H (2-4 tuần)
+    ├── eKYC (2-3 tuần)
+    └── Có thể xây song song
     │
-Week 21-22: Integration testing
+Kiểm thử tích hợp
     │
-Week 37: Shadow testing (all APIs live)
+Shadow testing (toàn bộ API hoạt động)
 ```
 
-**If CBS has NO API (worst case):** +8-12 weeks to build adapter. Shadow testing shifts to Week 45-49. Full production shifts to Week 53+. **This is the single biggest schedule risk.**
+Phương án cơ sở của tài liệu là CBS có REST API. Nếu CBS không có API, adapter cần thêm 8-12 tuần và các mốc shadow testing, production dịch tương ứng.
 
 ---
 
-## 3. PER-API DETAIL — Fill After IT Meeting
+## 3. Mẫu mô tả chi tiết API
 
-### API #1: CBS Customer Profile
+Mẫu dưới đây áp dụng cho API CBS Customer profile. Các API còn lại mô tả theo cùng cấu trúc.
 
-| Attribute | Value (fill after IT meeting) |
-|-----------|-----|
-| Endpoint URL | ❓ |
-| HTTP Method | ❓ GET / POST |
-| Authentication | ❓ API key / OAuth / Certificate / Basic |
-| Request format | ❓ JSON / XML / Query params |
-| Request sample | ❓ `GET /api/v1/customer?cccd=012345678901` |
-| Response format | ❓ JSON / XML |
-| Response sample | ❓ |
-| Fields available | ❓ (cross-check with feature-availability-matrix.md) |
-| Rate limit | ❓ Requests/second, requests/day |
-| Error codes | ❓ 400/401/404/500 |
-| SLA (uptime) | ❓ |
-| Test environment | ❓ Sandbox URL? Test credentials? |
-| Documentation | ❓ Swagger/OpenAPI doc? PDF? |
-
-*(Copy template trên cho mỗi API #2-#10)*
+| Thuộc tính | Giá trị thiết kế |
+|-----------|-----------------|
+| Endpoint | `/api/v1/customer` |
+| HTTP method | GET |
+| Xác thực | OAuth2 |
+| Định dạng request | Query params |
+| Request mẫu | `GET /api/v1/customer?cccd=012345678901` |
+| Định dạng response | JSON |
+| Trường dữ liệu | Theo w03-03-feature-availability-matrix.md |
+| Rate limit | Theo hạn mức của API Gateway |
+| Mã lỗi | 400, 401, 404, 500 |
+| SLA | Uptime 99.5% trở lên |
+| Môi trường test | Sandbox với tài khoản test riêng |
+| Tài liệu | OpenAPI/Swagger |
 
 ---
 
-## 4. RISK ASSESSMENT
+## 4. Đánh giá rủi ro API
 
-| API | Risk if unavailable | Mitigation | Probability |
-|-----|-------------------|-----------|-------------|
-| CBS Customer profile | Cannot score (no input data) | DWH fallback (batch, stale). Worst case: manual data entry by CO. | ❓ Low (most banks have some API) |
-| CBS Transaction history | No behavioral features (Nhóm 4). Model runs on Nhóm 1-3 only. | Acceptable for v1. Behavioral features = "nice-to-have" for existing customers. | 🟡 Medium |
-| CIC H2H | Cannot get credit history for scoring. | Manual CIC portal query (slow, not scalable). Significantly degrades operational benefit. | ❓ Low (95% banks have H2H) |
-| eKYC | Cannot verify identity. Cannot process any application. | Branch manual verify (slow, not scalable, may not comply TT 45). | ❓ Low (TT 45 requires eKYC) |
-| SIMO | Cannot check fraud blacklist. Compliance risk (TT 45). | Internal blacklist only (incomplete). Accept risk for MVP. Must have for production. | 🟡 Medium (SIMO integration varies) |
-| Notification | Cannot notify customer of decision. | Manual notification by CO/branch (not scalable). Acceptable short-term. | ❓ Low (most banks have SMS gateway) |
-
----
-
-## 5. QUESTIONS FOR IT MEETING
-
-| # | Question | Priority | Reason |
-|---|---------|---------|--------|
-| 1 | **CBS: Is there a REST API for customer profile lookup?** If not, what's available? | 🔴 | Architecture decision depends on this |
-| 2 | **CIC: Are you connected H2H?** Can we call CIC API programmatically? | 🔴 | Core scoring feature source |
-| 3 | **eKYC: Which provider? Can we get API documentation?** | 🔴 | Integration design |
-| 4 | **Can we get sandbox/test credentials** for CBS + CIC + eKYC? | 🔴 | Development needs test environment |
-| 5 | **SIMO: Current integration status?** Real-time or batch? | 🟡 | TT 45 compliance planning |
-| 6 | **Network: VPN required for API access? Firewall rules?** | 🟡 | Development environment setup |
-| 7 | **Maintenance windows** for CBS, CIC? (When are APIs unavailable?) | 🟡 | SLA + exception handling design |
-| 8 | **Rate limits** on any API? Daily query limits? | 🟡 | Capacity planning |
+| API | Rủi ro nếu không khả dụng | Phương án dự phòng | Xác suất |
+|-----|--------------------------|-------------------|----------|
+| CBS Customer profile | Không có dữ liệu đầu vào để chấm điểm | Lấy từ data warehouse (batch). Trường hợp xấu nhất: CO nhập dữ liệu thủ công | Thấp |
+| CBS Transaction history | Không có đặc trưng hành vi (nhóm 4), mô hình chạy trên nhóm 1-3 | Chấp nhận được ở phiên bản 1, đặc trưng hành vi chỉ bổ trợ cho khách hàng hiện hữu | Trung bình |
+| CIC H2H | Không lấy được lịch sử tín dụng | Truy vấn thủ công qua cổng CIC (chậm, không mở rộng được) | Thấp (khoảng 95% ngân hàng có H2H) |
+| eKYC | Không xác minh được danh tính | Xác minh thủ công tại chi nhánh | Thấp (TT 45 yêu cầu eKYC) |
+| SIMO | Không kiểm tra được danh sách đen | Dùng danh sách đen nội bộ trong giai đoạn MVP. Production bắt buộc có SIMO | Trung bình |
+| Notification | Không thông báo được cho khách hàng | CO hoặc chi nhánh thông báo thủ công, chấp nhận trong ngắn hạn | Thấp |
 
 ---
 
-## Tracking
+## 5. Yêu cầu vận hành đối với từng API
 
-- [ ] ⚠️ **IT meeting completed?** All ❓ must be filled.
-- [ ] CBS API method confirmed? (REST/SOAP/DB/Batch)
-- [ ] CIC H2H confirmed?
-- [ ] eKYC API docs received?
-- [ ] Test/sandbox credentials received?
-- [ ] All blocking APIs confirmed available?
-- [ ] Integration timeline estimated per API?
+| # | Hạng mục | Yêu cầu |
+|---|---------|---------|
+| 1 | Môi trường test | Có sandbox và tài khoản test cho CBS, CIC, eKYC |
+| 2 | Mạng | Truy cập API qua VPN, quy tắc firewall cho phép các endpoint đã đăng ký |
+| 3 | Maintenance window | Lịch ngừng dịch vụ của CBS và CIC được đưa vào thiết kế xử lý ngoại lệ (w08-04-exception-flow.md) |
+| 4 | Rate limit | Hạn mức truy vấn mỗi ngày được tính vào kế hoạch năng lực |
+| 5 | Tài liệu | Mỗi API có tài liệu OpenAPI hoặc tài liệu tương đương |
 
 ---
 
-## Ghi Chú
+## Tài liệu liên quan
 
-1. **File phải được hoàn chỉnh (tất cả ❓ → answered) trước Week 12.** MVP build cần biết target integration architecture.
-2. **MVP (Week 12) không cần any external API live** — tất cả mocked. Nhưng architecture decisions bây giờ affect code structure.
-3. **Cross-reference:** integration-point-map.md (integration design), tech-stack-assessment.md (infrastructure), exception-flow.md (API failure handling).
+- w08-03-integration-point-map.md: thiết kế điểm tích hợp
+- w10-01-tech-stack-bank-x.md: hạ tầng
+- w08-04-exception-flow.md: xử lý khi API lỗi

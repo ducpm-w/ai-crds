@@ -1,13 +1,13 @@
 # Assumptions Log — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Track mọi assumption dùng trong damage model, break-even analysis, và budget estimate. Mỗi assumption có source, confidence, và plan validate. Khi có số thực → update log này + recalculate tất cả models.
+Ghi nhận toàn bộ giả định dùng trong damage model, break-even analysis và budget estimate. Mỗi giả định có nguồn, mức độ tin cậy và cách kiểm chứng. Khi có số liệu thực của Bank X, log này được cập nhật và các mô hình được tính lại.
 
-**Nguyên tắc:** Không bịa số. Số không verify được phải có nguồn + confidence level + validation plan.
+Số liệu trong tài liệu là giả định lập kế hoạch; mỗi giả định ghi rõ nguồn và mức tin cậy.
 
 ---
 
@@ -15,68 +15,68 @@ Track mọi assumption dùng trong damage model, break-even analysis, và budget
 
 ### 1.1 Bank X Operating Metrics
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A1 | CC applications/tháng | 3,000 | Damage model (all tiers), Break-even | Ước tính mid-size NHTM VN. Range: 1,500-5,000. | ❓ **Low** | Head of Cards / Business team | Week 8 | 🔴 High — scales linearly across all tiers |
-| A2 | Approval rate hiện tại | 60% | Damage T1-T3, Break-even | Industry average VN CC. Range: 50-70%. | ❓ **Low** | Head of Cards / Credit team | Week 8 | 🟡 Medium — affects approved volume |
-| A3 | Average CC limit (salaried) | 50M VND | Damage T1-T2, Break-even | 2-3x monthly income. Avg salaried income ~20M declared → limit 40-60M. | 🟡 **Medium** | Product team / Head of Cards | Week 8 | 🔴 High — multiplier in EL and fraud loss |
-| A4 | Average outstanding balance | 25M VND (~50% utilization) | Damage T1 | Industry avg utilization ~40-60%. | 🟡 **Medium** | Finance team | Week 8 | 🟡 Medium |
-| A5 | CO team size | 10-12 | Damage T4, Budget | Estimated from A1 ÷ CO capacity. | ❓ **Low** | HR / Ops Manager | Week 8 | 🟡 Medium — affects ops cost |
-| A6 | CO capacity (apps/ngày) | 10-15 full reviews | Damage T4 | 35 min/review × 6 productive hours. | 🟡 **Medium** | Credit Officers (interview) | Week 9 | 🟢 Low |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A1 | CC applications/tháng | 3,000 | Damage model (mọi tier), Break-even | Ước tính ngân hàng thương mại cỡ trung VN. Khoảng: 1,500-5,000. | Thấp | Số liệu của Khối Thẻ/Kinh doanh | Cao: tác động tuyến tính lên mọi tier |
+| A2 | Approval rate hiện tại | 60% | Damage T1-T3, Break-even | Trung bình ngành thẻ tín dụng VN. Khoảng: 50-70%. | Thấp | Số liệu của Khối Thẻ/Tín dụng | Trung bình: ảnh hưởng khối lượng hồ sơ phê duyệt |
+| A3 | Average CC limit (salaried) | 50M VND | Damage T1-T2, Break-even | 2-3 lần thu nhập hàng tháng. Thu nhập khai báo trung bình ~20M → hạn mức 40-60M. | Trung bình | Số liệu sản phẩm của Khối Thẻ | Cao: hệ số nhân trong EL và fraud loss |
+| A4 | Average outstanding balance | 25M VND (~50% sử dụng) | Damage T1 | Mức sử dụng hạn mức trung bình ngành ~40-60%. | Trung bình | Số liệu của Khối Tài chính | Trung bình |
+| A5 | CO team size | 10-12 | Damage T4, Budget | Ước tính từ A1 ÷ năng lực xử lý của CO. | Thấp | Số liệu nhân sự / Vận hành | Trung bình: ảnh hưởng ops cost |
+| A6 | CO capacity (apps/ngày) | 10-15 thẩm định đầy đủ | Damage T4 | 35 phút/hồ sơ × 6 giờ làm việc hiệu quả. | Trung bình | Phỏng vấn Credit Officer | Thấp |
 
 ### 1.2 Credit Risk Parameters
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A7 | **CC NPL rate tại Bank X** | 3.5% | Damage T1 (core) | FiinRatings 2024: system-wide on-balance NPL 1.69%, gross 3.36%. CC-specific higher. VPBank 5.7%, VCB 0.7% (Statista 2023). S&P 06/2025: NPL incl. SML ~2%. | 🟡 **Medium** | Risk Manager / Finance | Week 8 | 🔴 **Very High** — directly scales T1 |
-| A8 | **LGD (CC unsecured)** | 70% | Damage T1 (core) | Industry benchmark CC unsecured. VN recovery rate ~20-30% (enforcement yếu cho consumer debt). Range: 60-80%. | 🟡 **Medium** | Risk Manager | Week 13 | 🔴 High — multiplier in EL |
-| A9 | **EAD assumption** | Full limit (50M) | Damage T1 worst case | Worst case: defaulter max out limit before default. Conservative: use outstanding balance (25M). | 🟡 **Medium** | Risk team | Week 13 | 🟡 Medium |
-| A10 | Default definition | DPD 90+ | Damage T1 | Basel II standard. Nhưng bank có thể dùng DPD 60+ hoặc write-off. | ✅ **High** | Risk Manager | Week 8 | 🟢 Low — Basel standard widely adopted |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A7 | CC NPL rate tại Bank X | 3.5% | Damage T1 (cốt lõi) | FiinRatings 2024: NPL on-balance toàn hệ thống 1.69%, gross 3.36%. Riêng thẻ tín dụng cao hơn. VPBank 5.7%, VCB 0.7% (Statista 2023). S&P 06/2025: NPL gồm SML ~2%. | Trung bình | Số liệu của Khối Rủi ro / Tài chính | Rất cao: tác động trực tiếp lên T1 |
+| A8 | LGD (CC unsecured) | 70% | Damage T1 (cốt lõi) | Chuẩn ngành thẻ tín dụng không tài sản bảo đảm. Tỷ lệ thu hồi tại VN ~20-30% (thi hành án yếu với nợ tiêu dùng). Khoảng: 60-80%. | Trung bình | Dữ liệu thu hồi nợ của Khối Rủi ro | Cao: hệ số nhân trong EL |
+| A9 | EAD assumption | Toàn bộ hạn mức (50M) | Damage T1 worst case | Trường hợp xấu nhất: khách hàng vỡ nợ đã sử dụng hết hạn mức. Phương án thận trọng thay thế: dùng dư nợ (25M). | Trung bình | Dữ liệu của Khối Rủi ro | Trung bình |
+| A10 | Default definition | DPD 90+ | Damage T1 | Chuẩn Basel II. Ngân hàng có thể dùng DPD 60+ hoặc write-off. | Cao | Chính sách của Khối Rủi ro | Thấp: chuẩn Basel được áp dụng rộng rãi |
 
 ### 1.3 Fraud Parameters
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A11 | **Fraud rate at CC origination** | 0.8% | Damage T2 | Visa VN Q2 2025: fraud rate giảm, dưới trung bình SEA. 93% fraud từ online. Origination fraud < transaction fraud. Range: 0.3-1.5%. | 🟡 **Medium** | Fraud/Risk team | Week 8 | 🔴 High — directly scales T2 |
-| A12 | Loss per fraud case | 100% of limit (50M) | Damage T2 | Fraud = full limit maxed, zero recovery. | ✅ **High** | N/A — worst case by design | N/A | 🟢 Low — conservative by design |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A11 | Fraud rate at CC origination | 0.8% | Damage T2 | Visa VN Q2 2025: tỷ lệ fraud giảm, dưới trung bình SEA. 93% fraud từ online. Fraud tại origination thấp hơn fraud giao dịch. Khoảng: 0.3-1.5%. | Trung bình | Dữ liệu của đội Fraud/Rủi ro | Cao: tác động trực tiếp lên T2 |
+| A12 | Loss per fraud case | 100% hạn mức (50M) | Damage T2 | Fraud rút hết hạn mức, không thu hồi được. | Cao | Không áp dụng: trường hợp xấu nhất theo thiết kế | Thấp: thận trọng theo thiết kế |
 
 ### 1.4 Opportunity Cost Parameters
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A13 | **False rejection rate** | 10% of rejections | Damage T3 | Industry estimate. Rất khó measure trực tiếp — rejected applicants không có outcome data (reject inference problem). Range: 5-15%. | ❓ **Low — assumption yếu nhất** | Credit Officers (interview), Head of Cards | Week 9 (CO interviews) | 🔴 **Highest impact** — T3 = 54% of total damage. Swing ±20 tỷ/năm. |
-| A14 | CC Lifetime Value (LTV) | 36M VND / 3 years | Damage T3, Break-even | Revenue/card/year: interest income (revolvers ~10-15M) + annual fee (500K-1.5M) + interchange (1-3M). Blended ~8M/năm × 3 years × discount. | 🟡 **Medium** | Finance / Product team | Week 8 | 🔴 High — multiplier in T3 |
-| A15 | Average CC lifespan | 3 years | Damage T3 | Industry average. Range: 2-5 years. Churn rate CC VN chưa có public data. | ❓ **Low** | Product team | Week 13 | 🟡 Medium |
-| A16 | CC interest rate | 24-36% p.a. | LTV calculation | VN CC standard revolving rate. | ✅ **High** | Product team | Week 8 | 🟢 Low — public knowledge |
-| A17 | Annual fee per card | 500K VND (avg) | LTV calculation | Range 300K-1.5M tùy hạng thẻ. | 🟡 **Medium** | Product team | Week 8 | 🟢 Low |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A13 | False rejection rate | 10% hồ sơ bị từ chối | Damage T3 | Ước tính ngành. Khó đo trực tiếp vì hồ sơ bị từ chối không có dữ liệu kết quả (reject inference). Khoảng: 5-15%. | Thấp (giả định yếu nhất) | Phỏng vấn Credit Officer, Khối Thẻ; đối chiếu kết quả shadow testing | Cao nhất: T3 chiếm 54% tổng thiệt hại. Dao động ±20 tỷ/năm. |
+| A14 | CC Lifetime Value (LTV) | 36M VND / 3 năm | Damage T3, Break-even | Doanh thu mỗi thẻ mỗi năm: lãi (khách revolve ~10-15M) + phí thường niên (500K-1.5M) + interchange (1-3M). Trung bình ~8M/năm × 3 năm, có chiết khấu. | Trung bình | Số liệu của Khối Tài chính / Sản phẩm | Cao: hệ số nhân trong T3 |
+| A15 | Average CC lifespan | 3 năm | Damage T3 | Trung bình ngành. Khoảng: 2-5 năm. Tỷ lệ churn thẻ tín dụng tại VN chưa có số liệu công khai. | Thấp | Số liệu của Khối Sản phẩm | Trung bình |
+| A16 | CC interest rate | 24-36% p.a. | Tính LTV | Lãi suất revolving chuẩn thẻ tín dụng VN. | Cao | Biểu phí sản phẩm của Khối Thẻ | Thấp: thông tin công khai |
+| A17 | Annual fee per card | 500K VND (trung bình) | Tính LTV | Khoảng 300K-1.5M tùy hạng thẻ. | Trung bình | Biểu phí sản phẩm của Khối Thẻ | Thấp |
 
 ### 1.5 Operational Cost Parameters
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A18 | **CO all-in cost/tháng** | 18M VND | Damage T4, Budget | Salary guides 2025: credit specialist 10-20M. + BHXH (~23%) + overhead (office, equipment). All-in: 15-25M. | 🟡 **Medium** | HR / Finance | Week 8 | 🟡 Medium |
-| A19 | Review time per application | 35 phút (full review) | Damage T4 | Ước tính: documentation review (10 min) + CIC check (5 min) + analysis (10 min) + decision + logging (10 min). | ❓ **Low** | Credit Officers (observe/interview) | Week 9 | 🟡 Medium |
-| A20 | CO productive hours/ngày | 6 giờ (75% efficiency) | Damage T4 | Standard office: 8h - meetings - breaks - admin = ~6h productive. | 🟡 **Medium** | Ops Manager | Week 8 | 🟢 Low |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A18 | CO all-in cost/tháng | 18M VND | Damage T4, Budget | Salary guide 2025: chuyên viên tín dụng 10-20M, cộng BHXH (~23%) và chi phí chung (văn phòng, thiết bị). All-in: 15-25M. | Trung bình | Số liệu của Khối Nhân sự / Tài chính | Trung bình |
+| A19 | Review time per application | 35 phút (thẩm định đầy đủ) | Damage T4 | Ước tính: xem hồ sơ (10 phút) + tra cứu CIC (5 phút) + phân tích (10 phút) + quyết định và ghi nhận (10 phút). | Thấp | Quan sát/phỏng vấn Credit Officer | Trung bình |
+| A20 | CO productive hours/ngày | 6 giờ (hiệu suất 75%) | Damage T4 | Văn phòng chuẩn: 8 giờ trừ họp, nghỉ, hành chính còn ~6 giờ hiệu quả. | Trung bình | Số liệu của Khối Vận hành | Thấp |
 
 ### 1.6 AI Performance Assumptions
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A21 | **AI NPL reduction** | -20% (3.5% → 2.8%) | Break-even B1 | Academic literature: AI scoring improves Gini 10-30% over traditional scorecard. -20% NPL reduction = conservative for well-implemented AI. Range: -10% to -40%. | ❓ **Low** | N/A — validate by shadow testing | Week 40 (post-shadow test) | 🔴 High — 5.29 tỷ/năm saving at stake |
-| A22 | **AI fraud detection improvement** | +30% detection rate | Break-even B2 | Dependent on eKYC integration + AI fraud model quality. Rule-based → ML typically +20-50% improvement. | ❓ **Low** | N/A — validate by shadow testing | Week 40 | 🟡 Medium — 4.32 tỷ/năm at stake |
-| A23 | **AI false reject reduction** | -30% | Break-even B3 | AI more consistent than manual → fewer random rejections. But: ML can introduce new biases. -30% = moderate estimate. | ❓ **Low — hardest to prove** | N/A — validate by shadow + limited deployment | Week 43 (post-limited deployment) | 🔴 **Highest impact** — 15.55 tỷ/năm at stake |
-| A24 | **Auto-review rate** | 50% of applications | Break-even B4 | Dependent on threshold setting + CO trust. Start conservative (30%) → ramp to 50-70%. | ❓ **Low** | Risk Committee (threshold approval) | Week 41 (limited deployment) | 🟡 Medium — 1.48 tỷ/năm at stake |
-| A25 | Benefit ramp-up schedule | 0%→30%→60%→85% over 12M | Break-even | Typical AI deployment in banking. Shadow 3M (0%) → limited 3M (30%) → expanding 3M (60%) → full 3M (85%). | 🟡 **Medium** | Track actual ramp | Ongoing post-deploy | 🟡 Medium — affects break-even month |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A21 | AI NPL reduction | -20% (3.5% → 2.8%) | Break-even B1 | Tài liệu học thuật: AI scoring cải thiện Gini 10-30% so với scorecard truyền thống. Giảm NPL 20% là mức thận trọng cho AI triển khai tốt. Khoảng: -10% đến -40%. | Thấp | Kết quả shadow testing | Cao: 5.29 tỷ/năm |
+| A22 | AI fraud detection improvement | +30% tỷ lệ phát hiện | Break-even B2 | Phụ thuộc tích hợp eKYC và chất lượng model fraud. Chuyển từ rule-based sang ML thường cải thiện +20-50%. | Thấp | Kết quả shadow testing | Trung bình: 4.32 tỷ/năm |
+| A23 | AI false reject reduction | -30% | Break-even B3 | AI nhất quán hơn thủ công nên ít từ chối ngẫu nhiên hơn; tuy nhiên ML có thể tạo ra thiên lệch mới. -30% là ước tính ở mức trung bình. | Thấp (khó chứng minh nhất) | Kết quả shadow testing và limited deployment | Cao nhất: 15.55 tỷ/năm |
+| A24 | Auto-review rate | 50% hồ sơ | Break-even B4 | Phụ thuộc thiết lập ngưỡng và mức độ tin tưởng của CO. Bắt đầu thận trọng (30%), tăng dần lên 50-70%. | Thấp | Phê duyệt ngưỡng của Risk Committee; kết quả limited deployment | Trung bình: 1.48 tỷ/năm |
+| A25 | Benefit ramp-up schedule | 0%→30%→60%→85% trong 12 tháng | Break-even | Lộ trình triển khai AI điển hình trong ngân hàng. Shadow 3 tháng (0%) → limited 3 tháng (30%) → mở rộng 3 tháng (60%) → toàn bộ 3 tháng (85%). | Trung bình | Theo dõi ramp-up thực tế sau triển khai | Trung bình: ảnh hưởng tháng hòa vốn |
 
 ### 1.7 Cost & Financial Assumptions
 
-| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Validate với ai | Validate khi nào | Impact nếu sai |
-|---|-----------|-------|-----------|--------|-----------|----------------|-----------------|----------------|
-| A26 | Build cost (total) | 6.7 tỷ VND (base) | Budget v0, Break-even | Decomposed: ML dev 3 tỷ + backend 1.5 tỷ + frontend 800M + infra 600M + PM 800M. Based on VN market rates. | 🟡 **Medium** | CTO / IT Manager | Week 8 | 🟡 Medium — ±2 tỷ range |
-| A27 | Annual run cost | 2.05 tỷ VND (base) | Budget v0, Break-even | Cloud 600M + CIC 300M + eKYC 150M + maintenance 800M + compliance 200M. | 🟡 **Medium** | CTO / Finance | Week 8 | 🟡 Medium |
-| A28 | **CIC API cost per query** | ~10K VND | Budget v0 | ❓ **Chưa verify.** Phí CIC khác nhau giữa các bank (tùy agreement). Có thể 5K-20K/query. | ❓ **Low** | IT / CIC contact | Week 8 | 🟡 Medium — 300M/năm at stake |
-| A29 | ML Engineer salary (senior) | 40-70M/tháng | Budget v0 | Adecco 2025, Reeracoen 2025. AI/ML = premium. HCM/HN. | ✅ **High** | HR | Week 5 | 🟢 Low |
-| A30 | Discount rate (NPV) | 12% per annum | Break-even NPV | VN risk-free ~5% + equity risk premium ~7%. Standard corporate project evaluation. | ✅ **High** | CFO | Week 8 | 🟢 Low — NPV not very sensitive |
+| # | Assumption | Value | Dùng ở đâu | Source | Confidence | Cách kiểm chứng | Impact nếu sai |
+|---|-----------|-------|-----------|--------|-----------|----------------|----------------|
+| A26 | Build cost (tổng) | 6.7 tỷ VND (base) | Budget v0, Break-even | Phân rã: ML dev 3 tỷ + backend 1.5 tỷ + frontend 800M + infra 600M + PM 800M. Theo mặt bằng thị trường VN. | Trung bình | Số liệu của CTO / Khối IT | Trung bình: khoảng ±2 tỷ |
+| A27 | Annual run cost | 2.05 tỷ VND (base) | Budget v0, Break-even | Cloud 600M + CIC 300M + eKYC 150M + bảo trì 800M + tuân thủ 200M. | Trung bình | Số liệu của CTO / Tài chính | Trung bình |
+| A28 | CIC API cost per query | ~10K VND | Budget v0 | Phí CIC khác nhau giữa các ngân hàng tùy thỏa thuận; khoảng 5K-20K/query. | Thấp | Thỏa thuận CIC hiện hành của Bank X | Trung bình: 300M/năm |
+| A29 | ML Engineer salary (senior) | 40-70M/tháng | Budget v0 | Adecco 2025, Reeracoen 2025. AI/ML có mức lương cao hơn. Hà Nội/TP.HCM. | Cao | Số liệu của Khối Nhân sự | Thấp |
+| A30 | Discount rate (NPV) | 12% per annum | Break-even NPV | Lãi suất phi rủi ro VN ~5% + equity risk premium ~7%. Chuẩn đánh giá dự án doanh nghiệp. | Cao | Chính sách của CFO | Thấp: NPV ít nhạy với tỷ lệ này |
 
 ---
 
@@ -84,155 +84,108 @@ Track mọi assumption dùng trong damage model, break-even analysis, và budget
 
 ```
                         IMPACT ON NPV
-                   Low (<3 tỷ)    High (>5 tỷ)
+                   Thấp (<3 tỷ)   Cao (>5 tỷ)
                  ┌──────────────┬──────────────┐
-    High         │              │  A7 (NPL)    │
-    Confidence   │  A10,A12,    │  A8 (LGD)    │
-    (✅)         │  A16,A29,A30 │              │
+    Tin cậy      │              │  A7 (NPL)    │
+    cao          │  A10,A12,    │  A8 (LGD)    │
+                 │  A16,A29,A30 │              │
                  ├──────────────┼──────────────┤
-    Medium       │  A4,A6,A9,   │  A3 (limit)  │
-    Confidence   │  A17,A18,A20 │  A14 (LTV)   │
-    (🟡)         │  A25,A26,A27 │  A11 (fraud) │
+    Tin cậy      │  A4,A6,A9,   │  A3 (limit)  │
+    trung bình   │  A17,A18,A20 │  A14 (LTV)   │
+                 │  A25,A26,A27 │  A11 (fraud) │
                  ├──────────────┼──────────────┤
-    Low          │  A5,A15,A19  │  A1 (volume) │
-    Confidence   │  A24,A28     │  A2 (approv) │
-    (❓)         │              │  A13 (FP)  ← │ BIGGEST RISK
+    Tin cậy      │  A5,A15,A19  │  A1 (volume) │
+    thấp         │  A24,A28     │  A2 (approv) │
+                 │              │  A13 (FP)    │
                  │              │  A21-A23     │
                  └──────────────┴──────────────┘
 ```
 
-**Top 5 riskiest assumptions** (low confidence + high impact):
+Năm giả định có rủi ro cao nhất (tin cậy thấp, tác động cao):
 
-| Rank | # | Assumption | Value | NPV swing if wrong | Validation plan |
+| Rank | # | Assumption | Value | NPV swing if wrong | Cách kiểm chứng |
 |------|---|-----------|-------|-------------------|----------------|
-| **1** | A13 | False rejection rate | 10% | ±20 tỷ | CO interviews Week 9 → shadow test comparison Week 40 |
-| **2** | A23 | AI false reject reduction | -30% | ±13 tỷ | Shadow testing Week 37-40 → limited deployment Week 41-43 |
-| **3** | A21 | AI NPL reduction | -20% | ±9 tỷ | Shadow testing → 90-day post-deploy measurement |
-| **4** | A1 | CC applications/tháng | 3,000 | ±8 tỷ | Head of Cards meeting Week 8 |
-| **5** | A22 | AI fraud detection +30% | +30% | ±7 tỷ | Shadow testing Week 37-40 |
+| 1 | A13 | False rejection rate | 10% | ±20 tỷ | Phỏng vấn Credit Officer, đối chiếu kết quả shadow test |
+| 2 | A23 | AI false reject reduction | -30% | ±13 tỷ | Shadow testing, sau đó limited deployment |
+| 3 | A21 | AI NPL reduction | -20% | ±9 tỷ | Shadow testing, đo lường 90 ngày sau triển khai |
+| 4 | A1 | CC applications/tháng | 3,000 | ±8 tỷ | Số liệu của Khối Thẻ |
+| 5 | A22 | AI fraud detection +30% | +30% | ±7 tỷ | Shadow testing |
 
 ---
 
-## 3. SENSITIVITY TABLE — "What If" Analysis
+## 3. SENSITIVITY TABLE — Kịch bản thay đổi giả định
 
-### Nếu assumption sai, damage model thay đổi bao nhiêu?
+Bảng dưới đây cho thấy mức thay đổi của damage model khi một giả định lệch khỏi giá trị cơ sở.
 
-| Scenario | Assumptions changed | Total damage/năm | AI saving/năm | NPV 3-year | Break-even |
+| Scenario | Assumptions changed | Total damage/năm | AI saving/năm | NPV 3 năm | Break-even |
 |---------|-------------------|-----------------|-------------|-----------|-----------|
-| **Base case** | All at base value | 95.65 tỷ | 26.64 tỷ | +33.56 tỷ | Month 11 |
-| NPL thực = 2% (tốt hơn) | A7: 3.5% → 2% | 81.5 tỷ | 23.6 tỷ | +28.0 tỷ | Month 12 |
-| NPL thực = 5.5% (tệ hơn) | A7: 3.5% → 5.5% | 115.8 tỷ | 31.4 tỷ | +42.5 tỷ | Month 9 |
-| False reject = 5% (ít hơn) | A13: 10% → 5% | 69.8 tỷ | 18.5 tỷ | +18.2 tỷ | Month 15 |
-| False reject = 0% (không có) | A13: 10% → 0% | 43.8 tỷ | 11.1 tỷ | +10.5 tỷ | Month 18 |
-| Volume = 1,500/tháng | A1: 3,000 → 1,500 | 47.8 tỷ | 13.3 tỷ | +12.8 tỷ | Month 16 |
-| Volume = 5,000/tháng | A1: 3,000 → 5,000 | 159.4 tỷ | 44.4 tỷ | +67.0 tỷ | Month 7 |
-| AI chỉ giảm NPL, không gì khác | A22-24: 0 | N/A | 5.29 tỷ | +2.1 tỷ | Month 20 |
-| **Worst worst case** | A13=0%, AI chỉ giảm NPL 10% | N/A | 2.65 tỷ | **-4.2 tỷ** | **Không hòa vốn** |
+| Base case | Tất cả ở giá trị cơ sở | 95.65 tỷ | 26.64 tỷ | +33.56 tỷ | Tháng 11 |
+| NPL thực = 2% (tốt hơn) | A7: 3.5% → 2% | 81.5 tỷ | 23.6 tỷ | +28.0 tỷ | Tháng 12 |
+| NPL thực = 5.5% (xấu hơn) | A7: 3.5% → 5.5% | 115.8 tỷ | 31.4 tỷ | +42.5 tỷ | Tháng 9 |
+| False reject = 5% (ít hơn) | A13: 10% → 5% | 69.8 tỷ | 18.5 tỷ | +18.2 tỷ | Tháng 15 |
+| False reject = 0% (không có) | A13: 10% → 0% | 43.8 tỷ | 11.1 tỷ | +10.5 tỷ | Tháng 18 |
+| Volume = 1,500/tháng | A1: 3,000 → 1,500 | 47.8 tỷ | 13.3 tỷ | +12.8 tỷ | Tháng 16 |
+| Volume = 5,000/tháng | A1: 3,000 → 5,000 | 159.4 tỷ | 44.4 tỷ | +67.0 tỷ | Tháng 7 |
+| AI chỉ giảm NPL, không có cải thiện khác | A22-24: 0 | Không áp dụng | 5.29 tỷ | +2.1 tỷ | Tháng 20 |
+| Kịch bản bất lợi nhất | A13=0%, AI chỉ giảm NPL 10% | Không áp dụng | 2.65 tỷ | -4.2 tỷ | Không hòa vốn |
 
-**Insight:** NPV chỉ negative khi CẢ false reject benefit = 0 VÀ AI improvement rất nhỏ (chỉ -10% NPL). Scenario này unlikely nhưng possible nếu model quality kém hoặc CO không trust AI.
+NPV chỉ âm khi đồng thời lợi ích từ giảm từ chối nhầm bằng 0 và mức cải thiện của AI rất nhỏ (chỉ giảm 10% NPL). Kịch bản này khó xảy ra, chỉ có thể xuất hiện nếu chất lượng model kém hoặc CO không tin tưởng AI.
 
-**→ Mitigation:** Shadow testing (Week 37-40) sẽ validate A21-A24 trước khi commit Phase 1 budget. Nếu shadow test cho thấy AI không improve → kill project, sunk cost = 365M (Phase 0 only).
-
----
-
-## 4. VALIDATION TIMELINE
-
-```
-WEEK  4   5   6   7   8   9  10  11  12  13 ... 37  38  39  40  41  42  43
-      │   │   │   │   │   │   │   │   │   │       │   │   │   │   │   │   │
-      │   │   │   │   │   │   │   │   │   │       │   │   │   │   │   │   │
- A29 ─┤   │   │   │   │   │   │   │   │   │       │   │   │   │   │   │   │
- (HR) ▼   │   │   │   │   │   │   │   │   │       │   │   │   │   │   │   │
-          │   │   │   │   │   │   │   │   │       │   │   │   │   │   │   │
- A1-A9 ───┼───┼───┼───┤   │   │   │   │   │       │   │   │   │   │   │   │
- A11,A14 ─┼───┼───┼───┤   │   │   │   │   │       │   │   │   │   │   │   │
- A16-A18 ─┼───┼───┼───┤   │   │   │   │   │       │   │   │   │   │   │   │
- A26-A28  │   │   │   ▼   │   │   │   │   │       │   │   │   │   │   │   │
- (Bank IT/Finance)    │   │   │   │   │   │       │   │   │   │   │   │   │
-                      │   │   │   │   │   │       │   │   │   │   │   │   │
- A13,A19 ─────────────┤   │   │   │   │   │       │   │   │   │   │   │   │
- (CO interviews)      ▼   │   │   │   │   │       │   │   │   │   │   │   │
-                           │   │   │   │   │       │   │   │   │   │   │   │
- A8,A15 ──────────────────────────────┤   │       │   │   │   │   │   │   │
- (Risk Manager deep-dive)            ▼   │       │   │   │   │   │   │   │
-                                          │       │   │   │   │   │   │   │
- A21-A22 ─────────────────────────────────┼───────┼───┼───┼───┤   │   │   │
- (Shadow testing results)                 │       │   │   │   ▼   │   │   │
-                                          │       │               │   │   │
- A23-A24 ─────────────────────────────────┼───────┼───────────────┼───┼───┤
- (Limited deployment results)             │       │               │   │   ▼
-                                          │       │               │   │
-                              PROPOSAL ───┤       │  RECALCULATE ─┤   │
-                              (Week 11)   ▼       │  ALL MODELS   ▼   │
-                                                  │                   │
-                                    SHADOW ────────┤  DEPLOY ─────────┤
-                                    START          ▼  DECISION        ▼
-```
-
-### Validation Milestones
-
-| Milestone | Week | Assumptions validated | Action after validation |
-|----------|------|---------------------|----------------------|
-| **Bank IT/Finance meeting** | 8 | A1-A9, A11, A14, A16-A18, A26-A28 | Recalculate damage model + break-even + budget. Update proposal. |
-| **CO interviews** | 9 | A13, A19 | Validate false rejection rate (biggest assumption). Update T3. |
-| **Risk Manager deep-dive** | 13 | A8, A10, A15 | Finalize LGD, default definition. Update T1. |
-| **Shadow testing results** | 40 | A21, A22 | AI vs manual accuracy comparison. Go/no-go for Phase 1. |
-| **Limited deployment results** | 43 | A23, A24 | AI false reject + auto-review performance. Go/no-go for full deploy. |
-| **Post-deploy 30-day** | 47 | All remaining | Full recalculation with actuals. 30-day impact report. |
+Biện pháp giảm thiểu: shadow testing kiểm chứng A21-A24 trước khi cam kết ngân sách Phase 1. Nếu shadow test cho thấy AI không cải thiện, dự án dừng với chi phí đã chi là 365M (chỉ Phase 0).
 
 ---
 
-## 5. RECALCULATION PROTOCOL
+## 4. KIỂM CHỨNG GIẢ ĐỊNH
 
-Khi assumption được validated (replaced with actual data):
+### Các mốc kiểm chứng
 
-### Step 1: Update Assumptions Log
+| Milestone | Giả định được kiểm chứng | Hành động sau kiểm chứng |
+|----------|---------------------|----------------------|
+| Làm việc với Khối IT/Tài chính Bank X | A1-A9, A11, A14, A16-A18, A26-A28 | Tính lại damage model, break-even và budget. |
+| Phỏng vấn Credit Officer | A13, A19 | Kiểm chứng false rejection rate (giả định lớn nhất). Cập nhật T3. |
+| Làm việc sâu với Risk Manager | A8, A10, A15 | Chốt LGD và định nghĩa default. Cập nhật T1. |
+| Kết quả shadow testing | A21, A22 | So sánh độ chính xác AI và thủ công. Quyết định chuyển sang Phase 1. |
+| Kết quả limited deployment | A23, A24 | Đánh giá hiệu quả giảm từ chối nhầm và auto-review. Quyết định triển khai toàn bộ. |
+| 30 ngày sau triển khai | Các giả định còn lại | Tính lại toàn bộ với số thực. Báo cáo tác động 30 ngày. |
+
+---
+
+## 5. QUY TRÌNH TÍNH LẠI
+
+Khi một giả định được kiểm chứng và thay bằng số liệu thực:
+
+### Bước 1: Cập nhật Assumptions Log
 
 ```
-| A7 | CC NPL rate | 3.5% → [ACTUAL] | damage-model.md | [NEW SOURCE] | ✅ High | ✓ Validated Week 8 |
+| A7 | CC NPL rate | 3.5% → [SỐ THỰC] | w04-01-damage-model-bank-x | [NGUỒN MỚI] | Cao | Đã kiểm chứng |
 ```
 
-### Step 2: Recalculate Models
+### Bước 2: Tính lại các mô hình
 
-| Document | Recalculate what | Priority |
+| Document | Tính lại nội dung | Mức ưu tiên |
 |---------|-----------------|---------|
-| `damage-model.md` | All 4 tiers with new inputs | 🔴 Immediate |
-| `break-even-analysis.md` | NPV, IRR, break-even month | 🔴 Immediate |
-| `budget-estimate-v0.md` | Cost estimates if CIC fee / salary changes | 🟡 If applicable |
+| w04-01-damage-model-bank-x | 4 tier với đầu vào mới | Ngay lập tức |
+| w04-02-break-even-analysis | NPV, IRR, tháng hòa vốn | Ngay lập tức |
+| w04-03-budget-estimate-v0 | Ước tính chi phí nếu phí CIC hoặc mức lương thay đổi | Nếu áp dụng |
 
-### Step 3: Version Control
+### Bước 3: Quản lý phiên bản
 
 ```
-damage-model.md v1.0 (estimates) → v1.1 (partial actuals Week 8) → v2.0 (post-shadow actuals)
-break-even-analysis.md v1.0 → v1.1 → v2.0
-assumptions-log.md v1.0 → v1.1 → v2.0
+w04-01-damage-model-bank-x v1.0 (ước tính) → v1.1 (một phần số thực) → v2.0 (số thực sau shadow testing)
+w04-02-break-even-analysis v1.0 → v1.1 → v2.0
+w04-04-assumptions-log v1.0 → v1.1 → v2.0
 ```
 
-### Step 4: Communicate Changes
+### Bước 4: Thông báo thay đổi
 
-Nếu recalculation thay đổi NPV >10% → notify direct manager + update proposal draft.
+Nếu việc tính lại làm NPV thay đổi hơn 10%, thông báo cho quản lý trực tiếp và cập nhật bản đề xuất.
 
 ---
 
-## 6. TRACKING — Tự hỏi cuối tuần
+## 6. PHẠM VI VÀ LƯU Ý
 
-- [ ] Có số NPL CC nội bộ Bank X không? (A7 — ảnh hưởng lớn nhất đến T1)
-- [ ] Cost per manual review application là bao nhiêu? (A18, A19)
-- [ ] Average CC limit tại Bank X? (A3 — multiplier trong mọi tier)
-- [ ] Current fraud loss rate CC? (A11)
-- [ ] Headcount Credit team? (A5 — để tính ops cost)
-- [ ] Budget approval process: ai sign, ngưỡng bao nhiêu? (Cho Phase 0 ask)
-- [ ] CIC API cost per query? (A28 — unknown lớn nhất trong budget)
-- [ ] False rejection rate có evidence gì support không? (A13 — assumption yếu nhất, impact cao nhất)
-- [ ] Đã schedule meeting IT/Finance cho Week 8 chưa?
-- [ ] Đã schedule CO interviews cho Week 9 chưa?
-
----
-
-## 7. Ghi Chú & Limitations
-
-1. **30 assumptions tracked.** 5 có confidence ❓ Low + impact 🔴 High → biggest risks.
-2. **A13 (false rejection rate) là assumption yếu nhất nhưng impact cao nhất.** Swing ±20 tỷ/năm. Cần CO interviews + shadow testing evidence. C-level có thể challenge — prepare answer: "Ngay cả nếu false reject = 0, NPV vẫn positive +10.5 tỷ từ NPL + fraud savings."
-3. **A21-A24 (AI improvement) không validate được trước shadow testing (Week 37-40).** Budget Phase 0 (365M) chấp nhận risk này. Nếu shadow test fail → kill project, sunk cost = 365M.
-4. **Assumptions interact:** A1 (volume) scales tất cả tiers. A3 (limit) scales T1+T2. Thay đổi 1 assumption → cascade effect. Always recalculate all models cùng lúc.
-5. **Cross-reference:** damage-model.md (uses A1-A24), break-even-analysis.md (uses all), budget-estimate-v0.md (uses A26-A30).
+1. Có 30 giả định được theo dõi; 5 giả định có tin cậy thấp và tác động cao là rủi ro lớn nhất.
+2. A13 (false rejection rate) là giả định yếu nhất nhưng có tác động cao nhất, dao động ±20 tỷ/năm. Ngay cả khi false reject bằng 0, NPV vẫn dương +10.5 tỷ nhờ tiết kiệm từ NPL và fraud.
+3. Các giả định A21-A24 (cải thiện nhờ AI) chỉ được kiểm chứng sau shadow testing. Ngân sách Phase 0 (365M) đã tính đến rủi ro này: nếu shadow test không đạt, dự án dừng với chi phí đã chi là 365M.
+4. Các giả định tác động qua lại: A1 (volume) tác động mọi tier, A3 (limit) tác động T1 và T2. Khi thay đổi một giả định, cần tính lại toàn bộ mô hình cùng lúc.
+5. Tài liệu liên quan: w04-01-damage-model-bank-x (dùng A1-A24), w04-02-break-even-analysis (dùng toàn bộ), w04-03-budget-estimate-v0 (dùng A26-A30).

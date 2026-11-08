@@ -1,21 +1,21 @@
 # Adverse Action Flow — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Define quy trình thông báo từ chối khách hàng: nội dung, format, delivery channel, timeline, quyền khiếu nại. Comply Luật TCTD 2024, NĐ 356/2025 (BVDLCN), Luật AI 134/2025.
+Quy định quy trình thông báo từ chối khách hàng của Bank X: nội dung, format, delivery channel, timeline, quyền khiếu nại. Quy trình phù hợp Luật TCTD 2024, NĐ 356/2025 (BVDLCN) và Luật AI 134/2025.
 
 ---
 
-## 1. LEGAL BASIS — Tại sao cần Adverse Action Notice?
+## 1. LEGAL BASIS — Cơ sở cần có Adverse Action Notice
 
 | Yêu cầu | Nguồn pháp lý | Nội dung |
 |---------|---------------|---------|
-| **Thông báo lý do từ chối** | Luật TCTD 2024 (best practice) + NĐ 356/2025 Điều 9 (quyền được giải thích quyết định tự động) | Khách hàng có quyền biết tại sao bị từ chối. Đặc biệt khi AI involved → giải thích phải meaningful. |
+| **Thông báo lý do từ chối** | Luật TCTD 2024 (best practice) + NĐ 356/2025 Điều 9 (quyền được giải thích quyết định tự động) | Khách hàng có quyền biết tại sao bị từ chối. Khi có AI tham gia, phần giải thích phải rõ ràng và có ý nghĩa với khách hàng. |
 | **Ghi nhãn AI** | Luật AI 134/2025 | Output có AI involvement phải ghi rõ "được hỗ trợ bởi AI." |
-| **Quyền yêu cầu human review** | NĐ 356/2025 Điều 9 + Luật AI 134/2025 Điều 4 | Khách có quyền yêu cầu con người xem xét lại nếu không đồng ý với quyết định có AI. |
+| **Quyền yêu cầu người xem xét lại** | NĐ 356/2025 Điều 9 + Luật AI 134/2025 Điều 4 | Khách có quyền yêu cầu con người xem xét lại nếu không đồng ý với quyết định có AI. |
 | **Quyền khiếu nại** | Luật BVDLCN 91/2025 | Quyền khiếu nại đến Bộ Công an (A05) hoặc tòa án nếu cho rằng quyền DLCN bị xâm phạm. |
 | **Quyền xem CIC** | CIC regulations | Khách có quyền kiểm tra thông tin tín dụng CIC miễn phí 1 lần/năm. |
 
@@ -55,24 +55,24 @@ LÝ DO CHÍNH (theo thứ tự ảnh hưởng):
 
 ──────────────────────────────────────────────────────
 
-ⓘ  THÔNG TIN QUAN TRỌNG
+THÔNG TIN QUAN TRỌNG
 
 • Quyết định này được hỗ trợ bởi hệ thống trí tuệ 
   nhân tạo và được xác nhận bởi cán bộ tín dụng 
   của [Tên Bank X].
 
 • Quý khách có quyền:
-  ✓ Yêu cầu xem xét lại bởi cán bộ tín dụng
-  ✓ Kiểm tra thông tin tín dụng CIC miễn phí 
+  - Yêu cầu xem xét lại bởi cán bộ tín dụng
+  - Kiểm tra thông tin tín dụng CIC miễn phí 
     (1 lần/năm) tại https://cic.gov.vn hoặc 
     ứng dụng CIC Credit Connect
-  ✓ Khiếu nại quyết định trong vòng 30 ngày
-  ✓ Nộp hồ sơ mới sau 90 ngày kể từ ngày 
+  - Khiếu nại quyết định trong vòng 30 ngày
+  - Nộp hồ sơ mới sau 90 ngày kể từ ngày 
     thông báo này
 
 ──────────────────────────────────────────────────────
 
-📞  LIÊN HỆ KHIẾU NẠI
+LIÊN HỆ KHIẾU NẠI
 
 Hotline: [Số hotline Bank X]
 Email: [Email khiếu nại Bank X]
@@ -93,7 +93,7 @@ Mã thông báo: [AAN-YYYY-MM-XXXXX]
 
 ### 2.2 Rejection Reason Catalog — Plain Language
 
-AI-CRDS phải translate model output (technical) thành lý do khách hiểu được (plain language):
+AI-CRDS chuyển kết quả của mô hình (thuật ngữ kỹ thuật) thành lý do khách hàng hiểu được (ngôn ngữ đơn giản):
 
 | # | Technical reason (internal) | Plain language (customer-facing) | Source |
 |---|---------------------------|--------------------------------|--------|
@@ -112,12 +112,12 @@ AI-CRDS phải translate model output (technical) thành lý do khách hiểu đ
 | R13 | `address_unverifiable` | "Không thể xác minh địa chỉ thường trú" | App form |
 | R14 | `employer_unverifiable` | "Không thể xác minh thông tin nơi làm việc" | App form |
 
-**Rules:**
-- Luôn show **top 3 reasons** theo thứ tự ảnh hưởng (feature importance từ model)
-- **KHÔNG** show: AI score number, model version, threshold values, internal codes
-- **KHÔNG** show: "Bạn bị từ chối bởi AI" — phải frame là bank decision, AI chỉ hỗ trợ
-- **KHÔNG** show lý do vague: ~~"Không đủ điều kiện theo quy định ngân hàng"~~
-- Mỗi reason phải actionable: khách biết cần cải thiện gì
+Quy tắc:
+- Luôn hiển thị top 3 lý do theo thứ tự ảnh hưởng (feature importance từ mô hình).
+- Không hiển thị: điểm AI, phiên bản mô hình, giá trị ngưỡng, mã nội bộ.
+- Không hiển thị câu "Bạn bị từ chối bởi AI"; quyết định là của Bank X, AI chỉ hỗ trợ.
+- Không dùng lý do chung chung như "Không đủ điều kiện theo quy định ngân hàng".
+- Mỗi lý do phải giúp khách hàng biết cần cải thiện điều gì.
 
 ### 2.3 Rejection Reasons per Terminal State
 
@@ -125,7 +125,7 @@ AI-CRDS phải translate model output (technical) thành lý do khách hiểu đ
 |---------------|-------------|-------------------|
 | **REJECTED** (credit risk) | AI model top 3 factors (R1-R14) | Standard template ở Section 2.1 |
 | **REJECTED** (CO override) | CO-provided reasons (from override reason dropdown) | Standard template, reasons từ CO chứ không phải AI |
-| **REJECTED_FRAUD** | Generic fraud reason | "Không thể xác minh danh tính theo yêu cầu quy định." **KHÔNG tiết lộ** fraud detection details (tránh giúp fraudster learn). |
+| **REJECTED_FRAUD** | Generic fraud reason | "Không thể xác minh danh tính theo yêu cầu quy định." không tiết lộ fraud detection details (tránh giúp fraudster learn). |
 | **EXPIRED** (no response) | No reasons needed — application lapsed | "Hồ sơ đã hết hạn do không nhận được thông tin bổ sung trong thời hạn quy định. Quý khách có thể nộp hồ sơ mới." |
 
 ---
@@ -141,14 +141,14 @@ Mọi adverse action notice khi AI involved phải có:
 và được xác nhận bởi cán bộ tín dụng của [Tên Bank X]."
 ```
 
-### 3.2 Khi nào KHÔNG cần AI label?
+### 3.2 Khi nào không cần AI label
 
 | Scenario | AI label? | Lý do |
 |---------|----------|-------|
-| AI scoring → CO confirm reject | ✅ Có | AI involved |
-| AI scoring → CO override reject (AI said approve) | ✅ Có | AI involved trong process dù CO override |
-| Customer opt-out AI → 100% manual | ❌ Không | AI không involved |
-| State 5 expired (no AI scoring ran) | ❌ Không | AI chưa chạy |
+| AI scoring → CO confirm reject | Có | AI involved |
+| AI scoring → CO override reject (AI said approve) | Có | AI involved trong process dù CO override |
+| Customer opt-out AI → 100% manual | Không | AI không involved |
+| State 5 expired (no AI scoring ran) | Không | AI chưa chạy |
 
 ### 3.3 Customer Right to Human Review
 
@@ -160,7 +160,7 @@ lại hồ sơ mà không sử dụng hệ thống trí tuệ nhân tạo.
 Vui lòng liên hệ [Hotline/Email] trong vòng 30 ngày."
 ```
 
-**Implementation:** Khi khách yêu cầu human review → route to State 2 (Standard Review) with flag `human_review_request = true`. Assign to **different CO** (không phải CO ban đầu). CO review 100% manual, AI output ẩn.
+Cách thực hiện: khi khách yêu cầu human review → route to State 2 (Standard Review) with flag `human_review_request = true`. Assign to CO khác (không phải CO ban đầu). CO review 100% manual, AI output ẩn.
 
 ---
 
@@ -191,7 +191,7 @@ Application channel?
 |---------|--------|---------|--------|
 | **In-app notification** | Push notification + full notice in inbox | Push: "Kết quả xét duyệt thẻ tín dụng: Xem chi tiết." Inbox: full template Section 2.1 | Within 1 giờ after decision |
 | **Email** | HTML email | Full template Section 2.1. Responsive design. Include bank logo. Link to app for details. | Within 1 giờ |
-| **SMS** | 160 characters max | "Bank X: Hồ sơ thẻ tín dụng [mã] chưa đáp ứng điều kiện. Chi tiết: [link] hoặc gọi [hotline]." | Within 1 giờ |
+| **SMS** | Nội dung ngắn gọn (tiếng Việt Unicode khoảng 70 ký tự mỗi tin, có thể nối nhiều tin) | "Bank X: Hồ sơ thẻ [mã] chưa đáp ứng điều kiện. Chi tiết: [link] hoặc gọi [hotline]." | Within 1 giờ |
 | **In-branch letter** | A4 printed, bank letterhead | Full template Section 2.1. CO signature. Bank stamp. | Same day (nếu decide tại branch) hoặc gửi bưu điện 3-5 ngày |
 
 ### 4.3 Multi-channel Delivery Rules
@@ -216,7 +216,7 @@ Khách phàn nàn về rejection
     │
     ├── TYPE A: "Tại sao tôi bị từ chối?"
     │   ├── Answer: Gửi lại adverse action notice (đã có reasons)
-    │   ├── If not satisfied → Route to human review (Section 3.3)
+    │   ├── If not satisfied → Route to human review (Mục 3.3)
     │   └── SLA: 3 business days (initial response)
     │
     ├── TYPE B: "Tôi muốn người thật xem lại, không phải AI"
@@ -239,7 +239,7 @@ Khách phàn nàn về rejection
     │
     └── TYPE E: "Tôi muốn xóa dữ liệu của tôi"
         ├── Route to DPO / Data Privacy team
-        ├── Apply Tiered Data Lifecycle (pdpd-impact-assessment.md §4.4)
+        ├── Áp dụng Tiered Data Lifecycle (xem w02-03-pdpd-impact-bank-x.md)
         ├── Xóa Tầng 1 (raw PII). Giữ Tầng 2 (pseudonymized audit).
         └── SLA: 15 business days (per NĐ 356)
 ```
@@ -258,9 +258,9 @@ Khách phàn nàn về rejection
 
 | Scenario | Waiting period | Condition |
 |---------|---------------|----------|
-| Standard rejection | **90 ngày** | Khách có thể apply lại. Lý do rejection trước NOT auto-reject (fresh review). |
+| Standard rejection | **90 ngày** | Khách có thể apply lại. Lý do từ chối trước đó không dẫn đến tự động từ chối lần sau; hồ sơ mới được xem xét lại từ đầu. |
 | Rejection after human review (Type B) | **90 ngày** | Same as above. |
-| Fraud rejection | **12 tháng** (hoặc permanent nếu confirmed fraud) | SIMO record may block. Cần prove identity cleared. |
+| Fraud rejection | **12 tháng** (hoặc permanent nếu confirmed fraud) | SIMO record may block. Khách hàng cần chứng minh đã xác minh được danh tính. |
 | Expired (no response) | **0 ngày** | Có thể apply lại ngay. |
 | Withdrawn | **0 ngày** | Có thể apply lại ngay. |
 
@@ -328,8 +328,8 @@ Khách bắt đầu apply CC (online/app)
     │    của hệ thống trí tuệ nhân tạo để đánh giá tín dụng.
     │    Quyết định cuối cùng do cán bộ tín dụng đưa ra."
     │
-    │   [✓ Đồng ý — xử lý có hỗ trợ AI]
-    │   [✗ Không đồng ý — yêu cầu xử lý hoàn toàn bởi nhân viên]
+    │   [Đồng ý — xử lý có hỗ trợ AI]
+    │   [Không đồng ý — yêu cầu xử lý hoàn toàn bởi nhân viên]
     │
     ├── Nếu đồng ý → Normal AI-CRDS flow
     │
@@ -385,7 +385,7 @@ Khách nhận adverse action notice (AI-involved)
 | Delivery — branch letter (nếu apply tại branch) | Same day or T+3-5 BD (mail) | Branch ops |
 | Notice available trong app/portal | T+0 | System (retained ≥ 90 ngày) |
 | Complaint window opens | T+0 | System |
-| Complaint window closes (recommended) | T+30 calendar days | Policy |
+| Complaint window closes | T+30 calendar days | Policy |
 | Re-application window opens | T+90 calendar days | Policy |
 
 ### 8.2 Human Review Request SLA
@@ -405,42 +405,26 @@ Khách nhận adverse action notice (AI-involved)
 
 Mọi adverse action phải logged:
 
-| Field | Bắt buộc? | Lý do |
+| Field | Bắt buộc | Lý do |
 |-------|----------|-------|
-| Application ID + Decision ID | ✅ | Traceability |
-| Rejection reasons (3, coded + text) | ✅ | Explainability (NĐ 356, Luật AI) |
-| AI involved flag | ✅ | Luật AI 134/2025 compliance |
-| AI label displayed flag | ✅ | Proof of Luật AI compliance |
-| Delivery channels + timestamps | ✅ | Proof of delivery |
-| Human review offered flag | ✅ | NĐ 356 compliance |
-| Complaint received flag + ID | ✅ | Complaint tracking |
-| Re-application earliest date | ✅ | Policy enforcement |
-| CO ID who signed rejection | ✅ | Accountability |
+| Application ID + Decision ID | Có | Traceability |
+| Rejection reasons (3, coded + text) | Có | Explainability (NĐ 356, Luật AI) |
+| AI involved flag | Có | Luật AI 134/2025 compliance |
+| AI label displayed flag | Có | Proof of Luật AI compliance |
+| Delivery channels + timestamps | Có | Proof of delivery |
+| Human review offered flag | Có | NĐ 356 compliance |
+| Complaint received flag + ID | Có | Complaint tracking |
+| Re-application earliest date | Có | Policy enforcement |
+| CO ID who signed rejection | Có | Accountability |
 
-**Retention:** Adverse action records giữ **5 năm** (align REJECTED terminal state retention — decision-architecture.md §Terminal States).
-
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Adverse action template đã review với Compliance Officer chưa?
-- [ ] Rejection reason catalog (R1-R14) đủ cover mọi scenario chưa?
-- [ ] Plain language reasons thực sự "plain" chưa? (Test với non-banking person)
-- [ ] AI label wording đã review với Legal chưa? (Luật AI 134/2025)
-- [ ] Complaint handling flow align với bank's existing complaint process chưa?
-- [ ] Opt-out flow (NĐ 356) đã design trong application form chưa?
-- [ ] Human review request flow — CO assignment logic (different CO) feasible với team size?
-- [ ] Re-application 90 ngày — align với bank policy chưa?
-- [ ] SMS 160-char template fit chưa? (tiếng Việt Unicode = ít ký tự hơn)
+**Retention:** Adverse action records giữ **5 năm** (thống nhất với thời hạn lưu trữ của terminal state REJECTED trong w05-01-decision-architecture.md).
 
 ---
 
-## Ghi Chú & Limitations
+## 10. TÀI LIỆU LIÊN QUAN
 
-1. **Template là draft** — cần Legal + Compliance review trước khi dùng. Wording có thể thay đổi.
-2. **Rejection reason catalog (R1-R14)** dựa trên feature priority stack (feature-availability-matrix.md). Khi thêm features mới → thêm reasons mới.
-3. **"Không tiết lộ fraud details"** cho REJECTED_FRAUD — cố ý vague ("không thể xác minh danh tính") để không giúp fraudster learn hệ thống.
-4. **Human review request** — CO mới review WITHOUT AI output. Nếu bank muốn CO thấy AI output → cần discuss với Compliance (có thể introduce bias).
-5. **90-day re-application window** là đề xuất — mỗi bank có policy khác. Một số cho apply lại ngay, một số 6 tháng.
-6. **SMS Unicode** — tiếng Việt dùng Unicode characters → mỗi SMS chỉ ~70 ký tự (thay vì 160 ASCII). Template SMS cần test fit.
-7. **Cross-reference:** decision-architecture.md (terminal states, override governance), pdpd-impact-assessment.md (data subject rights, deletion flow), sbv-requirements.md (Luật AI 134/2025 requirements), escalation-tree.md (complaint escalation).
+- w05-01-decision-architecture.md: terminal states và override governance.
+- w02-03-pdpd-impact-bank-x.md: quyền của chủ thể dữ liệu và quy trình xóa dữ liệu.
+- w02-04-sbv-requirements.md: yêu cầu của Luật AI 134/2025.
+- w05-03-escalation-tree-v1.md: escalation đối với khiếu nại.
+- w03-03-feature-availability-matrix.md: thứ tự ưu tiên feature làm cơ sở cho danh mục lý do từ chối.

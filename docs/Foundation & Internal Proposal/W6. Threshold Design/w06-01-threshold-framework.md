@@ -1,5 +1,8 @@
 # Threshold Framework — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
+
+
+> Số liệu trong tài liệu là giả định lập kế hoạch dựa trên phân phối điểm tổng hợp (synthetic); sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
@@ -11,7 +14,7 @@ Trả lời 4 câu hỏi:
 3. Nếu giảm TH_high → NPL tăng bao nhiêu?
 4. Optimal threshold ở đâu để balance FP vs FN cost?
 
-Document này là spec cho Risk Committee approval. **PM propose, Risk Committee approve.**
+Tài liệu này là đặc tả trình Risk Committee phê duyệt. Nhóm dự án đề xuất giá trị ngưỡng, Risk Committee phê duyệt.
 
 ---
 
@@ -61,7 +64,7 @@ Fraud Score (0.0 = clean, 1.0 = certain fraud)
 
 ## 2. COST-OF-ERROR FRAMEWORK
 
-### 2.1 Error Costs (từ damage-model.md v1.0)
+### 2.1 Error Costs (từ w04-01-damage-model-bank-x.md v1.0)
 
 | Error type | Cost per error | How calculated | Source |
 |-----------|---------------|---------------|--------|
@@ -88,7 +91,7 @@ Minimize:  Total Cost = FP_cost × FP_count + FN_cost × FN_count + Fraud_miss_c
 
 Subject to:
   (1) NPL_new ≤ NPL_current          (không làm NPL tệ hơn)
-  (2) Approval_rate ≥ Floor            (business minimum — ❓ cần confirm, ước tính ≥ 50%)
+  (2) Approval_rate ≥ Floor            (mức tối thiểu theo yêu cầu kinh doanh, giả định ≥ 50%)
   (3) Bias_metric ≤ Threshold          (Luật AI 134/2025: không phân biệt đối xử)
   (4) Human_review_rate ≥ SBV_minimum  (CO phải ký mọi quyết định — 100%)
 ```
@@ -99,7 +102,7 @@ Subject to:
 
 ### 3.1 TH_high Sensitivity — Tại sao 0.75?
 
-**Giả định:** Score distribution tuân theo logistic model (synthetic, chưa có real data). Distribution ước tính:
+Giả định: phân phối điểm tuân theo mô hình logistic (dữ liệu tổng hợp, chưa có dữ liệu thực của Bank X). Phân phối ước tính:
 
 | Score range | % Applications | Risk profile | Proposed routing |
 |------------|---------------|-------------|-----------------|
@@ -111,17 +114,17 @@ Subject to:
 | 0.20-0.35 | ~10% | High risk | State 2 (AI recommends reject) |
 | 0.00-0.20 | ~8% | Very high risk / thin file / anomaly | State 2 (reject recommendation) hoặc State 4 |
 
-**⚠️ Distribution trên là ước tính synthetic.** Real distribution khác — chỉ biết sau khi train model trên real data. Mọi phân tích dưới đây mang tính illustrative.
+Phân phối trên là ước tính; phân phối thực của Bank X được xác định sau khi huấn luyện mô hình trên dữ liệu thực. Các phân tích dưới đây mang tính minh họa.
 
 ### 3.2 TH_high: What If Analysis
 
 | TH_high | State 1 (auto-route) | State 2 (review) | Estimated approval rate | NPL impact | Cost impact |
 |---------|---------------------|-----------------|----------------------|-----------|-------------|
-| **0.65** | ~62% | ~30% | ~70% (high) | 🔴 NPL tăng ~15-25% (more risky apps auto-routed, CO batch review miss) | FN cost ↑↑, FP cost ↓ |
-| **0.70** | ~50% | ~42% | ~65% | 🟡 NPL tăng ~5-10% | FN cost ↑, FP cost ↓ |
-| **0.75** ← proposed | ~37% | ~55% | ~60% | 🟢 NPL ≈ baseline hoặc giảm nhẹ | **Balanced** |
-| **0.80** | ~25% | ~67% | ~57% | 🟢 NPL giảm ~5-10% | FN cost ↓, FP cost ↑ |
-| **0.85** | ~15% | ~77% | ~53% | 🟢 NPL giảm ~10-15% (nhưng gần hết capacity saving) | FN cost ↓↓, FP cost ↑↑, ops cost ↑ |
+| **0.65** | ~62% | ~30% | ~70% (high) | NPL tăng ~15-25% (more risky apps auto-routed, CO batch review miss) | FN cost ↑↑, FP cost |
+| **0.70** | ~50% | ~42% | ~65% | NPL tăng ~5-10% | FN cost ↑, FP cost |
+| **0.75** ← proposed | ~37% | ~55% | ~60% | NPL ≈ baseline hoặc giảm nhẹ | **Balanced** |
+| **0.80** | ~25% | ~67% | ~57% | NPL giảm ~5-10% | FN cost , FP cost ↑ |
+| **0.85** | ~15% | ~77% | ~53% | NPL giảm ~10-15% (nhưng gần hết capacity saving) | FN cost , FP cost ↑↑, ops cost ↑ |
 
 ### 3.3 Cost Simulation — TH_high Impact (Base: 3,000 apps/tháng)
 
@@ -133,9 +136,9 @@ Subject to:
 | 0.80 | 140 (+20) | 60.48 tỷ (+8.64) | 57 (-6) | 23.81 tỷ (-2.65) | 1.15 tỷ (-0.33) | **83.14 tỷ** |
 | 0.85 | 165 (+45) | 71.28 tỷ (+19.44) | 52 (-11) | 21.65 tỷ (-4.81) | 0.72 tỷ (-0.76) | **91.21 tỷ** |
 
-> **Note:** TH_high = 0.65 có net cost thấp hơn trên paper (60.20 tỷ vs 76.82 tỷ tại 0.75) nhưng **vi phạm NPL constraint** (NPL tăng 15-25% so với baseline) → Risk Committee sẽ không approve. 0.75 là lowest threshold không vi phạm NPL constraint (NPL ≈ baseline hoặc giảm nhẹ). Net cost tại 0.75 cao hơn vì FP cost cao — nhưng đây là "cost of safety" mà Risk Committee chấp nhận.
+Lưu ý: TH_high = 0.65 có net cost thấp hơn trên paper (60.20 tỷ vs 76.82 tỷ tại 0.75) nhưng **vi phạm NPL constraint** (NPL tăng 15-25% so với baseline) → Risk Committee sẽ không approve. 0.75 là lowest threshold không vi phạm NPL constraint (NPL ≈ baseline hoặc giảm nhẹ). Net cost tại 0.75 cao hơn vì FP cost cao — nhưng đây là "cost of safety" mà Risk Committee chấp nhận.
 
-**Observation:** TH_high = 0.75 không phải absolute minimum cost. Nhưng:
+TH_high = 0.75 không phải mức có tổng chi phí thấp nhất, nhưng được chọn vì:
 - **0.65-0.70:** NPL tăng → Risk Committee sẽ không approve
 - **0.80-0.85:** Ops saving giảm, FP cost tăng đáng kể, CO vẫn review gần hết
 - **0.75:** Balance — NPL ≈ baseline, meaningful ops saving (37% auto-route), FP/FN cost cân bằng
@@ -144,14 +147,14 @@ Subject to:
 
 | Criterion | 0.70 | **0.75** | 0.80 |
 |----------|------|------|------|
-| NPL constraint (≤ baseline) | ⚠️ May violate | ✅ Meets | ✅ Meets |
-| Approval rate (≥ 50%) | ✅ 65% | ✅ 60% | ✅ 57% |
+| NPL constraint (≤ baseline) | May violate | Meets | Meets |
+| Approval rate (≥ 50%) | 65% | 60% | 57% |
 | Auto-route rate (operational value) | 50% (very high, risky) | **37% (meaningful but safe)** | 25% (limited benefit) |
 | FP/FN cost balance | FN cost ↑ | **Balanced** | FP cost ↑ |
-| CO trust | ⚠️ Too many auto-routed → CO may stop reviewing carefully | ✅ Manageable batch size | ✅ But limited time saving |
-| **Conservative start** | Too aggressive for v1 | **✅ Prudent for first deployment** | Too conservative |
+| CO trust | Too many auto-routed → CO may stop reviewing carefully | Manageable batch size | But limited time saving |
+| **Conservative start** | Too aggressive for v1 | **Prudent for first deployment** | Too conservative |
 
-**Kết luận:** 0.75 là starting point prudent cho first deployment. Không phải optimal — optimize sau khi có shadow testing data (Week 37-40). Risk Committee có thể adjust ±0.05 dựa trên risk appetite.
+0.75 là điểm khởi đầu thận trọng cho lần triển khai đầu tiên. Giá trị này sẽ được tối ưu sau giai đoạn shadow testing; Risk Committee có thể điều chỉnh ±0.05 theo khẩu vị rủi ro.
 
 ---
 
@@ -161,11 +164,11 @@ Subject to:
 
 | TH_low | Below TH_low (AI leans reject) | Impact |
 |--------|-------------------------------|--------|
-| **0.25** | ~12% apps | ⚠️ Quá ít reject recommendation → CO mất thời gian review cases clearly bad |
-| **0.35** ← proposed | ~18% apps | ✅ Balance — AI flag clear reject cases, CO review medium zone |
-| **0.45** | ~30% apps | ⚠️ Quá nhiều reject recommendation → miss borderline good applicants |
+| **0.25** | ~12% apps | Quá ít reject recommendation → CO mất thời gian review cases clearly bad |
+| **0.35** ← proposed | ~18% apps | Balance — AI flag clear reject cases, CO review medium zone |
+| **0.45** | ~30% apps | Quá nhiều reject recommendation → miss borderline good applicants |
 
-**Lưu ý:** TH_low không auto-reject. AI chỉ recommend reject — CO vẫn ký quyết định cuối cùng. TH_low chỉ ảnh hưởng AI recommendation display cho CO.
+TH_low không auto-reject. AI chỉ recommend reject — CO vẫn ký quyết định cuối cùng. TH_low chỉ ảnh hưởng AI recommendation display cho CO.
 
 ### 4.2 Justification: Tại sao 0.35?
 
@@ -248,7 +251,7 @@ Score: ──────────[0.73]────[0.75]────[0.77]�
 
 | Role | Responsibility |
 |------|---------------|
-| **PM + Data Scientist** | Propose threshold values based on data analysis. Run sensitivity analysis. Present to Risk Committee. |
+| **Nhóm dự án + Data Scientist** | Propose threshold values based on data analysis. Run sensitivity analysis. Present to Risk Committee. |
 | **Risk Committee** | **APPROVE** all threshold values. Challenge assumptions. Set constraints (NPL ceiling, approval floor). Quarterly review. |
 | **Risk Manager** | Emergency threshold changes (within ±0.05). Must report to Committee next meeting. |
 | **CO team** | Provide feedback on operational impact of thresholds (queue size, review time). |
@@ -258,7 +261,7 @@ Score: ──────────[0.73]────[0.75]────[0.77]�
 ```
 NORMAL THRESHOLD CHANGE
 ────────────────────────
-PM + DS analyze data (1-2 weeks)
+Nhóm dự án + DS phân tích dữ liệu (1-2 tuần)
     │
     ▼
 Prepare threshold proposal
@@ -310,8 +313,8 @@ If change > ±0.05:
 | **Quarterly** (scheduled) | Full threshold review: all 6 thresholds | Risk Committee |
 | **Model retrain** | Mandatory review (model output distribution may shift) | Risk Committee |
 | **NPL spike > 20%** vs baseline | Emergency review | Risk Manager → Committee |
-| **Override rate > 50%** sustained 2 weeks | Investigation + possible adjustment | PM + DS → Risk Manager |
-| **Approval rate shift > 5pp** | Investigation | PM + DS → Risk Manager |
+| **Override rate > 50%** sustained 2 weeks | Investigation + possible adjustment | Nhóm dự án + DS → Risk Manager |
+| **Approval rate shift > 5pp** | Investigation | Nhóm dự án + DS → Risk Manager |
 | **Regulatory change** (new SBV circular, Luật AI update) | Compliance review + threshold assessment | Compliance → Risk Committee |
 
 ### 8.4 Threshold Change Log Schema
@@ -327,7 +330,7 @@ THRESHOLD_CHANGE_LOG = {
     "approved_by":      str,    # "Risk Committee" | "Risk Manager (emergency)"
     "approval_date":    date,
     "deploy_date":      date,
-    "proposer":         str,    # "PM + DS"
+    "proposer":         str,    # "Nhóm dự án + DS"
     "sensitivity_doc":  str,    # Link to analysis document
     "monitoring_period": int,   # Days of intensive monitoring post-change
     "rollback_plan":    str,    # "Revert to 0.75 if NPL increases >10%"
@@ -368,7 +371,7 @@ Every threshold review:
 
 ---
 
-## 10. IMPLEMENTATION NOTES FOR MVP (Week 12)
+## 10. ÁP DỤNG CHO MVP
 
 ### 10.1 MVP Thresholds
 
@@ -383,7 +386,7 @@ Every threshold review:
 
 ### 10.2 MVP vs Production Thresholds
 
-| Aspect | MVP (Week 12) | Production (Week 37+) |
+| Hạng mục | MVP | Production |
 |--------|-------------|---------------------|
 | **Data** | Synthetic | Real |
 | **Calibration** | Based on assumed distributions | Based on actual score distribution |
@@ -391,10 +394,10 @@ Every threshold review:
 | **Threshold tuning** | Manual, placeholder values | Data-driven, sensitivity analysis on real data |
 | **Risk Committee approval** | Concept approval (acknowledging placeholders) | Formal approval with real data evidence |
 
-### 10.3 Post-Shadow Testing Threshold Calibration (Week 40)
+### 10.3 Hiệu chỉnh ngưỡng sau shadow testing
 
 ```
-Shadow testing data (4 weeks) provides:
+Dữ liệu shadow testing (4 tuần) cung cấp:
     │
     ├── Actual score distribution → recalculate TH_high/TH_low
     ├── AI vs manual comparison → validate FP/FN rates
@@ -406,24 +409,3 @@ Shadow testing data (4 weeks) provides:
 Recalibrate ALL thresholds → present to Risk Committee → deploy for limited deployment
 ```
 
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Risk Manager đã review threshold approach chưa? (Không cần approve values — approve framework)
-- [ ] Asymmetric cost ratio (FP 29.4x FN) — Risk Manager đồng ý FP >> FN?
-- [ ] NPL constraint (NPL_new ≤ NPL_current) — Risk Committee đồng ý constraint?
-- [ ] Approval rate floor (≥ 50%) — Head of Cards đồng ý?
-- [ ] Bias monitoring protocol — Compliance đồng ý approach?
-- [ ] Dead zone (±0.02) — quá rộng? quá hẹp? Risk Committee view?
-- [ ] Emergency threshold change authority — Risk Manager OK với ±0.05 authority?
-
----
-
-## Ghi Chú & Limitations
-
-1. **Tất cả sensitivity analysis dựa trên assumed score distribution.** Real distribution chỉ biết sau khi train model trên real data. Mọi con số trong Section 3-5 là illustrative.
-2. **TH_high = 0.75 là starting point, không phải optimal.** Sẽ recalibrate sau shadow testing (Week 40). Risk Committee cần approve framework (governance process) ngay, approve values (con số cụ thể) khi có real data.
-3. **Bias monitoring ranges (5pp gender, 8pp geography, 10pp age) là proposed.** Chưa có regulatory standard tại VN. Dựa trên EU AI Act inspiration + Luật AI 134/2025 principle. Risk Committee + Compliance phải agree.
-4. **Score interpretation (0.0 = high risk, 1.0 = low risk)** — convention có thể đảo ngược tùy model implementation. Phải consistent across all documents.
-5. **Cross-reference:** damage-model.md (cost-of-error), decision-architecture.md (state routing), assumptions-log.md (A7-A13 impact), feature-availability-matrix.md (model features affect score distribution).

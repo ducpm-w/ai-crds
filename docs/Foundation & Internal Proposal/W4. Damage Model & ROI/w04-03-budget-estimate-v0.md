@@ -1,73 +1,75 @@
 # Budget Estimate v0 — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Budget estimate phục vụ C-level proposal. Chia thành 3 giai đoạn với ask rõ ràng:
-- **Phase 0 (Discovery):** Ask ngay — budget nhỏ, risk thấp
-- **Phase 1 (Shadow Testing):** Ask sau Phase 0 results — budget trung bình
-- **Full Deployment:** Range only — commit sau Phase 1
+Budget estimate phục vụ đề xuất gửi C-level, chia thành 3 giai đoạn với mức đề xuất rõ ràng:
+- **Phase 0 (Discovery):** đề xuất phê duyệt ngay, ngân sách nhỏ, rủi ro thấp
+- **Phase 1 (Limited Deployment):** đề xuất sau khi có kết quả Phase 0, ngân sách trung bình
+- **Full Deployment:** chỉ nêu khoảng chi phí, cam kết sau khi có kết quả Phase 1
 
-**Chiến lược ask:** Smaller ask = easier approval. "Cho chúng tôi 8 tuần shadow testing" dễ approve hơn "cho chúng tôi 60 tuần và 15 tỷ VND."
+Cách tiếp cận là đề xuất từng bước nhỏ: một phê duyệt cho 8 tuần shadow testing dễ được thông qua hơn một cam kết 60 tuần và 15 tỷ VND.
+
+Số liệu trong tài liệu là giả định lập kế hoạch dựa trên mặt bằng thị trường 2025-2026 tại Hà Nội/TP.HCM. Số liệu sẽ được thay bằng đơn giá thực của Bank X (chi phí IT, giá cloud, phí CIC, mức lương nội bộ) khi có.
 
 ---
 
 ## PHASE 0 — DISCOVERY & SHADOW TESTING (8 tuần)
 
-### Đây là budget ask chính tại Week 11 C-level meeting.
+Phase 0 là khoản ngân sách đề xuất chính tại buổi trình C-level.
 
 **Mục tiêu Phase 0:**
-1. Validate data availability + quality tại Bank X
-2. Build MVP demo (synthetic data)
-3. Shadow test AI scoring song song với quyết định manual (AI chỉ observe, không ảnh hưởng)
-4. Thu thập evidence cho Phase 1 proposal
+1. Đánh giá khả năng sẵn có và chất lượng dữ liệu tại Bank X
+2. Xây dựng MVP demo (dữ liệu tổng hợp)
+3. Shadow test: AI chấm điểm song song với quyết định thủ công, chỉ quan sát và không ảnh hưởng quyết định
+4. Thu thập bằng chứng cho đề xuất Phase 1
 
-**Risk cho Bank X:** Gần bằng 0 — AI chỉ observe, không quyết định. Không ảnh hưởng khách hàng. Không thay đổi quy trình hiện tại.
+**Rủi ro đối với Bank X:** gần bằng 0. AI chỉ quan sát, không ra quyết định, không ảnh hưởng khách hàng và không thay đổi quy trình hiện tại.
 
 ### Phase 0 — Headcount
 
 | Role | FTE | Duration | Monthly all-in | Total | Ghi chú |
 |------|-----|----------|---------------|-------|---------|
-| AI-Native PM | 1.0 | 8 tuần (2 tháng) | 40M | 80M | Full-time lead. Stakeholder management, roadmap, documentation. |
-| Data Scientist (senior) | 1.0 | 8 tuần | 55M | 110M | Model development, feature engineering, shadow testing setup. |
-| Backend Developer | 0.5 | 8 tuần | 35M | 35M | CIC API integration, audit trail prototype, data pipeline. |
-| IT Support (Bank X side) | 0.3 | 8 tuần | 20M | 12M | CBS access, CIC test environment, network setup. |
-| **Subtotal Headcount** | **2.8 FTE** | | | **237M** | |
+| Project Manager | 1.0 | 8 tuần (2 tháng) | 40M | 80M | Toàn thời gian. Quản lý stakeholder, roadmap, tài liệu. |
+| Data Scientist (senior) | 1.0 | 8 tuần | 55M | 110M | Phát triển model, feature engineering, thiết lập shadow testing. |
+| Backend Developer | 0.5 | 8 tuần | 35M | 35M | Tích hợp CIC API, audit trail prototype, data pipeline. |
+| IT Support (phía Bank X) | 0.3 | 8 tuần | 20M | 12M | Truy cập CBS, môi trường test CIC, thiết lập mạng. |
+| Subtotal Headcount | 2.8 FTE | | | 237M | |
 
 ### Phase 0 — Infrastructure
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| Development environment (VN cloud) | 15M | Viettel/FPT Cloud — dev/staging instances, small GPU (nếu cần). |
-| CIC API test access | 10M | Test queries — volume nhỏ, có thể dùng sandbox CIC nếu có. ❓ Phí thực tế cần confirm. |
-| Tools & licenses | 5M | GitHub, monitoring, CI/CD. Có thể dùng free tier. |
-| **Subtotal Infra** | **30M** | |
+| Development environment (VN cloud) | 15M | Viettel/FPT Cloud: instance dev/staging, GPU nhỏ nếu cần. |
+| CIC API test access | 10M | Truy vấn test với khối lượng nhỏ, có thể dùng sandbox CIC. |
+| Tools & licenses | 5M | GitHub, monitoring, CI/CD. Có thể dùng gói miễn phí. |
+| Subtotal Infra | 30M | |
 
 ### Phase 0 — Compliance & Legal
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| DPIA preparation (draft) | 30M | Bắt đầu soạn DPIA theo Mẫu 10 NĐ 356. Draft — finalize ở Phase 1. |
-| Legal review (initial) | 20M | Review consent flow, liability framework draft, Luật AI 134/2025 assessment. |
-| Compliance Officer time (Bank X) | 0 | Internal resource — không tính budget project. |
-| **Subtotal Compliance** | **50M** | |
+| DPIA preparation (draft) | 30M | Soạn DPIA theo Mẫu 10 NĐ 356. Bản nháp, hoàn thiện ở Phase 1. |
+| Legal review (initial) | 20M | Rà soát luồng consent, khung trách nhiệm, đánh giá theo Luật AI 134/2025. |
+| Compliance Officer time (Bank X) | 0 | Nguồn lực nội bộ, không tính vào ngân sách dự án. |
+| Subtotal Compliance | 50M | |
 
 ### Phase 0 — Other
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| Training materials (draft) | 10M | CO briefing materials cho shadow testing. |
-| Synthetic data generation | 5M | 10K records — compute + validation. Minimal cost. |
-| Contingency (10%) | 33M | Buffer cho unexpected. |
-| **Subtotal Other** | **48M** | |
+| Training materials (draft) | 10M | Tài liệu briefing cho CO về shadow testing. |
+| Synthetic data generation | 5M | 10K bản ghi: compute và kiểm tra. Chi phí tối thiểu. |
+| Contingency (10%) | 33M | Dự phòng cho phát sinh. |
+| Subtotal Other | 48M | |
 
-### Phase 0 — TOTAL ASK
+### Phase 0 — TOTAL
 
 ```
 ┌─────────────────────────────────────────┐
-│          PHASE 0 BUDGET ASK             │
+│          PHASE 0 BUDGET                 │
 │                                         │
 │  Headcount:     237M VND                │
 │  Infrastructure:  30M VND               │
@@ -77,82 +79,82 @@ Budget estimate phục vụ C-level proposal. Chia thành 3 giai đoạn với a
 │  TOTAL:         365M VND                │
 │                                         │
 │  ≈ $14,500 USD                          │
-│  Duration: 8 tuần                       │
-│  Risk: Gần bằng 0                       │
+│  Thời gian: 8 tuần                      │
+│  Rủi ro: gần bằng 0                     │
 │                                         │
 │  Deliverables:                          │
-│  ✓ Data quality assessment (real data)  │
-│  ✓ MVP demo (synthetic data)            │
-│  ✓ Shadow testing results (4 tuần)      │
-│  ✓ Phase 1 proposal with evidence       │
-│  ✓ DPIA draft                           │
+│  - Đánh giá chất lượng dữ liệu (thực)   │
+│  - MVP demo (dữ liệu tổng hợp)          │
+│  - Kết quả shadow testing (4 tuần)      │
+│  - Đề xuất Phase 1 kèm bằng chứng       │
+│  - Bản nháp DPIA                        │
 └─────────────────────────────────────────┘
 ```
 
-**So sánh:** 365M VND = cost of ~4 bad CC approvals (4 × 50M limit × 70% LGD × 100% PD). Nếu Phase 0 ngăn được 4 fraud/bad approvals → đã hòa vốn.
+Để so sánh, 365M VND tương đương chi phí khoảng 4 hồ sơ thẻ phê duyệt sai (4 × 50M hạn mức × 70% LGD × 100% PD). Nếu Phase 0 ngăn được 4 trường hợp fraud hoặc phê duyệt sai, khoản đầu tư đã hòa vốn.
 
 ---
 
 ## PHASE 1 — LIMITED DEPLOYMENT (16 tuần)
 
-### Ask sau khi có Phase 0 results. Không commit bây giờ.
+Phase 1 được đề xuất sau khi có kết quả Phase 0.
 
 **Mục tiêu Phase 1:**
-1. AI recommend decisions cho subset applications (CO vẫn review tất cả)
-2. Measure: AI vs manual accuracy, override rate, CO feedback
-3. Build production-ready infrastructure
-4. Full DPIA + compliance sign-off
+1. AI đề xuất quyết định cho một nhóm hồ sơ, CO vẫn review tất cả
+2. Đo lường: độ chính xác AI so với thủ công, tỷ lệ override, phản hồi từ CO
+3. Xây dựng hạ tầng sẵn sàng cho production
+4. Hoàn tất DPIA và phê duyệt tuân thủ
 
-**Điều kiện trigger Phase 1:** Phase 0 results cho thấy (a) data quality đủ cho model, (b) shadow test AI accuracy ≥ manual baseline, (c) no blocking compliance issue.
+**Điều kiện kích hoạt Phase 1:** kết quả Phase 0 cho thấy (a) chất lượng dữ liệu đủ cho model, (b) độ chính xác AI trong shadow test không thấp hơn baseline thủ công, (c) không có vấn đề tuân thủ mang tính chặn.
 
 ### Phase 1 — Headcount
 
 | Role | FTE | Duration | Monthly all-in | Total | Ghi chú |
 |------|-----|----------|---------------|-------|---------|
-| AI-Native PM | 1.0 | 16 tuần (4 tháng) | 40M | 160M | Full-time. |
-| Data Scientist (senior) | 1.0 | 16 tuần | 55M | 220M | Model refinement, champion-challenger setup. |
-| Data Scientist (mid) | 0.5 | 16 tuần | 35M | 70M | Feature engineering, bias monitoring. |
-| Backend Developer | 1.0 | 16 tuần | 35M | 140M | Production API, audit trail, integration hardening. |
-| Frontend Developer | 0.5 | 12 tuần (3 tháng) | 30M | 90M | CO review UI production version. |
-| QA / Testing | 0.3 | 12 tuần | 25M | 22.5M | Integration testing, UAT support. |
-| IT Support (Bank X) | 0.5 | 16 tuần | 20M | 40M | Production environment, CBS integration. |
-| **Subtotal Headcount** | **4.8 FTE** | | | **742.5M** | |
+| Project Manager | 1.0 | 16 tuần (4 tháng) | 40M | 160M | Toàn thời gian. |
+| Data Scientist (senior) | 1.0 | 16 tuần | 55M | 220M | Hoàn thiện model, thiết lập champion-challenger. |
+| Data Scientist (mid) | 0.5 | 16 tuần | 35M | 70M | Feature engineering, giám sát bias. |
+| Backend Developer | 1.0 | 16 tuần | 35M | 140M | Production API, audit trail, hoàn thiện tích hợp. |
+| Frontend Developer | 0.5 | 12 tuần (3 tháng) | 30M | 90M | Giao diện review production cho CO. |
+| QA / Testing | 0.3 | 12 tuần | 25M | 22.5M | Kiểm thử tích hợp, hỗ trợ UAT. |
+| IT Support (Bank X) | 0.5 | 16 tuần | 20M | 40M | Môi trường production, tích hợp CBS. |
+| Subtotal Headcount | 4.8 FTE | | | 742.5M | |
 
 ### Phase 1 — Infrastructure
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| Production environment (VN cloud) | 120M | Production-grade: redundancy, SLA 99.9%, GPU inference. |
-| CIC API (production queries) | 80M | ~3,000 queries/tháng × 4 tháng × ~7K/query. ❓ Phí cần confirm. |
-| eKYC integration cost | 30M | Integration effort + test queries. |
-| Monitoring & alerting | 20M | Drift detection, performance monitoring, alerting infrastructure. |
-| **Subtotal Infra** | **250M** | |
+| Production environment (VN cloud) | 120M | Chuẩn production: dự phòng, SLA 99.9%, GPU inference. |
+| CIC API (production queries) | 80M | ~3,000 queries/tháng × 4 tháng × ~7K/query. |
+| eKYC integration cost | 30M | Nỗ lực tích hợp và truy vấn test. |
+| Monitoring & alerting | 20M | Phát hiện drift, giám sát hiệu năng, hạ tầng cảnh báo. |
+| Subtotal Infra | 250M | |
 
 ### Phase 1 — Compliance & Training
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| DPIA finalization + submission A05 | 50M | Legal counsel final review + submission. |
-| Legal (contracts, liability) | 40M | Vendor-bank agreement, liability allocation (Luật AI 134/2025). |
-| Compliance audit | 30M | Internal audit review pre-deployment. |
-| CO training (10-15 sessions) | 40M | Training materials, sessions, user guides. 2-3 sessions/week × 5 weeks. |
-| Change management | 25M | Communication plan, FAQ, stakeholder updates. |
-| **Subtotal Compliance & Training** | **185M** | |
+| DPIA finalization + nộp A05 | 50M | Tư vấn pháp lý rà soát cuối và nộp hồ sơ. |
+| Legal (contracts, liability) | 40M | Hợp đồng vendor-ngân hàng, phân bổ trách nhiệm (Luật AI 134/2025). |
+| Compliance audit | 30M | Kiểm toán nội bộ trước khi triển khai. |
+| CO training (10-15 buổi) | 40M | Tài liệu đào tạo, các buổi huấn luyện, hướng dẫn sử dụng. 2-3 buổi/tuần × 5 tuần. |
+| Change management | 25M | Kế hoạch truyền thông, FAQ, cập nhật cho stakeholder. |
+| Subtotal Compliance & Training | 185M | |
 
 ### Phase 1 — Other
 
 | Item | Cost | Ghi chú |
 |------|------|---------|
-| Stress testing infrastructure | 20M | Load testing, failure scenario testing. |
-| Contingency (10%) | 120M | |
-| **Subtotal Other** | **140M** | |
+| Stress testing infrastructure | 20M | Kiểm thử tải, kiểm thử kịch bản lỗi. |
+| Contingency (10%) | 120M | Dự phòng cho phát sinh. |
+| Subtotal Other | 140M | |
 
-### Phase 1 — TOTAL ESTIMATE
+### Phase 1 — TOTAL
 
 ```
 ┌─────────────────────────────────────────┐
 │        PHASE 1 BUDGET ESTIMATE          │
-│     (Ask sau Phase 0 — không commit)    │
+│    (đề xuất sau Phase 0, có điều kiện)  │
 │                                         │
 │  Headcount:      742.5M VND             │
 │  Infrastructure:   250M VND             │
@@ -162,179 +164,169 @@ Budget estimate phục vụ C-level proposal. Chia thành 3 giai đoạn với a
 │  TOTAL:          1.32 tỷ VND            │
 │                                         │
 │  ≈ $52,500 USD                          │
-│  Duration: 16 tuần                      │
-│  Conditional: Phase 0 success           │
+│  Thời gian: 16 tuần                     │
+│  Điều kiện: Phase 0 đạt                 │
 │                                         │
 │  Deliverables:                          │
-│  ✓ Production-ready AI scoring system   │
-│  ✓ Limited deployment results           │
-│  ✓ Full compliance (DPIA, Luật AI)      │
-│  ✓ Trained CO team                      │
-│  ✓ Full deployment proposal             │
+│  - Hệ thống AI scoring sẵn sàng         │
+│    cho production                       │
+│  - Kết quả limited deployment           │
+│  - Tuân thủ đầy đủ (DPIA, Luật AI)      │
+│  - Đội CO đã được đào tạo               │
+│  - Đề xuất full deployment              │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## FULL DEPLOYMENT — RANGE ONLY
+## FULL DEPLOYMENT — KHOẢNG CHI PHÍ
 
-### Không commit số cứng. Phụ thuộc Phase 0+1 results.
+Chi phí Full Deployment được nêu theo khoảng, phụ thuộc kết quả Phase 0 và Phase 1.
 
-**Mục tiêu:** AI-CRDS live cho toàn bộ CC origination workflow.
+**Mục tiêu:** AI-CRDS vận hành cho toàn bộ quy trình mở thẻ tín dụng.
 
 ### Full Deployment — Cost Range
 
 | Category | Low | Mid | High | Assumption |
 |---------|-----|-----|------|-----------|
-| **Headcount (Year 1 remaining)** | 400M | 800M | 1.5 tỷ | Ongoing team: 2-3 FTE (PM + ML engineer + support). 6-8 tháng after Phase 1. |
-| **Infrastructure (annual)** | 300M | 600M | 1.2 tỷ | Production scale. Depends on volume + cloud choice. |
-| **CIC/eKYC (annual)** | 200M | 500M | 1 tỷ | 3,000-5,000 queries/tháng. Scale with approval volume. |
-| **Compliance ongoing** | 100M | 200M | 400M | Quarterly reports, DPIA updates, Luật AI compliance, audit support. |
-| **Model lifecycle (annual)** | 200M | 400M | 700M | Retraining, validation, drift monitoring, champion-challenger. |
-| **TOTAL ANNUAL (post-deploy)** | **1.2 tỷ** | **2.5 tỷ** | **4.8 tỷ** | |
+| Headcount (phần còn lại Year 1) | 400M | 800M | 1.5 tỷ | Đội vận hành: 2-3 FTE (PM + ML engineer + hỗ trợ). 6-8 tháng sau Phase 1. |
+| Infrastructure (hàng năm) | 300M | 600M | 1.2 tỷ | Quy mô production. Phụ thuộc khối lượng và lựa chọn cloud. |
+| CIC/eKYC (hàng năm) | 200M | 500M | 1 tỷ | 3,000-5,000 queries/tháng. Tăng theo khối lượng phê duyệt. |
+| Compliance ongoing | 100M | 200M | 400M | Báo cáo quý, cập nhật DPIA, tuân thủ Luật AI, hỗ trợ kiểm toán. |
+| Model lifecycle (hàng năm) | 200M | 400M | 700M | Huấn luyện lại, kiểm định, giám sát drift, champion-challenger. |
+| TOTAL ANNUAL (sau triển khai) | 1.2 tỷ | 2.5 tỷ | 4.8 tỷ | |
 
-### Full Deployment — Total Project Cost (Phase 0 → Full year 1)
+### Full Deployment — Total Project Cost (Phase 0 đến Full Year 1)
 
 | Phase | Duration | Cost |
 |-------|----------|------|
 | Phase 0 (Discovery) | 8 tuần | 365M |
 | Phase 1 (Limited) | 16 tuần | 1.32 tỷ |
-| Full Deployment setup | 8-12 tuần | ~800M-1.5 tỷ (incremental) |
-| Annual run (Year 1 partial) | 6-8 tháng | ~1.0-2.0 tỷ |
-| **TOTAL YEAR 1** | **~12 tháng** | **3.5 tỷ - 5.2 tỷ** |
+| Full Deployment setup | 8-12 tuần | ~800M-1.5 tỷ (tăng thêm) |
+| Annual run (Year 1, một phần) | 6-8 tháng | ~1.0-2.0 tỷ |
+| TOTAL YEAR 1 | ~12 tháng | 3.5 tỷ - 5.2 tỷ |
 
-**So với break-even analysis:** Investment 3.5-5.2 tỷ vs Expected saving 26.64 tỷ/năm (full ramp). Break-even trong 3-5 tháng sau full deployment.
+So với phân tích break-even (w04-02-break-even-analysis): khoản đầu tư 3.5-5.2 tỷ so với mức tiết kiệm kỳ vọng 26.64 tỷ/năm (khi đạt ramp-up đầy đủ), tương ứng hòa vốn trong 3-5 tháng sau full deployment.
 
-**Lưu ý cho C-level:** Budget estimate v0 thấp hơn break-even-analysis.md estimate (9.65 tỷ base) vì:
-1. Break-even-analysis bao gồm full team salaries + generous contingency
-2. Budget v0 assume phased ramp — không hire full team from day 1
-3. Budget v0 assume Bank X IT support (không thuê riêng)
-4. Cả 2 số đều trong acceptable range — conservative vs realistic
+Budget v0 thấp hơn mức ước tính trong w04-02-break-even-analysis (9.65 tỷ ở kịch bản cơ sở) vì:
+1. Phân tích break-even tính toàn bộ chi phí đội ngũ và dự phòng rộng rãi
+2. Budget v0 giả định tăng nhân sự theo từng giai đoạn, không tuyển đủ đội từ ngày đầu
+3. Budget v0 giả định sử dụng nhân sự IT của Bank X, không thuê riêng
+4. Cả hai con số đều nằm trong khoảng chấp nhận được: một bên thận trọng, một bên sát thực tế
 
 ---
 
-## TỔNG HỢP — PHASED INVESTMENT
+## TỔNG HỢP — ĐẦU TƯ THEO GIAI ĐOẠN
 
-### "Staircase" Budget — Ask nhỏ trước, tăng dần
+### Ngân sách theo bậc thang: đề xuất nhỏ trước, tăng dần
 
 ```
-Phase 0:   ████░░░░░░░░░░░░░░░░  365M VND    ← ASK BÂY GIỜ
-Phase 1:   ████████░░░░░░░░░░░░  1.32 tỷ     ← Ask sau Phase 0
-Full:      ████████████████░░░░  2-4 tỷ/năm  ← Ask sau Phase 1
+Phase 0:   ████░░░░░░░░░░░░░░░░  365M VND    (đề xuất phê duyệt ngay)
+Phase 1:   ████████░░░░░░░░░░░░  1.32 tỷ     (đề xuất sau Phase 0)
+Full:      ████████████████░░░░  2-4 tỷ/năm  (đề xuất sau Phase 1)
            ─────────────────────
            0     1     2     3     4 tỷ VND
 
-Timeline:  W1-8   W9-24    W25+
-           ═════  ═══════  ═════════════
-           Phase0  Phase1   Full Deploy
+Timeline:  Tuần 1-8   Tuần 9-24   Tuần 25+
+           ═════════  ═════════   ═════════════
+           Phase 0    Phase 1     Full Deploy
 ```
 
-### Gate Conditions — Budget chỉ unlock khi pass gate
+### Gate Conditions — Ngân sách chỉ được giải ngân khi qua cổng
 
 | Gate | Condition | Who approves | Budget unlocked |
 |------|----------|-------------|----------------|
-| **Gate 0 → 1** | Phase 0 results: data quality ≥ 3.5/5, shadow test accuracy ≥ baseline, no compliance blocker | Risk Manager + CTO | Phase 1: 1.32 tỷ |
-| **Gate 1 → Full** | Phase 1 results: AI outperform manual on ≥2/4 metrics (NPL, fraud, approval rate, time-to-decision), CO adoption ≥70%, compliance signed off | C-level + Risk Committee | Full: 2-4 tỷ/năm |
-| **Kill switch** | Any gate fails → project pauses. Sunk cost = Phase 0 (365M) hoặc Phase 0+1 (1.68 tỷ). | C-level | N/A |
+| Gate 0 → 1 | Kết quả Phase 0: chất lượng dữ liệu ≥ 3.5/5, độ chính xác shadow test ≥ baseline, không có vấn đề tuân thủ mang tính chặn | Risk Manager + CTO | Phase 1: 1.32 tỷ |
+| Gate 1 → Full | Kết quả Phase 1: AI vượt thủ công ở ≥2/4 chỉ số (NPL, fraud, approval rate, time-to-decision), CO adoption ≥70%, đã được phê duyệt tuân thủ | C-level + Risk Committee | Full: 2-4 tỷ/năm |
+| Dừng dự án | Bất kỳ cổng nào không đạt thì dự án tạm dừng. Chi phí đã chi = Phase 0 (365M) hoặc Phase 0+1 (1.68 tỷ). | C-level | Không áp dụng |
 
-### Maximum Downside (worst case)
+### Mức thiệt hại tối đa
 
 | Scenario | Sunk cost | Outcome |
 |---------|----------|---------|
-| Phase 0 fails → kill | 365M | Learned data quality status. DPIA draft reusable. Knowledge gained. |
-| Phase 1 fails → kill | 1.68 tỷ | Shadow test data. Trained CO team. Production infra reusable. Compliance done. |
-| Full deploy underperforms | 3.5-5 tỷ | Working system, có thể tune. Unlikely to be total loss — partial benefits still captured. |
+| Phase 0 không đạt, dừng dự án | 365M | Có đánh giá thực trạng chất lượng dữ liệu. Bản nháp DPIA tái sử dụng được. |
+| Phase 1 không đạt, dừng dự án | 1.68 tỷ | Có dữ liệu shadow test. Đội CO đã được đào tạo. Hạ tầng production tái sử dụng được. Hoàn tất phần tuân thủ. |
+| Full deploy dưới kỳ vọng | 3.5-5 tỷ | Hệ thống đang chạy, có thể tinh chỉnh. Khó xảy ra tổn thất toàn phần vì vẫn thu được một phần lợi ích. |
 
-**Key message cho C-level:** "Maximum downside Phase 0 = 365M VND. Maximum upside = 27+ tỷ/năm saving. Asymmetric bet."
+Thiệt hại tối đa ở Phase 0 là 365M VND, trong khi lợi ích tối đa là hơn 27 tỷ VND/năm. Đây là khoản đầu tư có mức lợi ích vượt trội so với rủi ro.
 
 ---
 
-## BUILD vs BUY — COST COMPARISON
+## BUILD vs BUY — SO SÁNH CHI PHÍ
 
 | | Build In-house | Buy Vendor |
 |--|---------------|-----------|
-| **Phase 0 equivalent** | 365M | ~500M-1 tỷ (vendor POC fee + integration) |
-| **Phase 1 equivalent** | 1.32 tỷ | ~2-3 tỷ (license + integration + customization) |
-| **Annual run** | 2-4 tỷ | 4-8 tỷ (recurring license: 2-4 tỷ/năm) |
-| **3-year TCO** | 8-14 tỷ | 14-27 tỷ |
-| **IP ownership** | ✅ Bank owns | ❌ Vendor owns |
-| **VN regulatory fit** | ✅ Built for Luật AI, BVDLCN, SBV | ⚠️ Needs adaptation |
-| **Explainability** | ✅ Full transparency | ⚠️ Black box risk |
-| **Time to first value** | 6-8 tháng | 3-5 tháng |
+| Phase 0 tương đương | 365M | ~500M-1 tỷ (phí POC vendor + tích hợp) |
+| Phase 1 tương đương | 1.32 tỷ | ~2-3 tỷ (license + tích hợp + tùy biến) |
+| Annual run | 2-4 tỷ | 4-8 tỷ (license định kỳ: 2-4 tỷ/năm) |
+| 3-year TCO | 8-14 tỷ | 14-27 tỷ |
+| IP ownership | Bank X sở hữu | Vendor sở hữu |
+| VN regulatory fit | Thiết kế cho Luật AI, BVDLCN, SBV | Cần điều chỉnh |
+| Explainability | Minh bạch đầy đủ | Rủi ro hộp đen |
+| Time to first value | 6-8 tháng | 3-5 tháng |
 
-**Recommendation:** Build in-house — 3-year TCO thấp hơn 40-50%, full IP ownership, regulatory compliance native.
-
----
-
-## FUNDING SOURCE OPTIONS
-
-| Option | Mô tả | Pros | Cons |
-|--------|-------|------|------|
-| **IT Budget** | Allocate từ IT annual budget | Quen thuộc, ít approval layers | IT budget thường tight, compete với other projects |
-| **Innovation Fund** | Quỹ đổi mới sáng tạo nội bộ (nếu có) | Designed cho projects như thế này | Không phải bank nào cũng có |
-| **Risk/Compliance Budget** | Frame as risk reduction investment | NPL reduction = Risk department's KPI | Unusual — cần Risk Manager champion |
-| **Business Case (new)** | Request riêng dựa trên ROI | Clean, transparent, tied to results | Cần C-level sponsor |
-| **Phased from P&L** | Absorb Phase 0 vào operational cost | Phase 0 nhỏ (365M) có thể absorb | Chỉ works cho Phase 0 |
-
-**Đề xuất:** Phase 0 absorb vào IT/Innovation budget (365M — nhỏ, dễ approve). Phase 1+ = separate business case with ROI justification.
+Khuyến nghị: tự phát triển (in-house). TCO 3 năm thấp hơn 40-50%, sở hữu toàn bộ IP và tuân thủ quy định ngay từ thiết kế.
 
 ---
 
-## HEADCOUNT PLAN — WHO WE NEED
+## NGUỒN NGÂN SÁCH
+
+| Option | Mô tả | Ưu điểm | Hạn chế |
+|--------|-------|---------|---------|
+| IT Budget | Phân bổ từ ngân sách IT hàng năm | Quen thuộc, ít tầng phê duyệt | Ngân sách IT thường chặt, cạnh tranh với các dự án khác |
+| Innovation Fund | Quỹ đổi mới sáng tạo nội bộ | Dành riêng cho loại dự án này | Không phải ngân hàng nào cũng có |
+| Risk/Compliance Budget | Trình bày như khoản đầu tư giảm rủi ro | Giảm NPL là KPI của khối Rủi ro | Ít phổ biến, cần Risk Manager bảo trợ |
+| Business Case (mới) | Đề xuất riêng dựa trên ROI | Rõ ràng, minh bạch, gắn với kết quả | Cần C-level bảo trợ |
+| Phased from P&L | Hấp thụ Phase 0 vào chi phí vận hành | Phase 0 nhỏ (365M) có thể hấp thụ | Chỉ phù hợp với Phase 0 |
+
+Đề xuất: Phase 0 hấp thụ vào ngân sách IT/Innovation (365M, quy mô nhỏ, dễ phê duyệt). Phase 1 trở đi dùng business case riêng với luận cứ ROI.
+
+---
+
+## KẾ HOẠCH NHÂN SỰ
 
 ### Phase 0 Team
 
 ```
-PM (1.0 FTE) ─────────── AI-Native PM (existing or hire)
-                         ├── Stakeholder management
-                         ├── Roadmap & documentation
-                         └── C-level reporting
+PM (1.0 FTE) ─────────── Project Manager
+                         ├── Quản lý stakeholder
+                         ├── Roadmap & tài liệu
+                         └── Báo cáo C-level
 
 DS (1.0 FTE) ─────────── Senior Data Scientist
-                         ├── Model development
+                         ├── Phát triển model
                          ├── Feature engineering
-                         └── Shadow testing analysis
+                         └── Phân tích shadow testing
 
 Dev (0.5 FTE) ────────── Backend Developer
-                         ├── CIC API integration
+                         ├── Tích hợp CIC API
                          ├── Audit trail prototype
                          └── Data pipeline
 
 IT (0.3 FTE) ─────────── Bank X IT Support
-                         ├── CBS access
-                         ├── CIC test environment
-                         └── Network setup
+                         ├── Truy cập CBS
+                         ├── Môi trường test CIC
+                         └── Thiết lập mạng
 
-Total: 2.8 FTE for 8 weeks
+Tổng: 2.8 FTE trong 8 tuần
 ```
 
-### Hire vs Reallocate
+### Nguồn nhân sự: tuyển mới hoặc điều động
 
-| Role | Hire new? | Reallocate? | Ghi chú |
-|------|----------|------------|---------|
-| PM | ⚠️ Có thể reallocate nếu có PM với AI/banking experience | Ideal: existing PM với domain knowledge | Khó tìm AI-Native PM sẵn có tại VN |
-| Senior DS | 🔴 Likely hire | ML engineers trong banking hiếm tại VN | Salary 40-70M/tháng (Adecco 2025). Lead time: 4-8 tuần. |
-| Backend Dev | ✅ Reallocate từ IT team | Bank IT team thường có dev available | 0.5 FTE = part-time allocation |
-| IT Support | ✅ Internal Bank X | Không hire | Part-time allocation từ existing IT |
-
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Budget estimate đã review với direct manager chưa?
-- [ ] Phase 0 ask (365M) có realistic với Bank X budget cycle không?
-- [ ] Headcount: Senior DS — đã bắt đầu tìm chưa? (lead time 4-8 tuần)
-- [ ] Funding source đã identify chưa? (IT budget / Innovation fund / Business case?)
-- [ ] Build vs Buy discussion đã có với CTO chưa?
-- [ ] Gate conditions đã align với Risk Manager chưa?
+| Role | Tuyển mới | Điều động nội bộ | Ghi chú |
+|------|----------|------------------|---------|
+| PM | Có thể | Ưu tiên PM có kinh nghiệm AI/ngân hàng | PM có kinh nghiệm AI/ngân hàng ít sẵn có tại VN |
+| Senior DS | Dự kiến tuyển mới | ML engineer có kinh nghiệm ngân hàng hiếm tại VN | Lương 40-70M/tháng (Adecco 2025). Thời gian tuyển 4-8 tuần. |
+| Backend Dev | Không | Điều động từ đội IT | Đội IT của ngân hàng thường có dev sẵn sàng. Phân bổ bán thời gian 0.5 FTE. |
+| IT Support | Không | Nhân sự nội bộ Bank X | Phân bổ bán thời gian từ đội IT hiện có. |
 
 ---
 
-## Ghi Chú & Limitations
+## PHẠM VI VÀ LƯU Ý
 
-1. **Budget v0 = draft.** Cần refine khi có Bank X internal data (IT cost, cloud pricing, CIC fee chính xác).
-2. **People cost dựa trên market rate HN/HCM 2025-2026.** Bank X internal rate có thể khác (SOE vs private).
-3. **Phase 0 budget (365M) intentionally low** — strategy: small ask, prove value, then scale.
-4. **CIC API cost (❓)** là unknown lớn nhất. Phí per query khác nhau giữa các bank. Cần confirm.
-5. **Contingency 10%** — conservative. Real projects thường overrun 20-30%. Nhưng keep estimate low cho C-level presentation.
-6. **Cross-reference:** break-even-analysis.md (ROI justification), damage-model.md (cost of inaction), sbv-requirements.md (compliance cost basis).
+1. Budget v0 là bản ước tính ban đầu, được hiệu chỉnh khi có đơn giá thực của Bank X (chi phí IT, giá cloud, phí CIC).
+2. Chi phí nhân sự dựa trên mặt bằng thị trường Hà Nội/TP.HCM 2025-2026; mức lương nội bộ của Bank X có thể khác tùy loại hình ngân hàng.
+3. Ngân sách Phase 0 (365M) được thiết kế ở mức thấp có chủ đích: đề xuất nhỏ, chứng minh giá trị, rồi mở rộng.
+4. Phí CIC API mỗi truy vấn khác nhau giữa các ngân hàng; số liệu dùng ở đây là giả định lập kế hoạch.
+5. Mức dự phòng 10% là thận trọng; thực tế dự án có thể vượt 20-30%.
+6. Tài liệu liên quan: w04-02-break-even-analysis (luận cứ ROI), w04-01-damage-model-bank-x (chi phí khi không hành động), w02-04-sbv-requirements (cơ sở chi phí tuân thủ).

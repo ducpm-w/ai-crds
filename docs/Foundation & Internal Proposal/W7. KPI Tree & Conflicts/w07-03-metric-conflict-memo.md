@@ -1,325 +1,309 @@
 # Metric Conflict Memo — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Document tension thật giữa Business, Risk, và Compliance KPIs. Propose resolution framework. Dùng cho stakeholder alignment meetings trước Week 11 proposal.
+Ghi nhận các xung đột thực tế giữa KPI của Business, Risk và Compliance tại Bank X, đồng thời đề xuất khung xử lý cho từng xung đột. Tài liệu dùng làm cơ sở cho các buổi thống nhất giữa các bên liên quan.
+
+Các con số trong tài liệu (approval rate, NPL, chi phí fraud) là giả định lập kế hoạch, sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
-## 1. THE THREE-WAY TENSION
+## 1. Ba chiều xung đột
 
 ```
                     BUSINESS
                    (Head of Cards)
-                   "Approve more,
-                    faster, grow
-                    portfolio"
+                   "Duyệt nhiều hơn,
+                    nhanh hơn, tăng
+                    danh mục"
                        /\
                       /  \
                      /    \
-          CONFLICT  /      \ CONFLICT
-           #1     /        \  #2
-                 /          \
-                /            \
+        XUNG ĐỘT    /      \ XUNG ĐỘT
+           #1      /        \   #2
+                  /          \
+                 /            \
     RISK ──────────────────── COMPLIANCE
    (Risk Manager)            (Compliance Officer)
-   "Keep NPL low,           "Full audit trail,
-    catch fraud,              no bias, customer
-    control exposure"         rights respected"
-                   
-                CONFLICT #3
+   "Giữ NPL thấp,           "Audit trail đầy đủ,
+    bắt gian lận,             không thiên lệch, tôn
+    kiểm soát dư nợ"          trọng quyền khách hàng"
+
+                XUNG ĐỘT #3
 ```
 
 ---
 
-## 2. CONFLICT #1 — BUSINESS vs RISK
+## 2. Xung đột #1 — Business và Risk
 
-### The Tension
+### Mâu thuẫn
 
-| Business wants | Risk wants | Why they conflict |
+| Business muốn | Risk muốn | Lý do xung đột |
 |---------------|-----------|------------------|
-| **Approval rate ↑** | **NPL rate ↓** | More approvals → more risky applicants approved → NPL ↑ |
-| **Time-to-decision ↓** | **Thorough review** | Faster decisions → less time to catch risk signals |
-| **Volume ↑** | **Exposure control** | More cards issued → higher total exposure → more potential loss |
-| **Lower threshold** (TH_high) | **Higher threshold** | Lower TH = more auto-approve = more revenue but more risk |
+| Approval rate tăng | NPL rate giảm | Duyệt nhiều hơn nghĩa là duyệt thêm hồ sơ rủi ro hơn nên NPL tăng |
+| Time-to-decision giảm | Xem xét kỹ lưỡng | Quyết định nhanh hơn có ít thời gian hơn để phát hiện tín hiệu rủi ro |
+| Volume tăng | Kiểm soát dư nợ | Phát hành nhiều thẻ hơn làm tổng dư nợ và tổn thất tiềm tàng tăng |
+| Ngưỡng thấp hơn (TH_high) | Ngưỡng cao hơn | Ngưỡng thấp nghĩa là tự động duyệt nhiều hơn, doanh thu tăng nhưng rủi ro cũng tăng |
 
-### Real-world scenario tại Bank X
+### Tình huống thực tế tại Bank X
 
 ```
-Head of Cards: "Q4 target là 2,500 CC mới/tháng. Current approval 
-rate 60% cho 3,000 apps = 1,800. Tôi cần approval rate tăng lên 
-70% hoặc volume apps tăng lên 4,200."
+Head of Cards: "Mục tiêu Q4 là 2,500 thẻ tín dụng mới mỗi tháng. Approval
+rate hiện tại 60% trên 3,000 hồ sơ cho ra 1,800 thẻ. Cần nâng approval
+rate lên 70% hoặc nâng số hồ sơ lên 4,200."
 
-Risk Manager: "NPL đã 3.5%. Nếu approval rate tăng 70% mà không 
-cải thiện model → NPL sẽ lên 4.0-4.5%. SBV sẽ hỏi."
-
-→ DEADLOCK nếu không có framework resolve.
+Risk Manager: "NPL đã ở mức 3.5%. Nếu nâng approval rate lên 70% mà không
+cải thiện mô hình thì NPL sẽ lên 4.0-4.5%. SBV sẽ chất vấn."
 ```
 
-### Resolution Framework
+### Khung xử lý
 
-| Principle | Implementation |
+| Nguyên tắc | Cách thực hiện |
 |----------|---------------|
-| **North Star governs:** RARPA phải improve, không phải approval rate hay NPL đơn lẻ. | Approval rate increase OK chỉ khi RARPA không giảm. |
-| **Error budget governs:** NPL ceiling (≤ 3.5%) là hard constraint. Business có thể optimize within constraint, không vượt. | Risk Committee set ceiling. Business optimize approval rate subject to ceiling. |
-| **AI is the enabler:** AI-CRDS cho phép tăng approval rate WITHOUT tăng NPL — bằng cách score chính xác hơn (ít false positive + ít false negative). | Evidence: cost-of-error-table.md — FP/FN ratio 29.4x → current process over-rejects good customers. AI reduces false rejects → approval ↑ + NPL stable. |
-| **Data settles disputes:** Tranh cãi resolve bằng shadow testing data + vintage analysis, không phải opinion. | "Hãy chạy shadow 4 tuần, so sánh AI vs manual, rồi decide." |
+| North Star chi phối: RARPA phải cải thiện, không phải riêng approval rate hay NPL. | Tăng approval rate chỉ được chấp nhận khi RARPA không giảm. |
+| Ngân sách sai số chi phối: trần NPL (≤ 3.5%) là ràng buộc cứng. Business tối ưu trong ràng buộc, không vượt. | Risk Committee đặt trần. Business tối ưu approval rate trong phạm vi trần đó. |
+| AI là công cụ hỗ trợ: AI-CRDS cho phép tăng approval rate mà không tăng NPL nhờ chấm điểm chính xác hơn (ít false positive và ít false negative). | Bằng chứng: w06-02-cost-of-error-table cho thấy tỷ lệ chi phí FP/FN là 29.4x, tức quy trình hiện tại từ chối nhầm nhiều khách tốt. AI giảm từ chối nhầm nên approval tăng và NPL ổn định. |
+| Dữ liệu giải quyết tranh luận: bất đồng được giải quyết bằng dữ liệu shadow testing và phân tích vintage, không bằng ý kiến cá nhân. | Chạy shadow 4 tuần, so sánh AI với quy trình thủ công, rồi quyết định. |
 
-### Agreed Operating Zone (proposed)
+### Vùng vận hành thống nhất
 
 ```
 Approval Rate (%)
     │
 75% ┤                    ╔═══════════════╗
     │                    ║               ║
-70% ┤                    ║  BUSINESS     ║
-    │                    ║  HAPPY ZONE   ║
+70% ┤                    ║  VÙNG BUSINESS║
+    │                    ║  HÀI LÒNG     ║
 65% ┤             ╔══════╬═══════════════╬══════╗
-    │             ║      ║   AGREED      ║      ║
-60% ┤  ─ ─ ─ ─ ─ ╫──────╫── OPERATING ──╫──────╫ ─ ─ current
-    │             ║      ║     ZONE      ║      ║
+    │             ║      ║   VÙNG VẬN    ║      ║
+60% ┤  ─ ─ ─ ─ ─ ╫──────╫── HÀNH THỐNG ─╫──────╫ ─ ─ hiện tại
+    │             ║      ║     NHẤT      ║      ║
 55% ┤             ╚══════╬═══════════════╬══════╝
-    │                    ║  RISK         ║
-50% ┤                    ║  HAPPY ZONE   ║
+    │                    ║  VÙNG RISK    ║
+50% ┤                    ║  HÀI LÒNG     ║
     │                    ╚═══════════════╝
     ├──────┼──────┼──────┼──────┼──────┼──────┤
    2.0%   2.5%   3.0%   3.5%   4.0%   4.5%   5.0%
                      NPL Rate (%)
                          │
-                    NPL CEILING ≤ 3.5%
+                    TRẦN NPL ≤ 3.5%
 ```
 
-**Agreed Operating Zone:** Approval rate 55-65% AND NPL ≤ 3.5%. Both stakeholders acceptable. AI-CRDS target: move toward top-left corner (higher approval + lower NPL).
+Vùng vận hành thống nhất là approval rate 55-65% và NPL ≤ 3.5%, mức cả hai bên chấp nhận được. Mục tiêu của AI-CRDS là dịch chuyển về góc trên bên trái, tức approval cao hơn và NPL thấp hơn.
 
 ---
 
-## 3. CONFLICT #2 — BUSINESS vs COMPLIANCE
+## 3. Xung đột #2 — Business và Compliance
 
-### The Tension
+### Mâu thuẫn
 
-| Business wants | Compliance wants | Why they conflict |
+| Business muốn | Compliance muốn | Lý do xung đột |
 |---------------|-----------------|------------------|
-| **Minimal friction** | **Full consent + disclosure** | Consent flow adds steps → customer drop-off ↑ |
-| **Fast approval** | **DPIA + audit trail** | Compliance overhead adds processing time |
-| **Use all data** | **Data minimization** (BVDLCN) | More data = better model, but BVDLCN says minimize |
-| **Vague rejection** | **Specific adverse action** (NĐ 356) | Specific reasons help customer improve, but expose bank criteria |
+| Ít ma sát nhất | Đồng ý và công bố thông tin đầy đủ | Quy trình đồng ý thêm bước nên tỷ lệ khách bỏ giữa chừng tăng |
+| Duyệt nhanh | DPIA và audit trail | Yêu cầu tuân thủ làm tăng thời gian xử lý |
+| Dùng toàn bộ dữ liệu | Tối thiểu hóa dữ liệu (BVDLCN) | Nhiều dữ liệu cho mô hình tốt hơn, nhưng BVDLCN yêu cầu tối thiểu hóa |
+| Từ chối chung chung | Adverse action cụ thể (NĐ 356) | Lý do cụ thể giúp khách cải thiện hồ sơ nhưng làm lộ tiêu chí của ngân hàng |
 
-### Real-world scenario
+### Tình huống thực tế
 
 ```
-Head of Cards: "Consent form có 3 trang? Customer drop-off 
-rate sẽ tăng 15-20%. Đối thủ chỉ cần 1 click."
+Head of Cards: "Form đồng ý dài 3 trang thì tỷ lệ khách bỏ giữa chừng sẽ
+tăng 15-20%. Đối thủ chỉ cần 1 cú click."
 
-Compliance: "NĐ 356 bắt buộc consent rõ ràng cho processing 
-DLCN bằng AI. Không có shortcut. Vi phạm → phạt hành chính 
-+ A05 điều tra."
+Compliance: "NĐ 356 bắt buộc đồng ý rõ ràng cho việc xử lý dữ liệu cá nhân
+bằng AI. Không có lối tắt. Vi phạm sẽ bị phạt hành chính và A05 điều tra."
 ```
 
-### Resolution Framework
+### Khung xử lý
 
-| Principle | Implementation |
+| Nguyên tắc | Cách thực hiện |
 |----------|---------------|
-| **Compliance is non-negotiable.** BVDLCN, Luật AI 134/2025, SBV requirements = hard constraints. Business cannot override. | Compliance đặt minimum requirements. Business optimize UX within requirements. |
-| **UX can minimize friction within compliance.** Consent doesn't have to be 3 pages. Can be smart, progressive, integrated. | Progressive consent: Tầng 1 (basic) at app start. Tầng 2 (detailed) before AI scoring. Single-page, plain language, 1-click. |
-| **Data minimization ≠ no data.** BVDLCN says minimize, not eliminate. Use what's necessary for stated purpose. | Document purpose per data field (pdpd-impact-assessment.md). Justify each field. Remove truly unnecessary fields. |
-| **Adverse action = customer service, not risk exposure.** Specific reasons help bank long-term (fewer complaints, regulatory compliance). | Train CO: specific reasons ≠ reveal scoring formula. "Điểm CIC thấp" ≠ reveal threshold. |
+| Tuân thủ là không thể thương lượng. BVDLCN, Luật AI 134/2025 và yêu cầu của SBV là ràng buộc cứng, Business không được vượt. | Compliance đặt yêu cầu tối thiểu. Business tối ưu trải nghiệm trong yêu cầu đó. |
+| Trải nghiệm có thể giảm ma sát trong khuôn khổ tuân thủ. Form đồng ý không nhất thiết dài 3 trang, có thể thiết kế thông minh, theo từng bước và tích hợp vào luồng. | Đồng ý theo tầng: Tầng 1 (cơ bản) khi bắt đầu hồ sơ, Tầng 2 (chi tiết) trước khi chấm điểm AI. Một trang, ngôn ngữ dễ hiểu, 1 lần bấm. |
+| Tối thiểu hóa dữ liệu không có nghĩa là không dùng dữ liệu. BVDLCN yêu cầu tối thiểu hóa, không yêu cầu loại bỏ. Dùng những gì cần thiết cho mục đích đã nêu. | Ghi rõ mục đích cho từng trường dữ liệu (w02-03-pdpd-impact-bank-x), biện minh từng trường, loại bỏ trường thực sự không cần thiết. |
+| Adverse action là dịch vụ khách hàng, không phải rủi ro lộ thông tin. Lý do cụ thể giúp ngân hàng về dài hạn (ít khiếu nại hơn, tuân thủ quy định). | Đào tạo CO: nêu lý do cụ thể không có nghĩa là tiết lộ công thức chấm điểm. Ví dụ "điểm CIC thấp" không tiết lộ ngưỡng. |
 
 ---
 
-## 4. CONFLICT #3 — RISK vs COMPLIANCE
+## 4. Xung đột #3 — Risk và Compliance
 
-### The Tension
+### Mâu thuẫn
 
-| Risk wants | Compliance wants | Why they conflict |
+| Risk muốn | Compliance muốn | Lý do xung đột |
 |-----------|-----------------|------------------|
-| **Keep all data forever** (audit, SBV) | **Delete PII per retention schedule** (BVDLCN) | SBV wants audit trail. BVDLCN wants PII deleted. |
-| **Use all features for scoring** | **No bias, no discrimination** (Luật AI) | Some features (geography, employer type) predict risk but may proxy for protected attributes. |
-| **Model opacity OK** (complex model = better accuracy) | **Explainability mandatory** (Luật AI, NĐ 356) | Black box GBM model > explainable logistic regression. But Luật AI requires explanation. |
+| Giữ toàn bộ dữ liệu vô thời hạn (audit, SBV) | Xóa PII theo lịch lưu trữ (BVDLCN) | SBV cần audit trail trong khi BVDLCN yêu cầu xóa PII |
+| Dùng mọi đặc trưng để chấm điểm | Không thiên lệch, không phân biệt đối xử (Luật AI) | Một số đặc trưng (địa lý, loại hình công ty) dự báo rủi ro nhưng có thể đại diện cho thuộc tính được bảo vệ |
+| Chấp nhận mô hình khó giải thích (mô hình phức tạp cho độ chính xác cao hơn) | Bắt buộc giải thích được (Luật AI, NĐ 356) | Mô hình GBM dạng hộp đen chính xác hơn logistic regression dễ giải thích, nhưng Luật AI yêu cầu có giải thích |
 
-### Real-world scenario
+### Tình huống thực tế
 
 ```
-Risk Manager: "Geography (tỉnh/thành) là predictor mạnh. Rural 
-customers default rate cao hơn urban 30%. Bỏ feature này = model 
+Risk Manager: "Địa lý (tỉnh/thành) là biến dự báo mạnh. Khách nông thôn
+có tỷ lệ vỡ nợ cao hơn khách đô thị 30%. Bỏ đặc trưng này thì mô hình
 kém đi."
 
-Compliance: "Luật AI 134/2025 Điều 4: không phân biệt đối xử. 
-Nếu geography proxy cho income/ethnicity → discrimination. 
-Approval rate gap urban vs rural > 8pp = red flag."
+Compliance: "Luật AI 134/2025 Điều 4: không phân biệt đối xử. Nếu địa lý
+là đại diện cho thu nhập hoặc dân tộc thì đó là phân biệt đối xử. Chênh
+lệch approval rate giữa đô thị và nông thôn trên 8pp là dấu hiệu cần chú ý."
 ```
 
-### Resolution Framework
+### Khung xử lý
 
-| Principle | Implementation |
+| Nguyên tắc | Cách thực hiện |
 |----------|---------------|
-| **Tiered Data Lifecycle resolves retention conflict.** | pdpd-impact-assessment.md v1.1 §4.4: Tầng 1 (PII) xóa sớm. Tầng 2 (pseudonymized audit) giữ lâu cho SBV. Cả hai bên satisfied. |
-| **Use feature, monitor bias.** Geography can be used nếu: (a) justified by actual risk difference, (b) bias monitored monthly, (c) gap within accepted range. | Include geography in model. Monitor L3-C5 (geography gap ≤ 8pp). If exceeded → investigate: real risk difference or proxy bias? |
-| **Explainability layer, not model restriction.** Complex model OK nếu có explainability layer (SHAP/LIME for individual explanations). | Use GBM for accuracy. Add SHAP explanation layer. Adverse action notice uses SHAP top 3 factors. Risk gets accuracy. Compliance gets explainability. |
-| **"Comply first, optimize second."** When Risk and Compliance truly conflict → Compliance wins. Better to have slightly worse model than regulatory violation. | Compliance veto on features that create unacceptable bias. Risk can appeal to Risk Committee with data evidence. |
+| Vòng đời dữ liệu theo tầng giải quyết xung đột về lưu trữ. | w02-03-pdpd-impact-bank-x: Tầng 1 (PII) xóa sớm. Tầng 2 (audit đã giả danh hóa) giữ lâu cho SBV. Cả hai bên đều được đáp ứng. |
+| Dùng đặc trưng nhưng giám sát thiên lệch. Địa lý có thể được dùng nếu (a) có cơ sở là chênh lệch rủi ro thực tế, (b) thiên lệch được giám sát hàng tháng, (c) chênh lệch nằm trong phạm vi chấp nhận. | Đưa địa lý vào mô hình. Giám sát L3-C5 (chênh lệch địa lý ≤ 8pp). Nếu vượt, điều tra xem đó là chênh lệch rủi ro thực hay thiên lệch gián tiếp. |
+| Dùng lớp giải thích thay vì hạn chế mô hình. Mô hình phức tạp được chấp nhận nếu có lớp giải thích (SHAP/LIME cho từng trường hợp). | Dùng GBM cho độ chính xác. Thêm lớp giải thích SHAP. Thông báo adverse action dùng 3 yếu tố SHAP hàng đầu. Risk có độ chính xác, Compliance có khả năng giải thích. |
+| Tuân thủ trước, tối ưu sau. Khi Risk và Compliance thực sự xung đột thì Compliance quyết định. Mô hình kém hơn một chút tốt hơn vi phạm quy định. | Compliance có quyền phủ quyết với các đặc trưng gây thiên lệch không chấp nhận được. Risk có thể kháng nghị lên Risk Committee kèm bằng chứng dữ liệu. |
 
 ---
 
-## 5. CONFLICT #4 — OVERRIDE RATE: TOO HIGH vs TOO LOW
+## 5. Xung đột #4 — Override rate quá cao và quá thấp
 
-### The Tension
+### Mâu thuẫn
 
-| Too HIGH override (>40%) | Too LOW override (<5%) |
+| Override quá cao (> 40%) | Override quá thấp (< 5%) |
 |-------------------------|----------------------|
-| AI recommendations ignored → AI not adding value. Wasted investment. | CO rubber-stamping → not actually reviewing. Human-in-the-loop violated in spirit. |
-| Possible cause: model poorly calibrated, CO doesn't trust AI | Possible cause: CO overtrusts AI, CO lazy/overloaded, batch confirm = auto-approve |
-| Risk wants: lower (CO trust AI) | Compliance wants: not too low (human review must be real) |
+| Khuyến nghị của AI bị bỏ qua nên AI không tạo giá trị, đầu tư bị lãng phí. | CO duyệt theo quán tính, không thực sự xem xét. Nguyên tắc human-in-the-loop bị vi phạm về tinh thần. |
+| Nguyên nhân có thể: mô hình hiệu chỉnh kém, CO không tin AI | Nguyên nhân có thể: CO quá tin AI, CO quá tải, duyệt lô bị hiểu thành tự động duyệt |
+| Risk muốn: override thấp hơn (CO tin AI) | Compliance muốn: không quá thấp (việc xem xét của con người phải thực chất) |
 
-### Resolution
+### Cách xử lý
 
-| Principle | Implementation |
+| Nguyên tắc | Cách thực hiện |
 |----------|---------------|
-| **Target range 10-30%** | Healthy: CO overrides AI 10-30% of cases = CO adds unique value AI doesn't have |
-| **Override > 40% sustained 2 weeks → model review** | Investigate: is model wrong (recalibrate) or CO has info AI doesn't (capture new features)? |
-| **Override < 5% sustained 1 month → CO audit** | Investigate: is CO actually reviewing? Check `co_review_time_seconds` — if S1 batch confirm < 30 seconds/app → rubber-stamping. Reduce batch size. Mandatory training refresh. |
-| **Direction matters** | Override-to-approve (AI says reject, CO approves) → track NPL of overridden cases separately. Override-to-reject (AI says approve, CO rejects) → track if rejected applicants would have been good (counterfactual, hard to measure). |
-| **Data settles** | After 6 months: compare NPL of AI-recommended vs CO-overridden cohorts. If CO overrides perform better → model needs features CO has. If CO overrides perform worse → CO training needed. |
+| Vùng mục tiêu 10-30% | Lành mạnh: CO đổi quyết định của AI trong 10-30% trường hợp, tức CO bổ sung giá trị riêng mà AI không có |
+| Override > 40% kéo dài 2 tuần thì rà soát mô hình | Điều tra: mô hình sai (hiệu chỉnh lại) hay CO có thông tin mà AI không có (bổ sung đặc trưng mới) |
+| Override < 5% kéo dài 1 tháng thì kiểm tra CO | Điều tra: CO có thực sự xem xét không. Kiểm tra `co_review_time_seconds`; nếu duyệt lô S1 dưới 30 giây mỗi hồ sơ thì là duyệt theo quán tính. Giảm kích thước lô, tổ chức lại đào tạo bắt buộc. |
+| Hướng của override có ý nghĩa | Override sang duyệt (AI từ chối, CO duyệt): theo dõi NPL của nhóm này riêng. Override sang từ chối (AI duyệt, CO từ chối): theo dõi xem các hồ sơ bị từ chối có phải khách tốt hay không (phản thực tế, khó đo). |
+| Dữ liệu quyết định | Sau 6 tháng, so sánh NPL của nhóm theo khuyến nghị AI với nhóm CO override. Nếu nhóm CO override tốt hơn thì mô hình cần các đặc trưng mà CO có. Nếu nhóm CO override kém hơn thì cần đào tạo CO. |
 
 ---
 
-## 6. CONFLICT #5 — FRAUD THRESHOLD vs CUSTOMER EXPERIENCE
+## 6. Xung đột #5 — Ngưỡng gian lận và trải nghiệm khách hàng
 
-### The Tension
+### Mâu thuẫn
 
-| Risk/Fraud team wants | Business/CX wants |
+| Risk/Fraud muốn | Business/CX muốn |
 |---------------------|------------------|
-| **Strict fraud threshold** (TH_fraud = 0.30) → catch more fraud | **Lenient fraud threshold** (TH_fraud = 0.50) → fewer good customers flagged |
-| Accept many false alarms to catch nearly all fraud | Reject fewer legit customers, protect brand reputation |
-| Every fraud miss = 50M VND loss + SIMO reporting burden | Every fraud false alarm = 40M VND LTV lost + angry customer + WOM damage |
+| Ngưỡng gian lận chặt (TH_fraud = 0.30) để bắt nhiều gian lận hơn | Ngưỡng gian lận lỏng (TH_fraud = 0.50) để ít khách tốt bị gắn cờ |
+| Chấp nhận nhiều cảnh báo sai để bắt gần hết gian lận | Từ chối nhầm ít khách hợp lệ hơn, bảo vệ uy tín thương hiệu |
+| Mỗi trường hợp bỏ sót gian lận gây tổn thất 50M VND và gánh nặng báo cáo SIMO | Mỗi cảnh báo gian lận sai làm mất 40M VND LTV, khách bực bội và ảnh hưởng truyền miệng |
 
-### Resolution
+### Cách xử lý
 
-| Principle | Implementation |
+| Nguyên tắc | Cách thực hiện |
 |----------|---------------|
-| **Separate fraud score from credit score** | Fraud model runs independently. Customer can have excellent credit score but still get fraud-flagged. Two independent assessments, not one combined threshold. |
-| **Fraud miss ≈ fraud false alarm cost (50M vs 40M, ratio 1.25x)** | Near-equal → threshold should be balanced, NOT extremely conservative OR extremely lenient. TH_fraud = 0.40 captures this balance. |
-| **Monitor fraud false alarm rate** | Target: false alarm rate ≤ 80% of State 3 cases (i.e., ≥ 20% of flagged cases should be actual fraud). If > 85% false alarm → threshold too sensitive → customer experience suffering. |
-| **Fast resolution SLA for fraud false alarms** | State 3 SLA = 4h. Legitimate customer cleared within 4h max → minimize CX damage. If SLA consistently missed → capacity issue, not threshold issue. |
-| **Customer communication for fraud flags** | Do NOT tell customer "you are suspected of fraud." Say: "We need additional identity verification for your application. Please [action]." Frame as security, not accusation. |
+| Tách điểm gian lận khỏi điểm tín dụng | Mô hình gian lận chạy độc lập. Khách có thể có điểm tín dụng tốt nhưng vẫn bị gắn cờ gian lận. Hai đánh giá độc lập, không gộp thành một ngưỡng. |
+| Chi phí bỏ sót gian lận xấp xỉ chi phí cảnh báo gian lận sai (50M so với 40M, tỷ lệ 1.25x) | Chi phí gần ngang nhau nên ngưỡng cần cân bằng, không quá chặt cũng không quá lỏng. TH_fraud = 0.40 phản ánh sự cân bằng này. |
+| Giám sát tỷ lệ cảnh báo gian lận sai | Target: tỷ lệ cảnh báo sai ≤ 80% số hồ sơ State 3 (nghĩa là ít nhất 20% hồ sơ bị gắn cờ là gian lận thật). Nếu cảnh báo sai > 85% thì ngưỡng quá nhạy, trải nghiệm khách hàng bị ảnh hưởng. |
+| SLA xử lý nhanh cho cảnh báo gian lận sai | SLA State 3 là 4h. Khách hợp lệ được giải tỏa trong tối đa 4h để giảm thiệt hại trải nghiệm. Nếu SLA liên tục bị trễ thì vấn đề là năng lực, không phải ngưỡng. |
+| Truyền thông với khách khi bị gắn cờ gian lận | Không thông báo "quý khách bị nghi ngờ gian lận". Thay vào đó: "Chúng tôi cần xác minh danh tính bổ sung cho hồ sơ của quý khách. Vui lòng thực hiện bước sau." Trình bày như một biện pháp bảo mật, không phải cáo buộc. |
 
 ---
 
-## 7. CONFLICT RESOLUTION PROTOCOL
+## 7. Quy trình giải quyết xung đột
 
-### 5.1 Who Decides When Metrics Conflict?
+### 7.1 Ai quyết định khi các metric xung đột
 
-| Conflict type | First try | If unresolved | Final authority |
+| Loại xung đột | Bước đầu | Nếu chưa giải quyết | Thẩm quyền cuối cùng |
 |-------------|----------|-------------|---------------|
-| Business vs Risk (approval rate vs NPL) | PM mediates with data | Risk Committee reviews evidence | Risk Committee decides (Risk has veto on NPL ceiling) |
-| Business vs Compliance (speed vs consent) | PM + Compliance discuss UX options | Legal review | Compliance has veto (regulatory = non-negotiable) |
-| Risk vs Compliance (retention vs deletion, features vs bias) | Risk + Compliance discuss tiered approach | Risk Committee + Legal | If regulatory requirement → Compliance wins. If best practice → Risk Committee decides. |
-| Any metric vs North Star (RARPA) | Check: does proposed change improve RARPA? | If RARPA neutral/positive → proceed. If RARPA negative → justify exception. | Risk Committee |
+| Business và Risk (approval rate và NPL) | Quản lý dự án làm trung gian bằng dữ liệu | Risk Committee xem xét bằng chứng | Risk Committee quyết định (Risk có quyền phủ quyết với trần NPL) |
+| Business và Compliance (tốc độ và đồng ý) | Quản lý dự án và Compliance thảo luận các phương án trải nghiệm | Rà soát pháp lý | Compliance có quyền phủ quyết (yêu cầu quy định là không thể thương lượng) |
+| Risk và Compliance (lưu trữ và xóa, đặc trưng và thiên lệch) | Risk và Compliance thảo luận phương án theo tầng | Risk Committee và Legal | Nếu là yêu cầu quy định thì Compliance quyết định. Nếu là thông lệ tốt nhất thì Risk Committee quyết định. |
+| Bất kỳ metric nào với North Star (RARPA) | Kiểm tra thay đổi đề xuất có cải thiện RARPA không | Nếu RARPA trung lập hoặc tăng thì tiến hành. Nếu RARPA giảm thì phải biện minh ngoại lệ. | Risk Committee |
 
-### 5.2 Escalation Path for Metric Conflicts
+### 7.2 Lộ trình leo thang cho xung đột metric
 
 ```
-Step 1: PM identifies conflict, documents data
+Bước 1: Quản lý dự án xác định xung đột, ghi nhận dữ liệu
     │
-Step 2: 1-on-1 with each stakeholder (understand position)
+Bước 2: Trao đổi 1-1 với từng bên liên quan (nắm rõ lập trường)
     │
-Step 3: Joint meeting with data evidence
-    │     → Resolution? → Document + implement
+Bước 3: Họp chung với bằng chứng dữ liệu
+    │     Đạt thống nhất thì ghi nhận và triển khai
     │
-Step 4: If no resolution → Risk Committee arbitrates
-    │     → Committee decides with documented reasoning
+Bước 4: Nếu chưa thống nhất, Risk Committee phân xử
+    │     Committee quyết định kèm lập luận được ghi lại
     │
-Step 5: Losing side can appeal to C-level with new evidence
-        → C-level decision is FINAL
+Bước 5: Bên không đồng ý có thể kháng nghị lên C-level kèm bằng chứng mới
+        Quyết định của C-level là cuối cùng
 ```
 
-### 5.3 Quarterly Metric Review Meeting
+### 7.3 Họp rà soát metric hàng quý
 
-| Agenda item | Duration | Participants |
+| Nội dung | Thời lượng | Người tham gia |
 |------------|---------|-------------|
-| North Star (RARPA) trend | 10 min | All |
-| Business metrics review (L2-B1/B2/B3) | 10 min | Head of Cards presents |
-| Risk metrics review (L2-R1/R2/R3) | 10 min | Risk Manager presents |
-| Compliance metrics review (L3-C1-C8) | 10 min | Compliance presents |
-| Conflicts identified + resolution | 15 min | PM facilitates |
-| Threshold adjustment proposals (if any) | 10 min | DS presents, Risk Committee decides |
-| **Total** | **~65 min** | |
+| Xu hướng North Star (RARPA) | 10 phút | Tất cả |
+| Rà soát chỉ tiêu Business (L2-B1/B2/B3) | 10 phút | Head of Cards trình bày |
+| Rà soát chỉ tiêu Risk (L2-R1/R2/R3) | 10 phút | Risk Manager trình bày |
+| Rà soát chỉ tiêu Compliance (L3-C1 đến C8) | 10 phút | Compliance trình bày |
+| Xung đột phát sinh và cách xử lý | 15 phút | Quản lý dự án điều phối |
+| Đề xuất điều chỉnh ngưỡng (nếu có) | 10 phút | Data Science trình bày, Risk Committee quyết định |
+| **Tổng** | **~65 phút** | |
 
 ---
 
-## 8. CONFLICT SCENARIOS — PRE-PREPARED RESPONSES
+## 8. Các tình huống xung đột điển hình và hướng phản hồi
 
-### Scenario 1: "Tăng approval rate lên 70%"
-
-```
-Head of Cards: "Tôi cần approval rate 70%."
-
-PM response:
-"Hiện tại approval rate 60%, NPL 3.5%. Nếu tăng approval 
-rate lên 70% bằng cách hạ threshold:
-- NPL ước tăng lên 4.0-4.5% (vượt ceiling 3.5%)
-- Risk Committee sẽ không approve.
-
-Nhưng: AI-CRDS có thể tăng approval rate lên 65% WHILE 
-giảm NPL xuống 3.0% — bằng cách giảm false rejection rate.
-Kết quả: +5pp approval, -0.5pp NPL. Win-win.
-
-Proposal: Chạy shadow testing 4 tuần, prove AI reduces 
-false rejection, rồi tăng approval gradually."
-```
-
-### Scenario 2: "NPL tăng 0.3pp — tighten everything"
+### Tình huống 1: Đề xuất tăng approval rate lên 70%
 
 ```
-Risk Manager: "NPL tăng từ 3.5% lên 3.8%. Tăng TH_high ngay."
+Head of Cards: "Cần approval rate 70%."
 
-PM response:
-"Trước khi tighten, cần phân tích:
-1. NPL tăng ở cohort nào? AI-approved hay CO-override-approved?
-2. Nếu AI-approved cohort stable, CO-override cohort tăng → 
-   vấn đề là override governance, không phải threshold.
-3. Nếu AI-approved cohort tăng → check: có model drift không? 
-   (L3-M7 PSI). Có external shock không? (economic downturn)
+Phản hồi của Quản lý dự án:
+"Hiện approval rate là 60% và NPL là 3.5%. Nếu nâng approval rate lên
+70% bằng cách hạ ngưỡng:
+- NPL ước tính tăng lên 4.0-4.5% (vượt trần 3.5%).
+- Risk Committee sẽ không phê duyệt.
 
-Proposal: Investigate root cause (1 tuần) → targeted action 
-thay vì blanket tightening (sẽ tăng FP cost đáng kể)."
+AI-CRDS có thể nâng approval rate lên 65% đồng thời giảm NPL xuống 3.0%
+nhờ giảm tỷ lệ từ chối nhầm. Kết quả: approval +5pp, NPL -0.5pp.
+
+Đề xuất: chạy shadow testing 4 tuần để chứng minh AI giảm từ chối nhầm,
+sau đó tăng approval rate dần dần."
 ```
 
-### Scenario 3: "Geography feature tạo bias"
+### Tình huống 2: NPL tăng 0.3pp và đề xuất siết toàn bộ
 
 ```
-Compliance: "Approval rate HCM 68%, rural provinces 52%. Gap 
-16pp > 8pp threshold. Remove geography feature."
+Risk Manager: "NPL tăng từ 3.5% lên 3.8%. Cần tăng TH_high ngay."
 
-PM response:
+Phản hồi của Quản lý dự án:
+"Trước khi siết cần phân tích:
+1. NPL tăng ở nhóm nào: hồ sơ AI duyệt hay hồ sơ CO override sang duyệt?
+2. Nếu nhóm AI duyệt ổn định, nhóm CO override tăng thì vấn đề nằm ở
+   quản trị override, không phải ngưỡng.
+3. Nếu nhóm AI duyệt tăng thì kiểm tra mô hình có drift không (L3-M7 PSI)
+   và có cú sốc bên ngoài không (suy thoái kinh tế).
+
+Đề xuất: điều tra nguyên nhân gốc trong 1 tuần rồi hành động có mục tiêu,
+thay vì siết đồng loạt (làm chi phí FP tăng đáng kể)."
+```
+
+### Tình huống 3: Đặc trưng địa lý gây thiên lệch
+
+```
+Compliance: "Approval rate TP.HCM là 68%, các tỉnh nông thôn là 52%. Chênh
+lệch 16pp, vượt ngưỡng 8pp. Đề nghị loại bỏ đặc trưng địa lý."
+
+Phản hồi của Quản lý dự án:
 "Cần phân tích sâu hơn:
-1. Geography gap phản ánh real risk difference hay proxy bias?
-2. Rural customers có CIC score thấp hơn? Income thấp hơn?
-3. Nếu remove geography, replace bằng income + CIC (actual 
-   risk factors) → gap có giảm không?
+1. Chênh lệch địa lý phản ánh khác biệt rủi ro thực hay thiên lệch gián tiếp?
+2. Khách nông thôn có điểm CIC thấp hơn không? Thu nhập thấp hơn không?
+3. Nếu loại địa lý và thay bằng thu nhập và CIC (các yếu tố rủi ro thực),
+   chênh lệch có giảm không?
 
-Proposal: Test model without geography feature. If accuracy 
-drops < 1% Gini → remove permanently. If drops > 1% → keep 
-but with bias monitoring + annual review."
+Đề xuất: thử mô hình không có đặc trưng địa lý. Nếu Gini giảm dưới 1% thì
+loại bỏ vĩnh viễn. Nếu giảm trên 1% thì giữ lại kèm giám sát thiên lệch và
+rà soát hàng năm."
 ```
 
 ---
 
-## Tracking
+## 9. Tài liệu liên quan
 
-- [ ] Head of Cards đã agree approval rate target range (55-65%) chưa?
-- [ ] Risk Manager đã agree NPL ceiling (≤ 3.5%) chưa?
-- [ ] Compliance đã agree bias thresholds (5pp/8pp/10pp) chưa?
-- [ ] North Star (RARPA) đã agree là north star metric chưa?
-- [ ] Quarterly metric review meeting đã schedule chưa?
-- [ ] Pre-prepared responses (Section 6) đã rehearse chưa?
-
----
-
-## Ghi Chú
-
-1. **Conflict #1 (Business vs Risk) là conflict phổ biến nhất** — sẽ xảy ra hàng tháng. Framework phải robust.
-2. **Conflict #3 (Risk vs Compliance) là mới** — triggered bởi Luật AI 134/2025 (effective 01/03/2026). Chưa có precedent tại VN banking. Need to navigate carefully.
-3. **"Data settles disputes"** — nguyên tắc quan trọng nhất. Mọi conflict nên resolve bằng evidence (shadow testing, vintage analysis, bias metrics), không phải opinion hoặc seniority.
-4. **Cross-reference:** kpi-tree.md (metric hierarchy), guardrail-definitions.md (acceptable ranges), threshold-framework.md (threshold governance), cost-of-error-table.md (cost basis for trade-off analysis).
+w07-01-kpi-tree (phân cấp metric), w07-04-guardrail-definitions (ngưỡng chấp nhận), w06-01-threshold-framework (quản trị ngưỡng), w06-02-cost-of-error-table (cơ sở chi phí cho phân tích đánh đổi).

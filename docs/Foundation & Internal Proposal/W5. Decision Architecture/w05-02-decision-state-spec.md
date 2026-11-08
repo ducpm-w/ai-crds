@@ -1,17 +1,17 @@
 # Decision State Spec — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Chi tiết hóa decision-architecture.md: as-is flow, to-be flow, state transition diagram, SLA table, exception handling. Document này là spec cho development team (Week 12 MVP) và CO training (Week 34).
+Chi tiết hóa w05-01-decision-architecture.md: as-is flow, to-be flow, state transition diagram, SLA table, exception handling. Tài liệu này là đặc tả cho đội phát triển MVP và cho việc đào tạo Credit Officer.
 
 ---
 
-## 1. AS-IS FLOW — Quy trình hiện tại tại Bank X (Generic NHTM VN)
+## 1. AS-IS FLOW — Quy trình hiện tại tại Bank X
 
-**⚠️ Chưa validate với Bank X.** Flow dưới đây là generic cho NHTM VN có CC origination. Cần shadow Credit Officers ít nhất 1 ngày trước khi finalize (Week 8).
+Flow dưới đây mô tả quy trình phát hành thẻ tín dụng (CC origination) điển hình của ngân hàng thương mại tại Việt Nam, được dùng làm giả định mô tả quy trình hiện tại của Bank X.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -31,16 +31,16 @@ Khách nộp hồ sơ (branch / online / app)
         ▼
 ┌───────────────────┐
 │ 2. eKYC CHECK     │  Đối chiếu CCCD, sinh trắc học (TT 45)
-│    (2-5 phút)     │  ⚠️ Nhiều bank vẫn manual verify
+│    (2-5 phút)     │  Một số bước vẫn xác minh thủ công
 │                   │  → Fail: request retry hoặc branch visit
 └───────┬───────────┘
         │
         ▼
 ┌───────────────────┐
 │ 3. CIC QUERY      │  CO hoặc system query CIC
-│    (5-30 phút)    │  ⚠️ API: 5-30 giây
-│                   │  ⚠️ Manual portal: 1-5 phút
-│                   │  ⚠️ Một số bank batch query cuối ngày
+│    (5-30 phút)    │  Qua API: 5-30 giây
+│                   │  Qua portal thủ công: 1-5 phút
+│                   │  Một số trường hợp query theo lô cuối ngày
 └───────┬───────────┘
         │
         ▼
@@ -83,8 +83,8 @@ Khách nộp hồ sơ (branch / online / app)
 │ 6. AUDIT LOG      │◄──────────────┘
 │ Manual entry      │
 │ CBS ghi nhận      │
-│ ⚠️ Thiếu detail  │
-│ ⚠️ Không replay  │
+│ Thiếu chi tiết   │
+│ Không replay được│
 └───────────────────┘
 ```
 
@@ -92,13 +92,13 @@ Khách nộp hồ sơ (branch / online / app)
 
 | # | Pain point | Impact | Evidence |
 |---|-----------|--------|---------|
-| P1 | **Inconsistency** — mỗi CO có criteria khác nhau | Good applicants bị reject bởi CO strict, bad applicants được approve bởi CO lenient | ❓ Cần validate (CO interviews Week 9) |
-| P2 | **Slow** — 20-45 phút/hồ sơ manual review | Customer wait time 1-3 ngày. Churn nếu competitor nhanh hơn. | Industry observation |
-| P3 | **CIC bottleneck** — manual query hoặc batch delay | Decision delay. Stale data nếu batch cuối ngày. | ❓ Cần confirm CIC integration method |
-| P4 | **No explainability** — rejection reason vague | Customer không hiểu tại sao bị reject. Không comply NĐ 356 right to explanation. | Industry standard VN |
-| P5 | **Audit trail weak** — manual log, thiếu fields | Không replay được quyết định. SBV audit risk. | ❓ Cần confirm Bank X audit format |
-| P6 | **No fraud scoring** — eKYC pass/fail only | Sophisticated fraud (synthetic ID, document forge) lọt qua | Industry observation |
-| P7 | **Capacity limited** — CO team = bottleneck | Peak periods (Tết, campaign): queue backlog. Hire more CO = cost. | Damage model T4 |
+| P1 | Thiếu nhất quán — mỗi CO có criteria khác nhau | Hồ sơ tốt có thể bị reject bởi CO thẩm định chặt, hồ sơ xấu có thể được approve bởi CO thẩm định thoáng | Quan sát từ phỏng vấn Credit Officer (w09-01-user-interview-notes.md) |
+| P2 | **Slow** — 20-45 phút/hồ sơ manual review | Customer wait time 1-3 ngày. Churn nếu competitor nhanh hơn. | Quan sát ngành |
+| P3 | **CIC bottleneck** — manual query hoặc batch delay | Quyết định bị chậm; dữ liệu cũ nếu query theo lô cuối ngày. | Phương thức tích hợp CIC (w10-04-api-availability-assessment.md) |
+| P4 | **No explainability** — rejection reason vague | Customer không hiểu tại sao bị reject. Không comply NĐ 356 right to explanation. | Thông lệ ngành tại Việt Nam |
+| P5 | **Audit trail weak** — manual log, thiếu fields | Không replay được quyết định; rủi ro khi thanh tra của SBV. | Định dạng audit hiện tại (w08-01-workflow-as-is.md) |
+| P6 | **No fraud scoring** — eKYC pass/fail only | Sophisticated fraud (synthetic ID, document forge) lọt qua | Quan sát ngành |
+| P7 | **Capacity limited** — CO team = bottleneck | Peak periods (Tết, campaign): queue backlog. Hire more CO = cost. | w04-01-damage-model-bank-x.md |
 
 ---
 
@@ -107,7 +107,7 @@ Khách nộp hồ sơ (branch / online / app)
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    TO-BE: CC ORIGINATION WITH AI-CRDS            │
-│                    (AI-assisted, Human-in-the-loop)              │
+│                    (AI hỗ trợ, con người ra quyết định)              │
 └─────────────────────────────────────────────────────────────────┘
 
 Khách nộp hồ sơ (online / app / branch)
@@ -248,16 +248,18 @@ Khách nộp hồ sơ (online / app / branch)
 
 ### Improvement Summary: As-Is → To-Be
 
+Số liệu trong bảng là giả định lập kế hoạch, sẽ thay bằng dữ liệu thực của Bank X khi có.
+
 | Metric | As-Is | To-Be | Improvement |
 |--------|-------|-------|------------|
-| **Time-to-decision (State 1)** | 20-45 min (full review) | 3-5 min (batch confirm) | **~85% faster** |
-| **Time-to-decision (overall avg)** | 25-35 min | 10-15 min (weighted avg) | **~55% faster** |
-| **Consistency** | CO-dependent | AI + human = standardized baseline | **Eliminates CO variance** |
-| **CIC query** | Manual/batch | Real-time API | **From hours to seconds** |
-| **Fraud detection** | eKYC pass/fail only | Multi-signal AI scoring | **+30% detection** (assumption A22) |
-| **Explainability** | "Không đủ điều kiện" | Top 3 factors + right to human review | **Comply NĐ 356 + Luật AI** |
-| **Audit trail** | Manual, ~5 fields | Automated, 24 fields, immutable | **SBV inspection ready** |
-| **CO capacity** | ~10 FTE for 3,000 apps | ~4.3 FTE | **56% reduction** |
+| Thời gian ra quyết định (State 1) | 20-45 phút (review đầy đủ) | 3-5 phút (batch confirm) | Nhanh hơn khoảng 85% |
+| Thời gian ra quyết định (trung bình) | 25-35 phút | 10-15 phút (trung bình có trọng số) | Nhanh hơn khoảng 55% |
+| Tính nhất quán | Phụ thuộc từng CO | AI kết hợp con người tạo mặt bằng chuẩn | Giảm chênh lệch giữa các CO |
+| Truy vấn CIC | Thủ công/theo lô | API thời gian thực | Từ hàng giờ xuống vài giây |
+| Phát hiện gian lận | Chỉ eKYC đạt/không đạt | Chấm điểm đa tín hiệu | Tăng khoảng 30% (giả định, xem w04-04-assumptions-log.md) |
+| Khả năng giải thích | "Không đủ điều kiện" | Top 3 yếu tố + quyền yêu cầu người xem xét lại | Phù hợp NĐ 356 và Luật AI |
+| Audit trail | Thủ công, khoảng 5 trường | Tự động, 24 trường, bất biến | Sẵn sàng cho thanh tra SBV |
+| Năng lực CO | Khoảng 10 FTE cho 3,000 hồ sơ | Khoảng 4.3 FTE | Giảm 56% |
 
 ---
 
@@ -344,7 +346,7 @@ Khách nộp hồ sơ (online / app / branch)
 | STATE 2 | STATE 4 | CO escalate | CO |
 | STATE 2 | STATE 5 | CO needs more documents | CO |
 | STATE 2 | ESCALATED (Supervisor) | SLA expired (8h) | System |
-| STATE 3 | STATE 1 or 2 | Fraud cleared → **AI RE-SCORE** (fraud_flag reset CLEAR, re-run scoring model with updated data). Route by new score: State 1 if score > TH_high + confidence > 0.85, else State 2. Không dùng score cũ. | Fraud Analyst |
+| STATE 3 | STATE 1 or 2 | Fraud cleared → AI RE-SCORE (fraud_flag reset CLEAR, re-run scoring model with updated data). Route by new score: State 1 if score > TH_high + confidence > 0.85, else State 2. Không dùng score cũ. | Fraud Analyst |
 | STATE 3 | REJECTED_FRAUD | Fraud confirmed | Fraud Analyst |
 | STATE 3 | REJECTED | Inconclusive, too risky | Fraud Analyst |
 | STATE 3 | STATE 5 | Need branch visit / additional ID | Fraud Analyst |
@@ -362,7 +364,7 @@ Khách nộp hồ sơ (online / app / branch)
 | COMMITTEE | REJECTED | Committee reject | Committee |
 | COMMITTEE | ESCALATED (Head of Cards) | SLA expired (48h) | System |
 
-### 3.3 Invalid Transitions (MUST NOT happen)
+### 3.3 Invalid Transitions (không được phép xảy ra)
 
 | Invalid transition | Why not |
 |-------------------|---------|
@@ -375,19 +377,19 @@ Khách nộp hồ sơ (online / app / branch)
 
 ### 3.4 Terminal State Data Retention
 
-Mỗi terminal state có retention schedule khác nhau (Tiered Data Lifecycle — xung đột SBV retention vs BVDLCN deletion):
+Mỗi terminal state có lịch lưu trữ dữ liệu khác nhau (Tiered Data Lifecycle, dung hòa yêu cầu lưu trữ của SBV và yêu cầu xóa dữ liệu theo luật bảo vệ dữ liệu cá nhân):
 
 | Terminal State | Tầng 1: Raw PII | Tầng 2: Pseudonymized Audit | Tầng 3: Stats | Ref |
 |---------------|----------------|----------------------------|--------------|-----|
-| **APPROVED** | Giữ suốt hợp đồng CC + 1 năm | 10 năm (SBV audit) | Vĩnh viễn | pdpd-impact v1.1 §4.4 |
+| **APPROVED** | Giữ suốt hợp đồng CC + 1 năm | 10 năm (SBV audit) | Vĩnh viễn | w02-03-pdpd-impact-bank-x.md |
 | **REJECTED** | Xóa sau 1 năm | 5 năm | Vĩnh viễn | |
 | **REJECTED_FRAUD** | Giữ 5 năm (fraud/SIMO) | 10 năm | Vĩnh viễn | |
 | **EXPIRED** | Xóa sau 90 ngày | 2 năm | Vĩnh viễn | |
-| **WITHDRAWN** | Xóa sau 30 ngày (shortest — respect privacy) | 1 năm (minimum audit) | Vĩnh viễn | |
+| **WITHDRAWN** | Xóa sau 30 ngày (ngắn nhất, tôn trọng quyền riêng tư) | 1 năm (minimum audit) | Vĩnh viễn | |
 
-**WITHDRAWN specifics:** Pseudonymize Tầng 2 immediately (T+0). Auto-delete Tầng 1 raw PII T+30 days. Thông báo khách: "DLCN sẽ được xóa trong 30 ngày. Hồ sơ ẩn danh giữ theo yêu cầu pháp luật."
+Đối với WITHDRAWN: pseudonymize Tầng 2 immediately (T+0). Auto-delete Tầng 1 raw PII T+30 days. Thông báo khách: "DLCN sẽ được xóa trong 30 ngày. Hồ sơ ẩn danh giữ theo yêu cầu pháp luật."
 
-**⚠️ Retention periods = proposed. Cần confirm Compliance Officer + Legal.** Chi tiết: decision-architecture.md Terminal States section + pdpd-impact-assessment.md v1.1 Section 4.4.
+Chi tiết xem mục Terminal States trong w05-01-decision-architecture.md và w02-03-pdpd-impact-bank-x.md.
 
 ---
 
@@ -413,7 +415,7 @@ Mỗi terminal state có retention schedule khác nhau (Tiered Data Lifecycle �
 | **Clock pauses** | When in STATE 5 (waiting for customer). Resumes when info received. |
 | **Business days** | Mon-Fri, 8:00-17:00 local time. Exclude VN public holidays. |
 | **After hours** | Applications received after 17:00 → SLA clock starts 8:00 next BD. Exception: State 3 (Fraud) — SLA clock 24/7. |
-| **Peak period** | Tết, campaign periods → SLA may relax 50% (Risk Committee approve). |
+| **Peak period** | Tết, campaign periods → SLA may relax 50% (do Risk Committee phê duyệt). |
 
 ### 4.3 SLA Breach Handling
 
@@ -482,7 +484,9 @@ Mỗi terminal state có retention schedule khác nhau (Tiered Data Lifecycle �
 
 ## 7. VOLUME & CAPACITY PLANNING
 
-### 7.1 Expected Volume Distribution (ước tính)
+### 7.1 Expected Volume Distribution
+
+Số liệu dưới đây là giả định lập kế hoạch (3,000 hồ sơ/tháng), sẽ thay bằng dữ liệu thực của Bank X khi có.
 
 | State | % | Volume/tháng | CO Time/app | Total CO hours/tháng | FTE needed |
 |-------|---|-------------|------------|---------------------|-----------|
@@ -504,21 +508,8 @@ Mỗi terminal state có retention schedule khác nhau (Tiered Data Lifecycle �
 
 ---
 
-## Tracking — Tự hỏi cuối tuần
+## Tài liệu liên quan
 
-- [ ] As-is flow đã validate với Credit Officers chưa? (Shadow 1 ngày trước khi finalize)
-- [ ] CIC integration method confirmed? (API real-time vs manual portal?)
-- [ ] SLA values đã review với Ops Manager chưa?
-- [ ] Exception handling đã review với IT chưa? (CIC timeout, model error fallback)
-- [ ] VIP / staff exception rules đã confirm với bank policy?
-- [ ] Volume distribution (35-45% State 1) — cần shadow testing confirm
-
----
-
-## Ghi Chú & Limitations
-
-1. **As-is flow chưa validate** — generic NHTM VN. Mỗi bank khác nhau. Cần shadow CO ít nhất 1 ngày (Week 8).
-2. **To-be flow assumes CIC real-time API** — nếu bank chỉ có manual portal → Stage 2 sẽ khác đáng kể. CIC step có thể thành async + STATE 5.
-3. **Volume distribution là ước tính** — actual distribution phụ thuộc threshold setting (Week 6) + model quality. Conservative threshold → ít State 1, nhiều State 2.
-4. **SLA "business days"** — ngân hàng VN có thể có Saturday morning working. Cần confirm.
-5. **Cross-reference:** decision-architecture.md (5 states detail), damage-model.md (cost-of-error cho threshold), feature-availability-matrix.md (feature priority cho AI scoring stage).
+- w05-01-decision-architecture.md: chi tiết 5 state.
+- w04-01-damage-model-bank-x.md: bảng chi phí sai sót dùng cho thiết kế ngưỡng.
+- w03-03-feature-availability-matrix.md: thứ tự ưu tiên feature cho bước AI scoring.

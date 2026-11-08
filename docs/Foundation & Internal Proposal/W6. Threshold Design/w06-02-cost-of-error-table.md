@@ -1,11 +1,14 @@
 # Cost-of-Error Table — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
+
+
+> Số liệu trong tài liệu là giả định lập kế hoạch dựa trên phân phối điểm tổng hợp (synthetic); sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
 ## Mục đích
 
-Quantify cost per error type → drive threshold design + Risk Committee decision. Document này trả lời: "Sai ở đâu đắt nhất? Threshold nên bias về hướng nào?"
+Tài liệu định lượng chi phí theo từng loại lỗi làm cơ sở thiết kế ngưỡng và quyết định của Risk Committee. Tài liệu trả lời hai câu hỏi: loại lỗi nào tốn kém nhất và ngưỡng nên nghiêng về hướng nào.
 
 ---
 
@@ -22,7 +25,7 @@ Quantify cost per error type → drive threshold design + Risk Committee decisio
 | **How calculated** | 3.5% NPL × 1,800 approved | 10% false reject × 1,200 rejected | 0.8% fraud × 3,000 apps | Ước tính: ~15% of State 3 cases are false alarms |
 | **Annual cost** | **26.46 tỷ VND** | **51.84 tỷ VND** | **14.4 tỷ VND** | **7.2 tỷ VND** |
 | **% of total error cost** | 26% | **52%** ← lớn nhất | 14% | 7% |
-| **Source** | damage-model.md T1, A7-A9 | damage-model.md T3, A13-A14 | damage-model.md T2, A11-A12 | Ước tính từ T2 + T3 |
+| **Source** | w04-01-damage-model-bank-x.md T1, A7-A9 | w04-01-damage-model-bank-x.md T3, A13-A14 | w04-01-damage-model-bank-x.md T2, A11-A12 | Ước tính từ T2 + T3 |
 
 **Total annual error cost (base case): 99.9 tỷ VND**
 
@@ -87,7 +90,7 @@ Fraud Alarm    ███████                                            
 |------------|-------------------|-------|
 | **29.4x** (FP >> FN) | **Bias toward APPROVE** | Mỗi good customer bị reject mất 29.4x so với mỗi bad customer được approve. Tốt hơn approve thêm 1 bad case (lose 1.225M) hơn reject thêm 1 good case (lose 36M). |
 
-**Concrete implication cho TH_high (threshold-framework.md):**
+**Concrete implication cho TH_high (w06-01-threshold-framework.md):**
 - TH_high = 0.75 → ~37% auto-route approve
 - Giảm TH_high = 0.70 → ~50% auto-route → FP giảm (ít reject nhầm) nhưng FN tăng (thêm risky apps approved)
 - **Optimal point:** giảm TH_high cho đến khi marginal FN cost increase = marginal FP cost decrease
@@ -189,17 +192,17 @@ Không tồn tại hệ thống zero-error. Câu hỏi đúng: "Bao nhiêu error
 ```
 MONTHLY ERROR BUDGET DASHBOARD
 
-FN Rate (NPL):    [████████░░] 2.8% / 3.5% max    ✅ Within budget
-FP Rate:          [██████░░░░] 7.0% / 10.0% max    ✅ Within budget
-Fraud Miss:       [████████░░] 0.56% / 0.80% max   ✅ Within budget
-Fraud Alarm:      [███░░░░░░░] 0.35% / 1.00% max   ✅ Within budget
+FN Rate (NPL):    [████████░░] 2.8% / 3.5% max    Within budget
+FP Rate:          [██████░░░░] 7.0% / 10.0% max    Within budget
+Fraud Miss:       [████████░░] 0.56% / 0.80% max   Within budget
+Fraud Alarm:      [███░░░░░░░] 0.35% / 1.00% max   Within budget
 
 IF ANY metric exceeds budget → ALERT → investigate → threshold adjustment
 ```
 
 ---
 
-## 7. IMPLICATIONS FOR WEEK 12 MVP
+## 7. ÁP DỤNG CHO MVP
 
 ### 7.1 MVP Threshold Strategy
 
@@ -210,7 +213,7 @@ IF ANY metric exceeds budget → ALERT → investigate → threshold adjustment
 | **Fraud conservative** | TH_fraud = 0.40. Better to over-flag than miss fraud in early deployment. |
 | **Monitor heavily** | Track all 4 error types daily during shadow testing. Any trend → investigate immediately. |
 
-### 7.2 What to Measure in Shadow Testing (Week 37-40)
+### 7.2 Chỉ số đo trong giai đoạn shadow testing
 
 | Metric | How to measure | Target |
 |--------|---------------|--------|
@@ -219,13 +222,13 @@ IF ANY metric exceeds budget → ALERT → investigate → threshold adjustment
 | Fraud miss | AI fraud score < TH → was it actually fraud? | ≤ current fraud miss |
 | Fraud false alarm | AI fraud score > TH → was it actually legit? | Minimize while keeping fraud catch rate |
 
-**⚠️ FN measurement has 90+ day lag** (default = DPD 90+). Shadow testing 4 weeks → can only see DPD 30 at most. Full FN validation needs 90-day post-deployment measurement (Week 47).
+Chỉ số FN có độ trễ 90 ngày trở lên (định nghĩa default là DPD 90+). Shadow testing kéo dài 4 tuần chỉ quan sát được tối đa DPD 30, nên việc xác nhận đầy đủ FN được thực hiện sau 90 ngày kể từ khi triển khai.
 
 ---
 
-## 8. RISK COMMITTEE PRESENTATION — Key Slides
+## 8. THÔNG ĐIỆP CHÍNH TRÌNH RISK COMMITTEE
 
-### Slide 1: The Asymmetry
+### 8.1 Bất đối xứng chi phí
 
 ```
 "Our biggest cost is NOT bad loans — it's REJECTING GOOD CUSTOMERS."
@@ -237,19 +240,19 @@ Fraud miss:     50M VND          14.4 tỷ  (14%)
 Fraud alarm:    40M VND          7.2 tỷ   (7%)
 ```
 
-### Slide 2: The Implication
+### 8.2 Hệ quả đối với ngưỡng
 
 ```
 "Threshold should bias toward approval — 
  but with guardrails."
 
-✅ DO:  Lower threshold slightly → approve more → capture revenue
-✅ DO:  Aggressive fraud detection → catch fraud → protect bank
-❌ DON'T: Lower threshold so much that NPL increases above current
-❌ DON'T: Lower fraud threshold so much that false alarms overwhelm fraud team
+Nên:  Lower threshold slightly → approve more → capture revenue
+Nên:  Aggressive fraud detection → catch fraud → protect bank
+Không nên: Lower threshold so much that NPL increases above current
+Không nên: Lower fraud threshold so much that false alarms overwhelm fraud team
 ```
 
-### Slide 3: The Ask
+### 8.3 Đề nghị phê duyệt
 
 ```
 "Approve error budget framework:
@@ -261,23 +264,3 @@ Fraud alarm:    40M VND          7.2 tỷ   (7%)
  Improve some, neutral on others. NEVER worse on any."
 ```
 
----
-
-## Tracking — Tự hỏi cuối tuần
-
-- [ ] Risk Committee đã review cost-of-error analysis chưa?
-- [ ] FP/FN ratio (29.4x) — Risk Manager đồng ý conclusion "bias toward approve"?
-- [ ] Error budget limits — Risk Committee approve NPL ≤ 3.5%, FP ≤ 10%, Fraud ≤ 0.8%?
-- [ ] Hidden costs — có cost nào quan trọng bị miss không?
-- [ ] Head of Cards đồng ý "FP is our biggest cost, not FN"?
-- [ ] Shadow testing measurement plan — đã share với DS team chưa?
-
----
-
-## Ghi Chú & Limitations
-
-1. **FP rate 10% là assumption yếu nhất** (A13, confidence ❓ Low). FP/FN ratio có thể thay đổi đáng kể nếu actual FP rate khác. Nếu FP = 5% → ratio = 14.7x (vẫn asymmetric nhưng ít hơn). Nếu FP = 15% → ratio vẫn 29.4x nhưng annual FP cost = 77.76 tỷ.
-2. **LTV 36M VND** bao gồm: interest income (revolvers) + annual fee + interchange. Nếu khách là transactor (trả full mỗi tháng) → LTV thấp hơn (~15M). Nếu khách revolve → LTV cao hơn (~60M). 36M là blended average.
-3. **Fraud false alarm cost (40M)** bao gồm experience penalty (~4M) — ước tính. Actual experience damage khó quantify (social media risk, regulator complaint).
-4. **"Bias toward approval" KHÔNG có nghĩa "approve tất cả."** Vẫn có NPL ceiling (≤ current). Vẫn reject high-risk applicants. Bias = khi 50/50, lean approve.
-5. **Cross-reference:** damage-model.md (source cho all cost numbers), threshold-framework.md (threshold design using these costs), assumptions-log.md (confidence levels cho A7-A14), decision-architecture.md (state routing based on thresholds).

@@ -1,36 +1,37 @@
 # SBV Requirements — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) · **Khách hàng:** Bank X
 
 ---
 
 ## Mục đích
 
-Document 4 yêu cầu core từ SBV ảnh hưởng đến thiết kế AI-CRDS. Đây là các yêu cầu **không thể thỏa hiệp** — không comply = không deploy.
+Tài liệu tổng hợp bốn nhóm yêu cầu của Ngân hàng Nhà nước (NHNN/SBV) ảnh hưởng đến thiết kế AI-CRDS, cùng khung pháp lý về AI của Luật Trí tuệ nhân tạo 134/2025/QH15. Đây là các yêu cầu bắt buộc: không tuân thủ thì không thể triển khai.
 
-**⚠️ Lưu ý:** Từ 01/03/2026, **Luật Trí tuệ nhân tạo 134/2025/QH15** đã có hiệu lực — đây là Luật AI đầu tiên của VN. Nhiều yêu cầu trước đây chỉ là "SBV practice" nay trở thành **bắt buộc theo Luật** (human oversight, bias monitoring, trách nhiệm giải trình). Xem Section 5 cho chi tiết.
+Từ 01/03/2026, Luật AI 134/2025 có hiệu lực. Nhiều yêu cầu trước đây là thông lệ của NHNN (giám sát của con người, giám sát thiên lệch, trách nhiệm giải trình) nay là yêu cầu của luật (xem mục 5).
 
-VN chưa có 1 văn bản riêng biệt "SBV quy định về AI trong tài chính" nhưng NHNN sẽ ban hành TT riêng theo yêu cầu Luật AI. Các yêu cầu dưới đây được tổng hợp từ nhiều văn bản (Luật AI 134/2025, Luật TCTD 2024, TT 13/2018, NĐ 94/2025, Luật BVDLCN 2025 + NĐ 356/2025). Xem `regulatory-mapping.md` v1.1 cho chi tiết từng văn bản.
+Việt Nam chưa có văn bản riêng của NHNN quy định về AI trong tài chính; NHNN sẽ ban hành thông tư riêng theo yêu cầu của Luật AI. Các yêu cầu dưới đây được tổng hợp từ Luật AI 134/2025, Luật TCTD 2024, TT 13/2018, NĐ 94/2025, Luật BVDLCN 2025 và NĐ 356/2025. Chi tiết từng văn bản xem w02-01-regulatory-mapping.
 
 ---
 
-## 1. Human-in-the-Loop — AI KHÔNG được là Final Decision Maker
+## 1. Human-in-the-Loop: AI Không Phải Bên Ra Quyết Định Cuối Cùng
 
 ### 1.1 Cơ sở pháp lý
 
 | Văn bản | Yêu cầu liên quan |
 |---------|-------------------|
-| Luật TCTD 32/2024/QH15 | Điều 102-103: TCTD phải có quy trình thẩm định, đánh giá rủi ro trước khi cấp tín dụng. Quyết định cấp tín dụng là của TCTD (con người đại diện tổ chức), không phải hệ thống tự động. |
-| TT 13/2018/TT-NHNN | Mô hình 3 tuyến phòng thủ: tuyến 1 vận hành (bao gồm quyết định tín dụng bởi Credit Officer), tuyến 2 giám sát, tuyến 3 kiểm toán. AI system nằm ở tuyến 1 nhưng không thay thế con người. |
-| NĐ 356/2025 Điều 9 | Chủ thể dữ liệu có quyền phản đối xử lý tự động + yêu cầu human review cho quyết định ảnh hưởng đáng kể. Credit decision = ảnh hưởng đáng kể. |
-| Thực tiễn SBV | SBV chưa ban hành văn bản cho phép AI thay thế con người trong quyết định tín dụng. Cho đến khi có quy định rõ ràng, human-in-the-loop là default requirement. |
+| Luật TCTD 32/2024/QH15 | Điều 102, 103: TCTD có quy trình thẩm định, đánh giá rủi ro trước khi cấp tín dụng. Quyết định cấp tín dụng là của TCTD (con người đại diện tổ chức), không phải của hệ thống tự động. |
+| TT 13/2018/TT-NHNN | Mô hình 3 tuyến phòng thủ: tuyến 1 vận hành (gồm quyết định tín dụng của cán bộ tín dụng), tuyến 2 giám sát, tuyến 3 kiểm toán. Hệ thống AI thuộc tuyến 1 và không thay thế con người. |
+| NĐ 356/2025 Điều 9 | Chủ thể dữ liệu có quyền phản đối xử lý tự động và yêu cầu con người xem xét với quyết định ảnh hưởng đáng kể. Quyết định tín dụng là quyết định ảnh hưởng đáng kể. |
+| Luật AI 134/2025 Điều 4 | AI phục vụ con người, không thay thế thẩm quyền và trách nhiệm của con người. |
+| Thực tiễn NHNN | NHNN chưa ban hành văn bản cho phép AI thay thế con người trong quyết định tín dụng. Human-in-the-loop là yêu cầu mặc định. |
 
-### 1.2 Nguyên tắc thiết kế AI-CRDS
+### 1.2 Nguyên tắc thiết kế
 
-**Nguyên tắc bất biến — ghi vào mọi document:**
+> AI-CRDS là hệ thống hỗ trợ quyết định. AI đưa ra khuyến nghị (phê duyệt, từ chối, leo thang) kèm giải thích. Cán bộ tín dụng là người ký quyết định cuối cùng. AI không tự phê duyệt hoặc tự từ chối khi không có sự giám sát của con người.
 
-> AI-CRDS là **decision support system**. AI đưa ra recommendation (approve / reject / escalate) kèm explanation. Credit Officer là người ký quyết định cuối cùng. AI KHÔNG BAO GIỜ tự approve hoặc tự reject mà không có human oversight.
+Nguyên tắc này được áp dụng trong mọi tài liệu và thiết kế của dự án.
 
-### 1.3 Decision flow — Human-in-the-Loop
+### 1.3 Luồng quyết định
 
 ```
 Hồ sơ vào
@@ -38,277 +39,242 @@ Hồ sơ vào
     ▼
 AI-CRDS scoring + fraud detection
     │
-    ├─── High confidence APPROVE (score > threshold_high)
+    ├─── Độ tin cậy cao, khuyến nghị PHÊ DUYỆT (score > threshold_high)
     │    │
     │    ▼
-    │    Auto-route to Credit Officer queue
-    │    với tag "AI recommends: APPROVE"
+    │    Chuyển vào hàng đợi của Cán bộ tín dụng
+    │    với nhãn "AI khuyến nghị: PHÊ DUYỆT"
     │    │
     │    ▼
-    │    Credit Officer review (có thể batch review)
-    │    ├── Đồng ý → Approve (CO ký) → Audit log
-    │    └── Không đồng ý → Override → Log lý do → Escalate nếu cần
+    │    Cán bộ tín dụng xem xét (có thể xem xét theo lô)
+    │    ├── Đồng ý → Phê duyệt (CBTD ký) → Audit log
+    │    └── Không đồng ý → Override → Ghi lý do → Leo thang nếu cần
     │
-    ├─── Medium confidence (threshold_low < score < threshold_high)
+    ├─── Độ tin cậy trung bình (threshold_low < score < threshold_high)
     │    │
     │    ▼
-    │    Route to Credit Officer queue
-    │    với tag "AI recommends: REVIEW NEEDED"
-    │    + Top 3 risk factors
-    │    + Similar cases reference
+    │    Chuyển vào hàng đợi của Cán bộ tín dụng
+    │    với nhãn "AI khuyến nghị: CẦN XEM XÉT"
+    │    + 3 yếu tố rủi ro chính
+    │    + Tham chiếu hồ sơ tương tự
     │    │
     │    ▼
-    │    Credit Officer full review
-    │    ├── Approve (CO ký) → Audit log
-    │    ├── Reject (CO ký) → Adverse action notice → Audit log
-    │    └── Escalate to Senior/Committee
+    │    Cán bộ tín dụng xem xét đầy đủ
+    │    ├── Phê duyệt (CBTD ký) → Audit log
+    │    ├── Từ chối (CBTD ký) → Thông báo từ chối → Audit log
+    │    └── Leo thang lên cấp cao hoặc Hội đồng
     │
-    ├─── High confidence REJECT (score < threshold_low)
+    ├─── Độ tin cậy cao, khuyến nghị TỪ CHỐI (score < threshold_low)
     │    │
     │    ▼
-    │    Auto-route to Credit Officer queue
-    │    với tag "AI recommends: REJECT"
-    │    + Top 3 rejection reasons
+    │    Chuyển vào hàng đợi của Cán bộ tín dụng
+    │    với nhãn "AI khuyến nghị: TỪ CHỐI"
+    │    + 3 lý do từ chối chính
     │    │
     │    ▼
-    │    Credit Officer review
-    │    ├── Đồng ý reject → Adverse action notice → Audit log
-    │    └── Override → Approve (CO ký) → Log lý do → Supervisor review
+    │    Cán bộ tín dụng xem xét
+    │    ├── Đồng ý từ chối → Thông báo từ chối → Audit log
+    │    └── Override → Phê duyệt (CBTD ký) → Ghi lý do → Giám sát viên rà soát
     │
-    └─── Low confidence / Anomaly / Need-more-info
+    └─── Độ tin cậy thấp / Bất thường / Cần thêm thông tin
          │
          ▼
-         Route to Senior Credit Officer
-         với tag "AI: CANNOT DETERMINE"
-         + Explanation tại sao uncertain
+         Chuyển cho Cán bộ tín dụng cấp cao
+         với nhãn "AI: KHÔNG THỂ XÁC ĐỊNH"
+         + Giải thích lý do không chắc chắn
          │
          ▼
-         Senior review / Committee / Request thêm documents
+         Cấp cao xem xét / Hội đồng / Yêu cầu bổ sung hồ sơ
 ```
 
-### 1.4 Governance rules
+### 1.4 Quy tắc quản trị
 
-| Rule | Mô tả | Owner |
-|------|-------|-------|
-| **R1** | Mọi credit decision phải có chữ ký (digital) của Credit Officer hoặc cấp trên. AI recommendation ≠ decision. | Risk Manager |
-| **R2** | "Auto-approve" thực chất là "AI recommends approve + CO batch-confirms." CO vẫn ký, chỉ là quy trình nhanh hơn. Batch review tối đa X hồ sơ/lần — Risk Committee quyết định X. | Risk Committee |
-| **R3** | Override AI phải log lý do. Override approve khi AI reject → cần Supervisor confirmation. | Credit Officer + Supervisor |
-| **R4** | AI confidence < threshold_low HOẶC data thiếu → AI KHÔNG ĐƯA RA recommendation. Route thẳng đến human. AI không ép quyết định khi không đủ data. | Product (design) |
-| **R5** | Khách hàng có quyền opt-out khỏi AI scoring → hồ sơ xử lý 100% manual. Quyền này theo NĐ 356 Điều 9. | Compliance |
-| **R6** | Threshold (auto-approve / review / auto-reject) do Risk Committee approve. PM không tự quyết. Review ít nhất mỗi quý hoặc khi model thay đổi. | Risk Committee |
+| Quy tắc | Mô tả | Phụ trách |
+|---------|-------|----------|
+| R1 | Mọi quyết định tín dụng có chữ ký số của cán bộ tín dụng hoặc cấp trên. Khuyến nghị của AI không phải là quyết định. | Giám đốc Quản lý rủi ro |
+| R2 | "Tự động phê duyệt" thực chất là "AI khuyến nghị phê duyệt và cán bộ tín dụng xác nhận theo lô". Cán bộ tín dụng vẫn ký, quy trình nhanh hơn. Số hồ sơ tối đa mỗi lô do Hội đồng rủi ro quyết định. | Hội đồng rủi ro |
+| R3 | Override AI phải ghi lý do. Override phê duyệt khi AI khuyến nghị từ chối cần giám sát viên xác nhận. | Cán bộ tín dụng, giám sát viên |
+| R4 | Độ tin cậy dưới threshold_low hoặc thiếu dữ liệu thì AI không đưa ra khuyến nghị và chuyển thẳng cho con người. AI không ép quyết định khi không đủ dữ liệu. | Product (thiết kế) |
+| R5 | Khách hàng có quyền từ chối chấm điểm bằng AI, hồ sơ xử lý 100% thủ công theo NĐ 356 Điều 9. | Compliance |
+| R6 | Ngưỡng (tự động phê duyệt, xem xét, tự động từ chối) do Hội đồng rủi ro phê duyệt, rà soát ít nhất mỗi quý hoặc khi mô hình thay đổi. | Hội đồng rủi ro |
 
-### 1.5 Điều CẤM
+### 1.5 Các điều bị cấm
 
-| # | Cấm | Lý do |
-|---|-----|-------|
-| 1 | AI tự approve mà không có CO ký | Vi phạm Luật TCTD — quyết định tín dụng phải của TCTD (con người) |
-| 2 | AI tự reject mà không có CO review | Vi phạm NĐ 356 — chủ thể có quyền human review |
-| 3 | AI tự thay đổi threshold mà không có Risk Committee approve | Vi phạm TT 13 — quản lý rủi ro phải có giám sát cấp cao |
-| 4 | Ép AI quyết định khi data thiếu (no "need-more-info" state) | Thiết kế sai — AI phải có abstain option |
-| 5 | Gỡ bỏ override option cho CO | Vi phạm human-in-the-loop principle |
-
-### 1.6 Status tại Bank X
-
-❓ **Chưa validate** — Pending meeting với Compliance Officer.
-
-Cần confirm:
-- [ ] Bank X hiện tại có AI/ML nào trong quy trình tín dụng chưa?
-- [ ] Nếu có, human-in-the-loop được implement thế nào?
-- [ ] Risk Committee có quy trình approve threshold/policy cho automated system chưa?
-- [ ] Override governance có documented chưa?
+| # | Điều cấm | Lý do |
+|---|---------|-------|
+| 1 | AI tự phê duyệt khi không có cán bộ tín dụng ký | Trái Luật TCTD: quyết định tín dụng thuộc về TCTD |
+| 2 | AI tự từ chối khi không có cán bộ tín dụng xem xét | Trái NĐ 356: chủ thể có quyền yêu cầu con người xem xét |
+| 3 | AI tự thay đổi ngưỡng khi không có Hội đồng rủi ro phê duyệt | Trái TT 13: quản lý rủi ro phải có giám sát cấp cao |
+| 4 | Ép AI quyết định khi thiếu dữ liệu (không có trạng thái "cần thêm thông tin") | Thiết kế sai: AI phải có quyền từ chối đưa khuyến nghị |
+| 5 | Gỡ bỏ tùy chọn override của cán bộ tín dụng | Trái nguyên tắc human-in-the-loop |
 
 ---
 
-## 2. Model Validation — Independent Review Trước Khi Deploy
+## 2. Thẩm Định Mô Hình Độc Lập Trước Khi Triển Khai
 
 ### 2.1 Cơ sở pháp lý
 
 | Văn bản | Yêu cầu liên quan |
 |---------|-------------------|
-| TT 13/2018 | Mô hình 3 tuyến: tuyến 2 (Risk/Model Validation) phải giám sát và validate mô hình trước khi đưa vào sử dụng. Dự thảo TT thay thế có thể thêm yêu cầu "quản lý rủi ro mô hình" (Model Risk Management). |
-| TT 41/2016 (Basel II) | Trụ cột II (ICAAP) yêu cầu đánh giá nội bộ mức đủ vốn — mô hình tín dụng phải được validate. |
-| Thực tiễn SBV | SBV thanh tra/kiểm tra → có thể yêu cầu xem tài liệu model validation. Không có model documentation = SBV finding. |
-| NĐ 94/2025 (Sandbox) | Hồ sơ tham gia sandbox yêu cầu "kế hoạch thử nghiệm, quản lý rủi ro" — bao gồm model validation plan. |
+| TT 13/2018 | Mô hình 3 tuyến: tuyến 2 (Quản lý rủi ro, thẩm định mô hình) giám sát và thẩm định mô hình trước khi đưa vào sử dụng. Thông tư thay thế có thể bổ sung yêu cầu quản lý rủi ro mô hình (MRM). |
+| TT 41/2016 (Basel II) | Trụ cột II (ICAAP) yêu cầu đánh giá nội bộ mức đủ vốn; mô hình tín dụng phải được thẩm định. |
+| Thực tiễn NHNN | Khi thanh tra, kiểm tra, NHNN có thể yêu cầu xem tài liệu thẩm định mô hình. Thiếu tài liệu mô hình là một phát hiện kiểm tra. |
+| NĐ 94/2025 (Sandbox) | Hồ sơ sandbox yêu cầu kế hoạch thử nghiệm và quản lý rủi ro, bao gồm kế hoạch thẩm định mô hình. |
 
-### 2.2 Model Validation Requirements
+### 2.2 Yêu cầu thẩm định mô hình
 
-AI-CRDS phải cung cấp đủ tài liệu để bank partner's Risk/Model Validation team review **trước khi deploy production:**
+AI-CRDS cung cấp đủ tài liệu để bộ phận Quản lý rủi ro và Thẩm định mô hình của Bank X xem xét trước khi đưa vào vận hành.
 
-#### A. Model Card — Tài liệu mô hình
+#### A. Model Card
 
-| Section | Nội dung | Status AI-CRDS |
-|---------|---------|---------------|
-| **Purpose** | AI-CRDS hỗ trợ quyết định cấp thẻ tín dụng retail salaried. Scoring + fraud detection. | ❌ Chưa soạn |
-| **Intended use** | Decision support only. Input: application data + CIC + eKYC. Output: risk score + fraud flag + explanation + recommendation. | ❌ Chưa soạn |
-| **Training data** | Mô tả data dùng train model: nguồn, size, time range, segment coverage, known biases. Nếu synthetic → ghi rõ. | ❌ Chưa soạn |
-| **Feature list** | Danh sách features + importance ranking. Ghi rõ features KHÔNG dùng (gender, ethnicity). | ❌ Chưa soạn |
-| **Architecture** | Loại model (logistic regression? gradient boosting? ensemble?). Complexity level. | ❌ Chưa soạn |
-| **Performance metrics** | AUC, Gini, KS, precision, recall — per segment. Trên test data + validation data. | ❌ Chưa soạn |
-| **Calibration** | Score vs actual default rate. Calibration curve. | ❌ Chưa soạn |
-| **Known limitations** | Segments có performance kém. Data gaps. Conditions model không handle tốt. | ❌ Chưa soạn |
-| **Threshold settings** | Auto-approve / review / reject thresholds. Approval rate curve. NPL impact per threshold. | ❌ Chưa soạn |
-| **Bias assessment** | Fairness metrics per protected attribute (gender, geography). Disparate impact analysis. | ❌ Chưa soạn |
-| **Update history** | Version log, changes per version, validation results per version. | ❌ Chưa soạn |
+| Mục | Nội dung |
+|-----|---------|
+| Mục đích | Hỗ trợ quyết định cấp thẻ tín dụng cho khách hàng cá nhân hưởng lương: chấm điểm và phát hiện gian lận |
+| Phạm vi sử dụng | Chỉ hỗ trợ quyết định. Đầu vào: dữ liệu hồ sơ, CIC, eKYC. Đầu ra: điểm rủi ro, cờ gian lận, giải thích, khuyến nghị |
+| Dữ liệu huấn luyện | Nguồn, quy mô, khoảng thời gian, độ phủ phân khúc, thiên lệch đã biết; ghi rõ nếu là dữ liệu tổng hợp |
+| Danh sách đặc trưng | Các đặc trưng và thứ hạng quan trọng; ghi rõ các đặc trưng không dùng (giới tính, dân tộc) |
+| Kiến trúc | Loại mô hình (hồi quy logistic, gradient boosting, ensemble) và mức độ phức tạp |
+| Chỉ số hiệu năng | AUC, Gini, KS, precision, recall theo phân khúc, trên dữ liệu kiểm thử và dữ liệu thẩm định |
+| Hiệu chuẩn | Điểm so với tỷ lệ vỡ nợ thực tế; đường hiệu chuẩn |
+| Giới hạn đã biết | Phân khúc hiệu năng kém, khoảng trống dữ liệu, điều kiện mô hình xử lý chưa tốt |
+| Thiết lập ngưỡng | Ngưỡng tự động phê duyệt, xem xét, từ chối; đường tỷ lệ phê duyệt; tác động NPL theo ngưỡng |
+| Đánh giá thiên lệch | Chỉ số công bằng theo thuộc tính nhạy cảm (giới tính, địa bàn); phân tích tác động không cân xứng |
+| Lịch sử cập nhật | Nhật ký phiên bản, thay đổi theo phiên bản, kết quả thẩm định theo phiên bản |
 
-**→ Target: Model Card v1 tại Week 23 (Governance Layer). Draft structure tại Week 12 (MVP Build).**
+#### B. Quy trình thẩm định
 
-#### B. Validation Process
+| Bước | Bên thực hiện | Nội dung | Thời điểm |
+|------|--------------|---------|-----------|
+| 1. Lập tài liệu mô hình | Nhà cung cấp AI-CRDS (Product và nhóm Data Science) | Chuẩn bị Model Card và toàn bộ nội dung trên | Trước thí điểm |
+| 2. Thẩm định độc lập | Bộ phận Quản lý rủi ro/Thẩm định mô hình của Bank X | Xem xét Model Card, kiểm thử trên dữ liệu của Bank X, phản biện giả định, kiểm tra thiên lệch | Trước khi triển khai production |
+| 3. Báo cáo thẩm định | Bộ phận Quản lý rủi ro/Thẩm định mô hình của Bank X | Kết luận: chấp thuận, chấp thuận có điều kiện, hoặc không chấp thuận. Điều kiện phải xử lý trước khi triển khai | Trước phê duyệt của Hội đồng rủi ro |
+| 4. Phê duyệt của Hội đồng rủi ro | Hội đồng rủi ro Bank X | Ký duyệt cuối cùng dựa trên báo cáo thẩm định | Trước khi triển khai |
+| 5. Giám sát liên tục | Phối hợp (nhà cung cấp và Quản lý rủi ro Bank X) | Giám sát hiệu năng, phát hiện lệch dữ liệu, thẩm định lại định kỳ (hằng năm hoặc khi cập nhật mô hình) | Sau khi triển khai |
 
-| Step | Ai thực hiện | Nội dung | Timeline |
-|------|------------|---------|---------|
-| 1. Model documentation | AI-CRDS vendor (Product + DS team) | Chuẩn bị Model Card + tất cả sections trên | Trước pilot |
-| 2. Independent validation | Bank partner's Risk/Model Validation team | Review model card, test trên bank's data, challenge assumptions, check bias | Trước production deploy (Week 27 trong roadmap) |
-| 3. Validation report | Bank partner's Risk/Model Validation team | Kết luận: Approve / Approve with conditions / Reject. Conditions phải address trước deploy. | Week 27 |
-| 4. Risk Committee approval | Bank partner's Risk Committee | Final sign-off dựa trên validation report | Week 31 |
-| 5. Ongoing monitoring | Joint (vendor + bank Risk) | Performance monitoring, drift detection, periodic re-validation (annual hoặc khi model update) | Post-deploy |
+#### C. Tài liệu Bank X nhận từ nhà cung cấp AI-CRDS
 
-#### C. Documentation bank cần từ AI-CRDS vendor
-
-| # | Tài liệu | Mục đích | Ai prepare |
-|---|---------|---------|-----------|
-| 1 | Model Card (full) | Validation review | AI-CRDS vendor |
-| 2 | Feature dictionary | Hiểu mọi feature + source + logic | AI-CRDS vendor |
-| 3 | Training data description | Assess data quality + representativeness | AI-CRDS vendor |
-| 4 | Performance report (per segment) | Assess model accuracy | AI-CRDS vendor |
-| 5 | Bias assessment report | Assess fairness | AI-CRDS vendor |
-| 6 | Threshold sensitivity analysis | Assess impact of threshold changes | AI-CRDS vendor |
-| 7 | Monitoring plan | Ongoing drift detection + alert thresholds | AI-CRDS vendor + bank Risk |
-| 8 | Incident response plan | What happens when model fails | Joint |
-
-### 2.3 Status tại Bank X
-
-❓ **Chưa validate** — Pending meeting với Compliance Officer + Risk Manager.
-
-Cần confirm:
-- [ ] Bank X có Model Validation team riêng không? Hay nằm trong Risk department?
-- [ ] Bank X có quy trình validate model hiện tại (scorecard) không? Format documentation nào?
-- [ ] Bank X có MRM (Model Risk Management) framework chưa?
-- [ ] Risk Committee meeting cadence? Bao lâu để get approval?
+| # | Tài liệu | Mục đích | Bên chuẩn bị |
+|---|---------|---------|-------------|
+| 1 | Model Card đầy đủ | Thẩm định | Nhà cung cấp AI-CRDS |
+| 2 | Từ điển đặc trưng | Hiểu mọi đặc trưng, nguồn và logic | Nhà cung cấp AI-CRDS |
+| 3 | Mô tả dữ liệu huấn luyện | Đánh giá chất lượng và tính đại diện | Nhà cung cấp AI-CRDS |
+| 4 | Báo cáo hiệu năng theo phân khúc | Đánh giá độ chính xác | Nhà cung cấp AI-CRDS |
+| 5 | Báo cáo đánh giá thiên lệch | Đánh giá tính công bằng | Nhà cung cấp AI-CRDS |
+| 6 | Phân tích độ nhạy của ngưỡng | Đánh giá tác động khi thay đổi ngưỡng | Nhà cung cấp AI-CRDS |
+| 7 | Kế hoạch giám sát | Phát hiện lệch dữ liệu và ngưỡng cảnh báo | Nhà cung cấp AI-CRDS và Quản lý rủi ro Bank X |
+| 8 | Kế hoạch ứng phó sự cố | Xử lý khi mô hình lỗi | Phối hợp |
 
 ---
 
-## 3. Audit & Reporting — Mọi Decision Phải Traceable
+## 3. Audit và Báo Cáo: Mọi Quyết Định Phải Truy Vết Được
 
 ### 3.1 Cơ sở pháp lý
 
 | Văn bản | Yêu cầu liên quan |
 |---------|-------------------|
-| TT 13/2018 Điều 5 | Hệ thống KSNB phải đảm bảo "thông tin tài chính và thông tin quản lý trung thực, hợp lý, đầy đủ và kịp thời." Mọi quyết định tín dụng phải traceable. |
-| Luật TCTD 2024 | TCTD chịu thanh tra, giám sát của NHNN. Phải cung cấp hồ sơ, tài liệu khi SBV yêu cầu. |
-| Luật BVDLCN 2025 + NĐ 356 | Audit trail cho xử lý DLCN. Replay capability cho quyết định tự động. |
+| TT 13/2018 Điều 5 | Hệ thống KSNB bảo đảm thông tin tài chính và quản lý trung thực, hợp lý, đầy đủ và kịp thời. Mọi quyết định tín dụng truy vết được. |
+| Luật TCTD 2024 | TCTD chịu thanh tra, giám sát của NHNN; cung cấp hồ sơ, tài liệu khi NHNN yêu cầu. |
+| Luật BVDLCN 2025 và NĐ 356 | Audit trail cho xử lý DLCN; khả năng tái hiện quyết định tự động. |
 | TT 45/2025 | Báo cáo gian lận qua hệ thống SIMO. |
 
-### 3.2 Audit Trail Schema — Minimum 20 fields
+### 3.2 Lược đồ audit trail (tối thiểu 20 trường)
 
-Mọi credit decision qua AI-CRDS phải log đầy đủ các fields sau:
+Mọi quyết định tín dụng qua AI-CRDS ghi đầy đủ các trường sau:
 
-| # | Field | Mô tả | Ví dụ | Mục đích |
+| # | Trường | Mô tả | Ví dụ | Mục đích |
 |---|-------|-------|-------|---------|
-| 1 | `decision_id` | Unique ID cho mỗi quyết định | `DEC-2026-0001` | Truy xuất |
-| 2 | `application_id` | ID hồ sơ | `APP-2026-0001` | Link to application |
-| 3 | `applicant_id_hash` | Hash CCCD (không lưu plaintext) | `sha256:abc...` | Privacy + truy xuất |
-| 4 | `timestamp` | Thời điểm AI scoring | `2026-03-25T10:30:00+07:00` | Timeline |
-| 5 | `model_version` | Version model đang chạy | `v1.2.3` | Replay capability |
-| 6 | `threshold_version` | Version threshold đang áp dụng | `TH-2026-Q1` | Replay capability |
-| 7 | `input_features` | Snapshot tất cả features đưa vào model | `{age: 30, income: 25M, cic_score: 680, ...}` | Replay + explain |
-| 8 | `cic_data_snapshot` | CIC data tại thời điểm query | `{cic_score: 680, existing_debt: 50M, ...}` | Replay |
-| 9 | `ekyc_result` | Kết quả eKYC (pass/fail/confidence) | `{status: "pass", confidence: 0.98}` | Fraud audit |
-| 10 | `ai_risk_score` | Risk score AI trả về | `0.72` | Audit |
-| 11 | `ai_fraud_flag` | Fraud flag AI trả về | `{flag: false, fraud_score: 0.05}` | Audit |
-| 12 | `ai_confidence` | Confidence level | `0.89` | Audit |
-| 13 | `ai_recommendation` | AI recommend gì | `APPROVE` / `REJECT` / `REVIEW` / `ESCALATE` | Audit |
-| 14 | `ai_explanation` | Top reasons for recommendation | `["CIC score > 650", "DTI < 40%", "Employment > 2y"]` | Explainability + adverse action |
-| 15 | `human_decision` | Credit Officer quyết định gì | `APPROVE` / `REJECT` | Final decision |
-| 16 | `human_user_id` | ID người quyết định | `CO-001` | Accountability |
-| 17 | `override_flag` | CO có override AI không | `true` / `false` | Monitoring |
-| 18 | `override_reason` | Lý do override (bắt buộc nếu override=true) | `"Khách VIP, relationship 5 năm"` | Audit |
-| 19 | `decision_timestamp` | Thời điểm CO quyết định | `2026-03-25T11:15:00+07:00` | SLA tracking |
-| 20 | `adverse_action_sent` | Đã gửi adverse action notice chưa (nếu reject) | `true` / `false` + `timestamp` | Compliance |
-| 21 | `escalation_flag` | Có escalate không | `true` / `false` | Workflow |
-| 22 | `escalation_to` | Escalate cho ai | `SENIOR-001` / `COMMITTEE` | Workflow |
-| 23 | `tenant_id` | Bank partner ID (multi-tenant SaaS) | `BANK-TPB` | SaaS isolation |
-| 24 | `data_consent_id` | ID consent record của khách | `CONSENT-2026-0001` | PDPD compliance |
+| 1 | `decision_id` | Mã duy nhất cho mỗi quyết định | `DEC-2026-0001` | Truy xuất |
+| 2 | `application_id` | Mã hồ sơ | `APP-2026-0001` | Liên kết hồ sơ |
+| 3 | `applicant_id_hash` | Mã băm CCCD (không lưu bản rõ) | `sha256:abc...` | Quyền riêng tư và truy xuất |
+| 4 | `timestamp` | Thời điểm AI chấm điểm | `2026-03-25T10:30:00+07:00` | Dòng thời gian |
+| 5 | `model_version` | Phiên bản mô hình đang chạy | `v1.2.3` | Tái hiện quyết định |
+| 6 | `threshold_version` | Phiên bản ngưỡng đang áp dụng | `TH-2026-Q1` | Tái hiện quyết định |
+| 7 | `input_features` | Snapshot đặc trưng đầu vào của mô hình | `{age: 30, income: 25M, cic_score: 680, ...}` | Tái hiện và giải thích |
+| 8 | `cic_data_snapshot` | Dữ liệu CIC tại thời điểm truy vấn | `{cic_score: 680, existing_debt: 50M, ...}` | Tái hiện |
+| 9 | `ekyc_result` | Kết quả eKYC (đạt/không đạt/độ tin cậy) | `{status: "pass", confidence: 0.98}` | Kiểm toán gian lận |
+| 10 | `ai_risk_score` | Điểm rủi ro AI trả về | `0.72` | Kiểm toán |
+| 11 | `ai_fraud_flag` | Cờ gian lận AI trả về | `{flag: false, fraud_score: 0.05}` | Kiểm toán |
+| 12 | `ai_confidence` | Mức độ tin cậy | `0.89` | Kiểm toán |
+| 13 | `ai_recommendation` | Khuyến nghị của AI | `APPROVE` / `REJECT` / `REVIEW` / `ESCALATE` | Kiểm toán |
+| 14 | `ai_explanation` | Các lý do chính của khuyến nghị | `["CIC score > 650", "DTI < 40%", "Employment > 2y"]` | Giải thích và thông báo từ chối |
+| 15 | `human_decision` | Quyết định của cán bộ tín dụng | `APPROVE` / `REJECT` | Quyết định cuối cùng |
+| 16 | `human_user_id` | Mã người quyết định | `CO-001` | Trách nhiệm |
+| 17 | `override_flag` | Cán bộ tín dụng có override AI không | `true` / `false` | Giám sát |
+| 18 | `override_reason` | Lý do override (bắt buộc nếu override=true) | `"Khách VIP, quan hệ 5 năm"` | Kiểm toán |
+| 19 | `decision_timestamp` | Thời điểm cán bộ tín dụng quyết định | `2026-03-25T11:15:00+07:00` | Theo dõi SLA |
+| 20 | `adverse_action_sent` | Đã gửi thông báo từ chối chưa (nếu từ chối) | `true` / `false` kèm `timestamp` | Tuân thủ |
+| 21 | `escalation_flag` | Có leo thang không | `true` / `false` | Quy trình |
+| 22 | `escalation_to` | Leo thang cho ai | `SENIOR-001` / `COMMITTEE` | Quy trình |
+| 23 | `tenant_id` | Mã đơn vị (kiến trúc đa tenant) | `BANK-X` | Cô lập dữ liệu |
+| 24 | `data_consent_id` | Mã bản ghi đồng ý của khách | `CONSENT-2026-0001` | Tuân thủ PDPD |
 
-### 3.3 Audit requirements
+### 3.3 Yêu cầu đối với audit
 
-| Requirement | Mô tả | Implementation |
-|------------|-------|---------------|
-| **Immutability** | Audit log không được sửa/xóa sau khi ghi | Append-only storage. Hash chain hoặc write-once DB. |
-| **Replay capability** | Given decision_id → có thể tái hiện chính xác quyết định: same input + same model version + same threshold → same output | Lưu input_features snapshot + model version + threshold version. Test replay monthly. |
-| **SBV on-demand export** | SBV có thể yêu cầu xem bất kỳ quyết định nào, bất kỳ lúc nào | Export API: filter by date range, applicant, decision type. Format: CSV hoặc structured report. Target: <15 phút để xuất. |
-| **Retention** | Bao lâu giữ audit log | ❓ Chưa có quy định rõ cho AI audit specifically. SBV thường yêu cầu giữ hồ sơ tín dụng 5-10 năm. Cần confirm với Compliance. |
-| **Tamper detection** | Phát hiện nếu audit log bị sửa | Hash chain, checksums, hoặc blockchain-inspired integrity check. |
-| **Access control** | Ai được xem audit log | Tiered: CO xem case mình xử lý, Risk xem all, Internal Audit xem all, SBV xem all khi yêu cầu. |
+| Yêu cầu | Mô tả | Triển khai |
+|---------|-------|-----------|
+| Bất biến | Audit log không được sửa hoặc xóa sau khi ghi | Lưu trữ chỉ ghi thêm (append-only); chuỗi băm hoặc cơ sở dữ liệu ghi một lần |
+| Tái hiện quyết định | Từ `decision_id` tái hiện chính xác quyết định: cùng đầu vào, cùng phiên bản mô hình, cùng ngưỡng cho cùng kết quả | Lưu snapshot `input_features`, phiên bản mô hình và ngưỡng; kiểm thử tái hiện hằng tháng |
+| Xuất dữ liệu theo yêu cầu của NHNN | NHNN có thể yêu cầu xem bất kỳ quyết định nào, bất kỳ lúc nào | API xuất dữ liệu: lọc theo khoảng thời gian, khách hàng, loại quyết định; định dạng CSV hoặc báo cáo có cấu trúc; thời gian xuất dưới 15 phút |
+| Thời hạn lưu | Thời gian giữ audit log | Theo hồ sơ tín dụng: 5 đến 10 năm (xem w02-03-pdpd-impact-bank-x mục 4.4) |
+| Phát hiện can thiệp | Phát hiện audit log bị sửa | Chuỗi băm, checksum hoặc kiểm tra toàn vẹn theo cơ chế tương tự blockchain |
+| Kiểm soát truy cập | Ai được xem audit log | Phân tầng: cán bộ tín dụng xem hồ sơ mình xử lý; Quản lý rủi ro và Kiểm toán nội bộ xem tất cả; NHNN xem tất cả khi yêu cầu |
 
-### 3.4 SBV Inspection Scenario — Chuẩn bị sẵn
+### 3.4 Kịch bản thanh tra của NHNN
 
-Giả lập: SBV inspector đến bank, hỏi:
+Đoàn thanh tra NHNN hỏi:
 
-> "Cho tôi xem quyết định cấp thẻ tín dụng cho khách hàng CCCD xxx trong tháng 2/2026. Ai quyết định? Dựa trên data gì? AI recommend gì? Nếu AI recommend khác human decision — tại sao?"
+> "Cho tôi xem quyết định cấp thẻ tín dụng cho khách hàng CCCD xxx trong tháng 2/2026. Ai quyết định? Dựa trên dữ liệu gì? AI khuyến nghị gì? Nếu AI khuyến nghị khác quyết định của con người thì vì sao?"
 
-**AI-CRDS phải trả lời được trong <15 phút:**
+AI-CRDS trả lời trong vòng 15 phút:
 
 | Bước | Hành động | Thời gian |
 |------|----------|----------|
-| 1 | Tìm decision record by applicant hash + date range | <1 phút |
-| 2 | Xuất full audit record (24 fields) | <1 phút |
-| 3 | Show AI recommendation + explanation + human decision | Có sẵn trong record |
-| 4 | Nếu override → show override reason | Có sẵn trong record |
-| 5 | Replay: chạy lại model version đó + threshold version đó + input đó → confirm same output | <5 phút |
-| 6 | Export report format cho SBV | <5 phút |
+| 1 | Tìm bản ghi quyết định theo mã băm khách hàng và khoảng thời gian | Dưới 1 phút |
+| 2 | Xuất bản ghi audit đầy đủ (24 trường) | Dưới 1 phút |
+| 3 | Trình bày khuyến nghị của AI, giải thích và quyết định của con người | Có sẵn trong bản ghi |
+| 4 | Nếu có override, trình bày lý do override | Có sẵn trong bản ghi |
+| 5 | Tái hiện: chạy lại đúng phiên bản mô hình, phiên bản ngưỡng và đầu vào, xác nhận cùng kết quả | Dưới 5 phút |
+| 6 | Xuất báo cáo theo định dạng cho NHNN | Dưới 5 phút |
 
-**→ Target: Audit trail design tại Week 35. Prototype tại Week 12 (MVP).**
+### 3.5 Nghĩa vụ báo cáo
 
-### 3.5 Reporting obligations
-
-| Report | Cho ai | Frequency | Nội dung | Trigger |
-|--------|-------|-----------|---------|--------|
-| Credit decision audit | SBV | On-demand | Full audit trail per decision | SBV request |
-| Fraud report SIMO | SBV via SIMO | Định kỳ (TT 45/2025) | Fraud cases detected + actions taken | Per TT 45 schedule |
-| Model performance report | Bank Risk Committee | Quarterly | AUC, approval rate, NPL by vintage, override rate, drift metrics | Scheduled |
-| Incident report | SBV + Bank management | Within 24h of incident | Major model failure, data breach, systematic error | Incident trigger |
-| DPIA update | A05 (Bộ Công an) | When processing changes | Updated DPIA per NĐ 356 | Processing change |
-
-### 3.6 Status tại Bank X
-
-❓ **Chưa validate** — Pending meeting với Compliance Officer + IT.
-
-Cần confirm:
-- [ ] Bank X hiện có audit trail format nào cho credit decisions?
-- [ ] SBV gần nhất thanh tra Bank X khi nào? Findings liên quan đến audit/documentation?
-- [ ] Bank X có hệ thống SIMO reporting chưa?
-- [ ] Retention policy hiện tại cho hồ sơ tín dụng?
-- [ ] Bank X dùng gì để lưu audit log (database? file? manual)?
+| Báo cáo | Gửi cho | Tần suất | Nội dung | Kích hoạt |
+|---------|--------|----------|---------|----------|
+| Audit quyết định tín dụng | NHNN | Theo yêu cầu | Audit trail đầy đủ của từng quyết định | Yêu cầu của NHNN |
+| Báo cáo gian lận SIMO | NHNN qua SIMO | Định kỳ (TT 45/2025) | Các trường hợp gian lận đã phát hiện và biện pháp xử lý | Theo lịch của TT 45 |
+| Báo cáo hiệu năng mô hình | Hội đồng rủi ro Bank X | Hằng quý | AUC, tỷ lệ phê duyệt, NPL theo vintage, tỷ lệ override, chỉ số lệch dữ liệu | Theo lịch |
+| Báo cáo sự cố | NHNN và Ban điều hành Bank X | Trong 24 giờ kể từ sự cố | Lỗi mô hình nghiêm trọng, vi phạm dữ liệu, lỗi hệ thống | Khi có sự cố |
+| Cập nhật DPIA | A05 (Bộ Công an) | Khi thay đổi xử lý | DPIA cập nhật theo NĐ 356 | Khi thay đổi xử lý |
 
 ---
 
-## 4. Sandbox Compliance — NĐ 94/2025
+## 4. Sandbox: NĐ 94/2025
 
 ### 4.1 Tổng quan NĐ 94/2025
 
 | Mục | Nội dung |
 |-----|---------|
-| **Tên** | NĐ 94/2025/NĐ-CP — Cơ chế thử nghiệm có kiểm soát (Regulatory Sandbox) trong lĩnh vực ngân hàng |
-| **Hiệu lực** | 01/07/2025 (đã có hiệu lực) |
-| **3 lĩnh vực** | (1) Chấm điểm tín dụng (Credit Scoring) — **AI-CRDS core use case**, (2) Open API, (3) P2P Lending |
-| **Thời gian thử nghiệm** | Tối đa 2 năm, có thể gia hạn |
-| **Giám sát** | NHNN |
-| **Sau sandbox** | Kết quả làm cơ sở hoàn thiện framework pháp lý. Thành công → fast-track licensing. |
+| Tên | NĐ 94/2025/NĐ-CP: cơ chế thử nghiệm có kiểm soát (Regulatory Sandbox) trong lĩnh vực ngân hàng |
+| Hiệu lực | 01/07/2025 |
+| 3 lĩnh vực | (1) Chấm điểm tín dụng (use case cốt lõi của AI-CRDS), (2) Open API, (3) Cho vay ngang hàng (P2P) |
+| Thời gian thử nghiệm | Tối đa 2 năm, có thể gia hạn |
+| Giám sát | NHNN |
+| Sau sandbox | Kết quả là cơ sở hoàn thiện khung pháp lý; thử nghiệm thành công được ưu tiên trong cấp phép |
 
-### 4.2 Hai con đường compliance
+### 4.2 Hai lộ trình tuân thủ
 
-AI-CRDS có 2 con đường tùy thuộc bank partner có tham gia sandbox hay không:
+AI-CRDS hỗ trợ hai lộ trình tùy việc Bank X có tham gia sandbox hay không.
 
-#### Con đường A: Bank tham gia Sandbox (NĐ 94)
+#### Lộ trình A: Bank X tham gia sandbox (NĐ 94)
 
 ```
-Bank nộp hồ sơ sandbox cho NHNN
+Bank X nộp hồ sơ sandbox cho NHNN
     │
-    ├── Hồ sơ gồm: kế hoạch thử nghiệm, QLRR, nhân sự, pháp lý
-    │   AI-CRDS vendor hỗ trợ chuẩn bị tài liệu kỹ thuật
+    ├── Hồ sơ gồm: kế hoạch thử nghiệm, quản lý rủi ro, nhân sự, pháp lý
+    │   Nhà cung cấp AI-CRDS hỗ trợ chuẩn bị tài liệu kỹ thuật
     │
     ▼
-NHNN review (có thể kiểm tra on-site)
+NHNN xem xét (có thể kiểm tra tại chỗ)
     │
     ▼
 Cấp Giấy chứng nhận tham gia
@@ -316,290 +282,198 @@ Cấp Giấy chứng nhận tham gia
     ▼
 Bắt đầu thử nghiệm trong 90 ngày
     │
-    ├── Scope giới hạn (1 product line, subset customers)
+    ├── Phạm vi giới hạn (1 dòng sản phẩm, một nhóm khách hàng)
     ├── Báo cáo tiến độ cho NHNN
-    ├── Phải tuân thủ operational boundaries
+    ├── Tuân thủ giới hạn vận hành
     │
     ▼
-Kết thúc sandbox (max 2 năm)
+Kết thúc sandbox (tối đa 2 năm)
     │
-    ├── Thành công → Fast-track licensing / full deploy
-    └── Không thành công → Dừng + lessons learned
+    ├── Thành công → Ưu tiên cấp phép / triển khai đầy đủ
+    └── Không thành công → Dừng và tổng kết bài học
 ```
 
-**Ưu điểm sandbox:**
-- Framework pháp lý rõ ràng — NHNN biết và giám sát
-- Fast-track licensing sau sandbox
-- Ít rủi ro pháp lý hơn con đường B
-- PR value: "ngân hàng đầu tiên tham gia sandbox credit scoring"
+Ưu điểm:
+- Khung pháp lý rõ ràng, NHNN biết và giám sát.
+- Ưu tiên cấp phép sau sandbox.
+- Rủi ro pháp lý thấp hơn lộ trình B.
+- Giá trị truyền thông: ngân hàng tiên phong tham gia sandbox chấm điểm tín dụng.
 
-**Nhược điểm sandbox:**
-- Thời gian nộp hồ sơ + approve có thể 3-6 tháng
-- Scope giới hạn trong sandbox
-- Reporting obligations cho NHNN
-- P2P Lending yêu cầu 100% vốn VN (nhưng credit scoring không có hạn chế này cho TCTD)
+Hạn chế:
+- Thời gian nộp hồ sơ và phê duyệt khoảng 3 đến 6 tháng.
+- Phạm vi giới hạn trong sandbox.
+- Có nghĩa vụ báo cáo cho NHNN.
 
-#### Con đường B: Standard Compliance (không sandbox)
+#### Lộ trình B: Tuân thủ tiêu chuẩn (không qua sandbox)
 
 ```
-Bank triển khai AI-CRDS như vendor solution
+Bank X triển khai AI-CRDS như giải pháp của nhà cung cấp
     │
-    ├── Comply tất cả VB hiện hành:
+    ├── Tuân thủ toàn bộ văn bản hiện hành:
     │   TT 13 (KSNB), Luật TCTD (thẩm định), Luật BVDLCN + NĐ 356 (DPIA),
-    │   TT 41 (Basel II), TT 45 (thẻ)
+    │   TT 41 (Basel II), TT 45 (thẻ), Luật AI 134/2025
     │
-    ├── Model validation bởi bank Risk team
-    ├── Risk Committee approval
+    ├── Thẩm định mô hình bởi bộ phận Quản lý rủi ro của Bank X
+    ├── Phê duyệt của Hội đồng rủi ro
     ├── DPIA nộp A05
     │
     ▼
-Deploy production
+Triển khai production
     │
-    ├── Ongoing compliance: audit, reporting, monitoring
-    └── SBV thanh tra bình thường
+    ├── Tuân thủ liên tục: audit, báo cáo, giám sát
+    └── Thanh tra thường kỳ của NHNN
 ```
 
-**Ưu điểm standard:**
-- Nhanh hơn (không chờ sandbox approval)
-- Không bị giới hạn scope sandbox
-- Quen thuộc với bank — quy trình vendor management thông thường
+Ưu điểm:
+- Nhanh hơn do không chờ phê duyệt sandbox.
+- Không bị giới hạn phạm vi sandbox.
+- Phù hợp quy trình quản lý nhà cung cấp thông thường của ngân hàng.
 
-**Nhược điểm standard:**
-- Không có "legal shield" của sandbox
-- SBV có thể question: "tại sao không tham gia sandbox khi đã có?"
-- Không có fast-track licensing benefit
+Hạn chế:
+- Không có cơ chế bảo vệ pháp lý của sandbox.
+- Không có ưu tiên cấp phép sau sandbox.
 
-### 4.3 Đề xuất
+### 4.3 Hướng tiếp cận
 
-**Khuyến nghị: Tùy thuộc bank partner — hỏi trong discovery meeting.**
+Bank X lựa chọn lộ trình dựa trên mục tiêu triển khai: Lộ trình A phù hợp khi Bank X ưu tiên quan hệ với cơ quan quản lý và sự công nhận chính thức của NHNN; Lộ trình B phù hợp khi ưu tiên tốc độ triển khai, và Bank X vẫn có thể tham gia sandbox sau đó.
 
-Nếu bank partner is **early adopter** (TPBank, VIB — Tier 1 targets) → sandbox có thể attract vì:
-- Được SBV "bật đèn xanh" chính thức
-- Differentiation vs competitors
-- Regulatory relationship building
+AI-CRDS chuẩn bị bộ tài liệu đủ cho cả hai lộ trình: hồ sơ sandbox và tuân thủ tiêu chuẩn.
 
-Nếu bank partner muốn **deploy nhanh** → standard compliance path, sandbox sau nếu muốn.
+### 4.4 Hồ sơ sandbox (nếu Bank X chọn Lộ trình A)
 
-**AI-CRDS vendor cần chuẩn bị cho CẢ HAI con đường** — documentation package phải đủ cho sandbox application VÀ standard compliance.
+Hồ sơ nộp NHNN gồm (Điều 8 đến 10 NĐ 94):
 
-### 4.4 Sandbox Requirements — Nếu bank chọn con đường A
-
-Hồ sơ nộp NHNN phải bao gồm (Điều 8-10 NĐ 94):
-
-| # | Tài liệu | Ai prepare | Status |
-|---|---------|-----------|--------|
-| 1 | Đơn đề nghị tham gia | Bank partner | ❌ |
-| 2 | Mô tả giải pháp credit scoring (AI-CRDS) | AI-CRDS vendor + Bank | ❌ — cần soạn technical description |
-| 3 | Kế hoạch thử nghiệm (scope, timeline, metrics, exit criteria) | Joint | ❌ |
-| 4 | Kế hoạch quản lý rủi ro | Joint | ❌ — link to risk assessment |
-| 5 | Nhân sự (trình độ, kinh nghiệm CEO/CTO, không tiền án) | Bank + AI-CRDS vendor | ❌ |
-| 6 | Hệ thống CNTT (đặt tại VN, bảo mật, privacy, business continuity) | AI-CRDS vendor + Bank IT | ❌ — cần confirm IT đặt tại VN |
-| 7 | Giấy tờ pháp lý thành lập | Bank + AI-CRDS vendor | Có sẵn |
-| 8 | Quy trình bảo vệ khách hàng | Joint | ❌ |
-
-**→ Target: Chuẩn bị sandbox documentation package tại Week 29 (Pilot Proposal). Nếu bank partner muốn sandbox → nộp sau Week 29.**
-
-### 4.5 Status tại Bank X
-
-❓ **Chưa validate** — Pending meeting.
-
-Cần confirm:
-- [ ] Bank X có biết về NĐ 94/2025 sandbox chưa?
-- [ ] Bank X có kế hoạch đăng ký sandbox credit scoring không?
-- [ ] Nếu có → timeline dự kiến? AI-CRDS có thể là giải pháp họ thử nghiệm?
-- [ ] Nếu không → họ prefer standard compliance path? Lý do?
-- [ ] Bank X đã có vendor nào khác đăng ký sandbox chưa?
+| # | Tài liệu | Bên chuẩn bị |
+|---|---------|-------------|
+| 1 | Đơn đề nghị tham gia | Bank X |
+| 2 | Mô tả giải pháp chấm điểm tín dụng (AI-CRDS) | Nhà cung cấp AI-CRDS và Bank X |
+| 3 | Kế hoạch thử nghiệm (phạm vi, tiến độ, chỉ số, tiêu chí kết thúc) | Phối hợp |
+| 4 | Kế hoạch quản lý rủi ro | Phối hợp |
+| 5 | Nhân sự (trình độ, kinh nghiệm của lãnh đạo, không tiền án) | Bank X và nhà cung cấp AI-CRDS |
+| 6 | Hệ thống CNTT (đặt tại Việt Nam, bảo mật, quyền riêng tư, duy trì hoạt động liên tục) | Nhà cung cấp AI-CRDS và CNTT Bank X |
+| 7 | Giấy tờ pháp lý thành lập | Bank X và nhà cung cấp AI-CRDS |
+| 8 | Quy trình bảo vệ khách hàng | Phối hợp |
 
 ---
 
-## 5. Luật Trí tuệ nhân tạo 134/2025/QH15 — Khung pháp lý AI đầu tiên của VN 🆕
+## 5. Luật Trí tuệ nhân tạo 134/2025/QH15: Khung Pháp Lý AI Đầu Tiên Của Việt Nam
 
 ### 5.1 Tổng quan
 
 | Mục | Nội dung |
 |-----|---------|
-| **Tên** | Luật Trí tuệ nhân tạo số 134/2025/QH15 |
-| **Ban hành** | 10/12/2025 (Quốc hội khóa XV, kỳ họp thứ 10) |
-| **Hiệu lực** | **01/03/2026** (đã có hiệu lực) |
-| **Ý nghĩa** | Luật AI đầu tiên của VN. Tạo khung pháp lý toàn diện cho AI — từ nghiên cứu, phát triển đến triển khai và sử dụng. Áp dụng cho mọi tổ chức/cá nhân VN và nước ngoài tham gia hoạt động AI tại VN. |
+| Tên | Luật Trí tuệ nhân tạo số 134/2025/QH15 |
+| Ban hành | 10/12/2025 (Quốc hội khóa XV, kỳ họp thứ 10) |
+| Hiệu lực | 01/03/2026 |
+| Ý nghĩa | Luật AI đầu tiên của Việt Nam, tạo khung pháp lý toàn diện cho AI từ nghiên cứu, phát triển đến triển khai và sử dụng. Áp dụng cho mọi tổ chức, cá nhân Việt Nam và nước ngoài có hoạt động AI tại Việt Nam |
 
-### 5.2 Nguyên tắc cốt lõi (Điều 4) — Ảnh hưởng trực tiếp đến AI-CRDS
+### 5.2 Nguyên tắc cốt lõi (Điều 4) và tác động đến AI-CRDS
 
-| # | Nguyên tắc | Nguyên văn (tóm tắt) | Impact lên AI-CRDS |
-|---|-----------|---------------------|-------------------|
-| 1 | **Con người là trung tâm** | "Lấy con người làm trung tâm; bảo đảm quyền con người, quyền riêng tư" | Credit decision ảnh hưởng quyền tiếp cận tài chính → phải đặc biệt cẩn trọng |
-| 2 | **AI không thay thế con người** | "AI phục vụ con người, không thay thế thẩm quyền và trách nhiệm của con người" | Human-in-the-loop không chỉ là SBV practice — **bắt buộc theo Luật**. CO phải ký mọi quyết định. |
-| 3 | **Human oversight bắt buộc** | "Bảo đảm duy trì sự kiểm soát và khả năng can thiệp của con người đối với mọi quyết định và hành vi của hệ thống AI" | Override option cho CO là mandatory. Không được gỡ bỏ. AI phải có "kill switch." |
-| 4 | **Công bằng, không phân biệt** | "Bảo đảm công bằng, minh bạch, không thiên lệch, không phân biệt đối xử" | Bias monitoring không còn best practice — **vi phạm Luật** nếu AI phân biệt đối xử. Giới tính, địa lý, dân tộc phải monitor. |
-| 5 | **Minh bạch** | "Bảo đảm công bằng, minh bạch" | Explainability module mandatory. Khách phải hiểu được tại sao bị reject. |
-| 6 | **Trách nhiệm giải trình** | "Thực hiện trách nhiệm giải trình về các quyết định và hệ quả của hệ thống AI" | Audit trail + model documentation + replay capability = mandatory (không chỉ best practice). |
-| 7 | **Kiểm tra, giám sát** | "Khả năng kiểm tra và giám sát quá trình phát triển và vận hành hệ thống AI" | Regulator (NHNN, Bộ KH&CN) có quyền kiểm tra AI-CRDS bất kỳ lúc nào. Model card + audit trail phải sẵn sàng. |
+| # | Nguyên tắc | Nội dung (tóm tắt) | Tác động đến AI-CRDS |
+|---|-----------|-------------------|----------------------|
+| 1 | Con người là trung tâm | Lấy con người làm trung tâm; bảo đảm quyền con người, quyền riêng tư | Quyết định tín dụng ảnh hưởng quyền tiếp cận tài chính nên cần đặc biệt thận trọng |
+| 2 | AI không thay thế con người | AI phục vụ con người, không thay thế thẩm quyền và trách nhiệm của con người | Human-in-the-loop là yêu cầu của luật; cán bộ tín dụng ký mọi quyết định |
+| 3 | Giám sát của con người | Duy trì kiểm soát và khả năng can thiệp của con người đối với mọi quyết định và hành vi của hệ thống AI | Tùy chọn override của cán bộ tín dụng là bắt buộc; hệ thống có cơ chế dừng khẩn cấp (kill switch) |
+| 4 | Công bằng, không phân biệt | Bảo đảm công bằng, minh bạch, không thiên lệch, không phân biệt đối xử | Giám sát thiên lệch là yêu cầu của luật; giám sát giới tính, địa bàn, dân tộc |
+| 5 | Minh bạch | Bảo đảm công bằng, minh bạch | Module giải thích là bắt buộc; khách hàng hiểu được lý do bị từ chối |
+| 6 | Trách nhiệm giải trình | Thực hiện trách nhiệm giải trình về các quyết định và hệ quả của hệ thống AI | Audit trail, tài liệu mô hình và khả năng tái hiện quyết định là bắt buộc |
+| 7 | Kiểm tra, giám sát | Khả năng kiểm tra và giám sát quá trình phát triển và vận hành hệ thống AI | Cơ quan quản lý (NHNN, Bộ KH&CN) có quyền kiểm tra AI-CRDS; Model Card và audit trail luôn sẵn sàng |
 
-### 5.3 Phân loại rủi ro (Điều 9) — AI-CRDS = Rủi ro cao
+### 5.3 Phân loại rủi ro (Điều 9): AI-CRDS thuộc nhóm rủi ro cao
 
-Luật phân loại hệ thống AI theo 3 mức rủi ro:
-
-| Mức | Mô tả | AI-CRDS? |
+| Mức | Mô tả | AI-CRDS |
 |-----|-------|---------|
-| **Rủi ro cao** | Hệ thống AI ảnh hưởng đáng kể đến quyền, lợi ích hợp pháp của cá nhân, tổ chức. Danh mục cụ thể do Thủ tướng ban hành. | **Gần chắc chắn CÓ** — AI scoring tín dụng ảnh hưởng trực tiếp đến khả năng tiếp cận tài chính |
-| **Rủi ro trung bình** | Mức ảnh hưởng vừa phải | Không applicable |
-| **Rủi ro thấp** | Không thuộc 2 loại trên | Không applicable |
+| Rủi ro cao | Hệ thống AI ảnh hưởng đáng kể đến quyền, lợi ích hợp pháp của cá nhân, tổ chức; danh mục cụ thể do Thủ tướng ban hành | Thuộc nhóm này: chấm điểm tín dụng ảnh hưởng trực tiếp đến khả năng tiếp cận tài chính |
+| Rủi ro trung bình | Mức ảnh hưởng vừa phải | Không áp dụng |
+| Rủi ro thấp | Không thuộc hai nhóm trên | Không áp dụng |
 
-**Danh mục AI rủi ro cao:** Do Thủ tướng ban hành (target 02/2026 theo Kế hoạch triển khai). Tại thời điểm viết (03/2026), chưa xác nhận đã ban hành hay chưa — **cần follow sát**.
-
-**Hệ quả nếu AI-CRDS là "rủi ro cao":**
-- Nghĩa vụ nặng hơn: đánh giá tác động, ghi nhãn, giám sát liên tục
-- Có thể bắt buộc đăng ký trên Cổng thông tin điện tử một cửa về AI + Cơ sở dữ liệu quốc gia về hệ thống AI (Bộ KH&CN quản lý)
-- Trách nhiệm bồi thường nếu AI gây thiệt hại
+Hệ quả đối với hệ thống AI rủi ro cao:
+- Nghĩa vụ nặng hơn: đánh giá tác động, ghi nhãn, giám sát liên tục.
+- Có thể phải đăng ký trên Cổng thông tin điện tử một cửa về AI và Cơ sở dữ liệu quốc gia về hệ thống AI do Bộ KH&CN quản lý.
+- Trách nhiệm bồi thường khi AI gây thiệt hại.
 
 ### 5.4 Nghĩa vụ ghi nhãn AI
 
-Luật yêu cầu ghi nhãn cho hệ thống AI. Đối với AI-CRDS:
-
-| Điểm ghi nhãn | Implementation |
-|---------------|---------------|
-| **Credit decision có AI involvement** | Adverse action notice + approval letter phải ghi rõ: "Quyết định này được hỗ trợ bởi hệ thống trí tuệ nhân tạo. Quyết định cuối cùng do cán bộ tín dụng đưa ra." |
-| **AI score display cho Credit Officer** | UI hiển thị: "AI Recommendation — hỗ trợ bởi hệ thống AI, không phải quyết định cuối cùng" |
-| **Customer-facing communication** | Consent form phải nêu rõ: "Hồ sơ sẽ được xử lý có hỗ trợ của hệ thống trí tuệ nhân tạo" |
+| Điểm ghi nhãn | Cách triển khai |
+|---------------|----------------|
+| Quyết định tín dụng có sự tham gia của AI | Thông báo từ chối và thư phê duyệt ghi rõ: "Quyết định này được hỗ trợ bởi hệ thống trí tuệ nhân tạo. Quyết định cuối cùng do cán bộ tín dụng đưa ra." |
+| Hiển thị điểm AI cho cán bộ tín dụng | Giao diện hiển thị: "Khuyến nghị của AI, hỗ trợ bởi hệ thống AI, không phải quyết định cuối cùng" |
+| Truyền thông với khách hàng | Văn bản đồng ý nêu rõ: "Hồ sơ sẽ được xử lý có hỗ trợ của hệ thống trí tuệ nhân tạo" |
 
 ### 5.5 Trách nhiệm bồi thường
 
-Luật quy định trách nhiệm bồi thường khi AI gây thiệt hại. Cho AI-CRDS:
+Luật quy định trách nhiệm bồi thường khi AI gây thiệt hại. Phân định trách nhiệm giữa Bank X và nhà cung cấp AI-CRDS được quy định trong điều khoản phân bổ trách nhiệm của hợp đồng:
 
-| Scenario | Ai chịu trách nhiệm? | Lưu ý |
-|---------|---------------------|-------|
-| AI reject nhầm → khách mất cơ hội tín dụng | ❓ **Cần xác định rõ:** bank partner hay AI-CRDS vendor? | Cần quy định trong hợp đồng vendor-bank (liability allocation clause) |
-| AI approve nhầm → bank loss | ❓ **Cần xác định rõ** | Human-in-the-loop = CO đã ký → bank chịu trách nhiệm chính. Nhưng nếu model lỗi hệ thống → vendor liability |
-| AI bias → phân biệt đối xử hệ thống | Cả hai — bank (deploy) + vendor (design) | Bias monitoring + regular audit giảm thiểu rủi ro |
-| Data breach qua AI system | Bên kiểm soát DLCN (bank) + bên xử lý (vendor) | Theo Luật BVDLCN 2025 |
+| Tình huống | Bên chịu trách nhiệm | Ghi chú |
+|-----------|---------------------|---------|
+| AI từ chối nhầm, khách mất cơ hội tín dụng | Bank X, là bên ra quyết định tín dụng; nhà cung cấp chịu trách nhiệm đối với lỗi hệ thống của mô hình | Quy định trong điều khoản phân bổ trách nhiệm của hợp đồng |
+| AI phê duyệt nhầm, Bank X tổn thất | Bank X chịu trách nhiệm chính do cán bộ tín dụng đã ký; nhà cung cấp chịu trách nhiệm nếu mô hình lỗi hệ thống | Có human-in-the-loop |
+| AI thiên lệch, phân biệt đối xử có hệ thống | Cả hai: Bank X (triển khai) và nhà cung cấp (thiết kế) | Giám sát thiên lệch và kiểm toán định kỳ giảm thiểu rủi ro |
+| Lộ lọt dữ liệu qua hệ thống AI | Bên kiểm soát DLCN (Bank X) và bên xử lý (nhà cung cấp) | Theo Luật BVDLCN 2025 |
 
-**→ Action: Thiết kế liability allocation framework trong hợp đồng vendor-bank. Cần legal counsel.**
+### 5.6 Quy định chi tiết của các bộ, ngành
 
-### 5.6 Các bộ ngành quy định chi tiết — NHNN sẽ ban hành gì?
+Kế hoạch triển khai Luật AI (baochinhphu.vn, 03/2026) nêu: năm 2026 và các năm tiếp theo, bộ, cơ quan ngang bộ quy định chi tiết yêu cầu về an toàn, quản lý rủi ro và điều kiện triển khai đối với ứng dụng AI trong ngành, lĩnh vực quản lý.
 
-Kế hoạch triển khai Luật AI (baochinhphu.vn, 03/2026):
+NHNN sẽ ban hành thông tư riêng về AI trong ngân hàng. Nội dung dự kiến (theo dự thảo đã lấy ý kiến, nguồn vietnamlawmagazine.vn và DataGuidance) và mức độ sẵn sàng của AI-CRDS:
 
-> "Năm 2026 và các năm tiếp theo, Bộ, cơ quan ngang bộ quy định chi tiết yêu cầu về an toàn, quản lý rủi ro và điều kiện triển khai đối với việc ứng dụng trí tuệ nhân tạo trong ngành, lĩnh vực quản lý."
+| Yêu cầu dự kiến | Tác động đến AI-CRDS | Mức độ sẵn sàng |
+|-----------------|---------------------|----------------|
+| Thông báo trước cho khách khi dùng AI | Văn bản đồng ý và ghi nhãn | Đã thiết kế (mục 5.4) |
+| Quyền khiếu nại đối với quyết định AI | Luồng xử lý khiếu nại | Đã thiết kế (w02-03-pdpd-impact-bank-x, quyền số 9) |
+| Human-in-the-loop bắt buộc | Cán bộ tín dụng ký mọi quyết định | Đã thiết kế (mục 1) |
+| Đăng ký, thông báo hệ thống AI với NHNN | Hồ sơ đăng ký AI-CRDS | Chuẩn bị theo định dạng khi thông tư ban hành |
+| Báo cáo sự cố AI | Luồng báo cáo sự cố | Đã thiết kế (mục 3.5) |
 
-**→ NHNN sẽ ban hành Thông tư riêng về AI trong banking.** Nội dung dự kiến (dựa trên dự thảo TT SBV về AI đã tham vấn — sources: vietnamlawmagazine.vn, DataGuidance):
+AI-CRDS được thiết kế theo các yêu cầu dự kiến này để đáp ứng sẵn khi thông tư chính thức ban hành.
 
-| Yêu cầu dự kiến | Impact lên AI-CRDS | Chuẩn bị trước |
-|-----------------|-------------------|---------------|
-| Thông báo trước cho khách khi dùng AI | Consent form + ghi nhãn | ✅ Đã thiết kế tại Section 5.4 |
-| Quyền khiếu nại đối với quyết định AI | Complaint handling workflow | ✅ Đã thiết kế tại pdpd-impact Quyền #9 |
-| Human-in-the-loop bắt buộc | CO ký mọi quyết định | ✅ Đã thiết kế tại Section 1 |
-| Đăng ký/thông báo hệ thống AI với NHNN | Hồ sơ đăng ký AI-CRDS | ❌ Chưa biết format — chờ TT |
-| Báo cáo sự cố AI | Incident reporting workflow | ⚠️ Prototype tại Week 36 |
+### 5.7 So sánh trước và sau Luật AI 134/2025
 
-**→ AI-CRDS thiết kế proactively theo yêu cầu dự kiến. Khi TT chính thức ra → đã comply sẵn = competitive advantage.**
-
-### 5.7 So sánh: Trước vs Sau Luật AI 134/2025
-
-| Requirement | Trước 01/03/2026 | Sau 01/03/2026 (hiện tại) | Impact |
-|------------|-----------------|--------------------------|--------|
-| Human oversight | SBV practice + Luật TCTD (implicit) | **Luật AI Điều 4 (explicit)** — bắt buộc duy trì kiểm soát và can thiệp của con người | Nâng từ practice → LAW |
-| Bias monitoring | Best practice, chưa bắt buộc | **Luật AI Điều 4** — không thiên lệch, không phân biệt đối xử | Nâng từ optional → MANDATORY |
-| Explainability | NĐ 356 Điều 9 (cho DLCN) | **Luật AI Điều 4** — minh bạch + trách nhiệm giải trình | Mở rộng scope: không chỉ DLCN mà toàn bộ AI decision |
-| Ghi nhãn AI | Chưa có | **Luật AI** — bắt buộc ghi nhãn | MỚI — cần implement |
-| Phân loại rủi ro | Chưa có | **Luật AI Điều 9** — 3 mức rủi ro | MỚI — AI-CRDS likely "rủi ro cao" |
-| Trách nhiệm bồi thường | Theo Bộ luật Dân sự chung | **Luật AI** — quy định riêng cho AI | MỚI — cần liability framework |
-| Đăng ký AI | Chưa có | **Luật AI** — Cơ sở dữ liệu quốc gia về AI + Cổng 1 cửa | MỚI — chờ NĐ hướng dẫn |
-
-### 5.8 Status tại Bank X
-
-❓ **Chưa validate** — Pending meeting.
-
-Cần confirm:
-- [ ] Bank X có biết Luật AI 134/2025 đã có hiệu lực từ 01/03/2026 chưa?
-- [ ] Bank X đã có plan comply Luật AI cho hệ thống hiện tại chưa?
-- [ ] Bank X có đội ngũ/vendor nào đang triển khai AI cần comply chưa?
-- [ ] Legal department đã review Luật AI chưa? Liability framework đã có chưa?
+| Yêu cầu | Trước 01/03/2026 | Từ 01/03/2026 | Tác động |
+|---------|-----------------|---------------|---------|
+| Giám sát của con người | Thông lệ NHNN và Luật TCTD (ngầm định) | Luật AI Điều 4 (quy định rõ): duy trì kiểm soát và can thiệp của con người | Từ thông lệ thành yêu cầu của luật |
+| Giám sát thiên lệch | Thông lệ tốt, chưa bắt buộc | Luật AI Điều 4: không thiên lệch, không phân biệt đối xử | Từ tùy chọn thành bắt buộc |
+| Khả năng giải thích | NĐ 356 Điều 9 (cho DLCN) | Luật AI Điều 4: minh bạch và trách nhiệm giải trình | Mở rộng cho toàn bộ quyết định AI |
+| Ghi nhãn AI | Chưa có | Luật AI: bắt buộc ghi nhãn | Yêu cầu mới |
+| Phân loại rủi ro | Chưa có | Luật AI Điều 9: 3 mức rủi ro | Yêu cầu mới; AI-CRDS thuộc nhóm rủi ro cao |
+| Trách nhiệm bồi thường | Theo Bộ luật Dân sự chung | Luật AI: quy định riêng cho AI | Yêu cầu mới; cần khung phân bổ trách nhiệm |
+| Đăng ký AI | Chưa có | Luật AI: Cơ sở dữ liệu quốc gia về AI và Cổng một cửa | Yêu cầu mới; thực hiện theo nghị định hướng dẫn |
 
 ---
 
-## 6. Tổng Hợp — SBV Compliance Checklist
+## 6. Tổng Hợp Danh Mục Tuân Thủ
 
-| # | Requirement | Văn bản gốc | Priority | Status AI-CRDS | Target Week |
-|---|------------|------------|----------|---------------|------------|
-| 1.1 | AI chỉ là decision support, CO ký quyết định | Luật TCTD 2024 | 🔴 NON-NEGOTIABLE | ✅ Designed in | From day 1 |
-| 1.2 | Batch review governance (không phải auto-approve thật) | TT 13/2018 | 🔴 HIGH | ❌ Chưa design | Week 5 |
-| 1.3 | Override logging bắt buộc | TT 13/2018 | 🔴 HIGH | ❌ Chưa design | Week 9 |
-| 1.4 | Opt-out AI scoring → 100% manual | NĐ 356/2025 | 🔴 HIGH | ❌ Chưa design | Week 9 |
-| 1.5 | Threshold do Risk Committee approve | TT 13/2018 | 🔴 HIGH | ❌ Chưa design | Week 6 |
-| 2.1 | Model Card (full documentation) | TT 13/2018 + Basel II | 🟡 MEDIUM | ❌ Chưa soạn | Week 23 |
-| 2.2 | Independent model validation (bank Risk team) | TT 13/2018 | 🔴 HIGH | ❌ Chưa có process | Week 27 |
-| 2.3 | Risk Committee sign-off | TT 13/2018 | 🔴 HIGH | ❌ | Week 31 |
-| 3.1 | Audit trail ≥20 fields, immutable | TT 13/2018 + Luật BVDLCN | 🔴 HIGH | ❌ Schema chưa finalize | Week 35 (design), Week 12 (prototype) |
-| 3.2 | Replay capability | TT 13/2018 | 🔴 HIGH | ❌ Chưa design | Week 35 |
-| 3.3 | SBV on-demand export (<15 phút) | Luật TCTD 2024 | 🟡 MEDIUM | ❌ Chưa design | Week 35 |
-| 3.4 | SIMO fraud reporting compatibility | TT 45/2025 | 🟡 MEDIUM | ❌ Chưa design | Week 35 |
-| 3.5 | Retention policy | TT 13/2018 + Luật BVDLCN | 🟡 MEDIUM | ❌ Chưa xác định | Week 23 |
-| 4.1 | Sandbox documentation package | NĐ 94/2025 | 🟢 OPTIONAL | ❌ Chưa soạn | Week 29 |
-| 4.2 | IT infrastructure đặt tại VN | NĐ 94/2025 | 🟡 CONDITIONAL | ❌ Chưa quyết | Week 10 |
-| **5.1** | **Human oversight bắt buộc theo Luật (không chỉ practice)** | **Luật AI 134/2025 Điều 4** | **🔴 NON-NEGOTIABLE** | **✅ Designed in** | **From day 1** |
-| **5.2** | **Bias monitoring mandatory** | **Luật AI 134/2025 Điều 4** | **🔴 HIGH** | **❌ Chưa design** | **Week 23** |
-| **5.3** | **Ghi nhãn AI trên mọi output** | **Luật AI 134/2025** | **🔴 HIGH** | **❌ Chưa design** | **Week 12 (MVP)** |
-| **5.4** | **Trách nhiệm giải trình (audit + explainability)** | **Luật AI 134/2025 Điều 4** | **🔴 HIGH** | **⚠️ Partial (audit trail designed, explainability chưa)** | **Week 9 + 35** |
-| **5.5** | **Liability allocation vendor-bank** | **Luật AI 134/2025** | **🟡 MEDIUM** | **❌ Chưa soạn** | **Week 11 (Proposal)** |
-| **5.6** | **Chuẩn bị cho Danh mục AI rủi ro cao** | **Luật AI 134/2025 Điều 9** | **🟡 MEDIUM** | **❌ Chờ Thủ tướng ban hành** | **Khi ban hành** |
-| **5.7** | **Theo dõi TT NHNN về AI trong banking** | **Luật AI 134/2025 → NHNN** | **🟡 MEDIUM** | **❌ Chờ dự thảo** | **Khi ban hành** |
-
----
-
-## 7. ⚠️ ACTION BẮT BUỘC TUẦN NÀY
-
-### Book meeting với Compliance Officer — NGAY TUẦN NÀY
-
-**Tại sao không chờ được:**
-- Toàn bộ tài liệu compliance (regulatory-mapping, gap analysis, PDPD impact, SBV requirements) đều dựa trên thông tin công khai + assumptions
-- Compliance Officer biết **chính xác** Bank X đang comply gì, gap ở đâu, SBV gần nhất nói gì
-- Không có input từ Compliance Officer → tất cả 4 documents Week 2 = **assumptions cần validate**
-- Mỗi tuần delay = thêm 1 tuần rework nếu assumption sai
-
-**Agenda meeting đề xuất (30-45 phút):**
-
-| # | Câu hỏi | Mục đích |
-|---|---------|---------|
-| 1 | Bank X hiện có AI/ML nào trong quy trình tín dụng chưa? | Baseline |
-| 2 | Bank X đã chuyển từ NĐ 13/2023 sang Luật BVDLCN 2025 + NĐ 356 chưa? Đã có DPIA chưa? | PDPD compliance |
-| 3 | Bank X có DPO theo NĐ 356 chưa? | PDPD compliance |
-| 4 | Bank X có biết về NĐ 94/2025 sandbox credit scoring chưa? Có kế hoạch đăng ký? | Sandbox |
-| 5 | SBV gần nhất thanh tra Bank X khi nào? Findings liên quan đến KSNB / audit? | Risk assessment |
-| 6 | Bank X có Model Validation team riêng không? Quy trình validate model hiện tại? | Model validation |
-| 7 | Audit trail hiện tại cho credit decisions: format nào, lưu ở đâu, bao lâu? | Audit gap |
-| 8 | Data residency policy: data lưu ở đâu? Cloud hay on-premise? | Architecture |
-| 9 | Consent management hiện tại: basic form hay granular? | PDPD gap |
-| 10 | Blocker lớn nhất nếu triển khai AI scoring từ góc nhìn compliance? | Prioritization |
-
-**Nếu chưa có access đến Compliance Officer:**
-- Ghi rõ trong tất cả documents: "Pending validation với Compliance Officer"
-- Escalate: nhờ direct manager hoặc internal champion (Head of Cards / Risk Manager) giới thiệu
-- Plan B: gặp IT/CTO trước (họ thường biết data residency, audit trail current state)
+| # | Yêu cầu | Văn bản gốc | Mức ưu tiên | Trạng thái trong thiết kế AI-CRDS |
+|---|---------|------------|-------------|-----------------------------------|
+| 1.1 | AI chỉ hỗ trợ quyết định, cán bộ tín dụng ký quyết định | Luật TCTD 2024 | Bắt buộc, không thỏa hiệp | Tích hợp trong thiết kế từ đầu |
+| 1.2 | Quản trị xem xét theo lô (không phải tự động phê duyệt thực sự) | TT 13/2018 | Cao | Thiết kế theo luồng mục 1.3 và quy tắc R2 |
+| 1.3 | Ghi bắt buộc lý do override | TT 13/2018 | Cao | Trường `override_reason` trong audit trail |
+| 1.4 | Từ chối chấm điểm AI, xử lý 100% thủ công | NĐ 356/2025 | Cao | Quy tắc R5 |
+| 1.5 | Ngưỡng do Hội đồng rủi ro phê duyệt | TT 13/2018 | Cao | Quy tắc R6 |
+| 2.1 | Model Card (tài liệu đầy đủ) | TT 13/2018, Basel II | Trung bình | Cấu trúc tại mục 2.2.A |
+| 2.2 | Thẩm định mô hình độc lập (Quản lý rủi ro Bank X) | TT 13/2018 | Cao | Quy trình tại mục 2.2.B |
+| 2.3 | Hội đồng rủi ro ký duyệt | TT 13/2018 | Cao | Quy trình tại mục 2.2.B |
+| 3.1 | Audit trail từ 20 trường, bất biến | TT 13/2018, Luật BVDLCN | Cao | Lược đồ tại mục 3.2 |
+| 3.2 | Khả năng tái hiện quyết định | TT 13/2018 | Cao | Yêu cầu tại mục 3.3 |
+| 3.3 | Xuất dữ liệu theo yêu cầu NHNN (dưới 15 phút) | Luật TCTD 2024 | Trung bình | Kịch bản tại mục 3.4 |
+| 3.4 | Tương thích báo cáo gian lận SIMO | TT 45/2025 | Trung bình | Mục 3.5 |
+| 3.5 | Chính sách lưu trữ | TT 13/2018, Luật BVDLCN | Trung bình | 5 đến 10 năm theo hồ sơ tín dụng |
+| 4.1 | Bộ tài liệu sandbox | NĐ 94/2025 | Tùy chọn | Danh mục tại mục 4.4 |
+| 4.2 | Hạ tầng CNTT đặt tại Việt Nam | NĐ 94/2025 | Có điều kiện | Kiến trúc kết hợp, DLCN lưu trong nước |
+| 5.1 | Giám sát của con người theo luật (không chỉ thông lệ) | Luật AI 134/2025 Điều 4 | Bắt buộc, không thỏa hiệp | Tích hợp trong thiết kế từ đầu |
+| 5.2 | Giám sát thiên lệch bắt buộc | Luật AI 134/2025 Điều 4 | Cao | Dashboard giám sát thiên lệch |
+| 5.3 | Ghi nhãn AI trên mọi đầu ra | Luật AI 134/2025 | Cao | Theo mục 5.4, có ngay từ bản MVP |
+| 5.4 | Trách nhiệm giải trình (audit và giải thích) | Luật AI 134/2025 Điều 4 | Cao | Audit trail và module giải thích |
+| 5.5 | Phân bổ trách nhiệm giữa nhà cung cấp và Bank X | Luật AI 134/2025 | Trung bình | Điều khoản hợp đồng theo mục 5.5 |
+| 5.6 | Chuẩn bị theo Danh mục AI rủi ro cao | Luật AI 134/2025 Điều 9 | Trung bình | Hồ sơ kỹ thuật cho AI rủi ro cao |
+| 5.7 | Theo dõi thông tư NHNN về AI trong ngân hàng | Luật AI 134/2025 | Trung bình | Thiết kế theo yêu cầu dự kiến tại mục 5.6 |
 
 ---
 
-## 8. Tracking — Tự hỏi cuối tuần
+## 7. Phạm Vi Áp Dụng
 
-- [ ] ⚠️ **Đã book meeting với Compliance Officer chưa? Nếu chưa → làm NGAY HÔM NAY**
-- [ ] Gap nào HIGH priority cần address ngay? (Top 3: Human-in-the-loop governance, Audit trail design, Model validation process, **Ghi nhãn AI, Bias monitoring**)
-- [ ] PDPD: Bank X đã có consent management chưa? Đã chuyển từ NĐ 13 sang Luật 91/2025 + NĐ 356 chưa?
-- [ ] SBV: Bank X có đăng ký sandbox NĐ 94 không? Nếu có → chuẩn bị documentation. Nếu không → standard path.
-- [ ] Tất cả 4 documents Week 2 đã ghi "Pending validation" cho các items chưa confirm?
-- [ ] Next step: validate với Compliance Officer → update tất cả 4 documents với real data
-- [ ] 🆕 **Luật AI 134/2025:** Danh mục AI rủi ro cao đã ban hành chưa? (Thủ tướng, target 02/2026)
-- [ ] 🆕 **Luật AI 134/2025:** NĐ hướng dẫn Luật AI đã ban hành chưa? (Bộ KH&CN soạn)
-- [ ] 🆕 **Luật AI 134/2025:** Ghi nhãn AI đã thiết kế chưa? (Target Week 12 MVP)
-- [ ] 🆕 **Luật AI 134/2025:** Liability allocation framework đã soạn chưa? (Target Week 11)
-- [ ] 🆕 **Dự thảo TT NHNN về AI trong banking:** Có cập nhật mới không?
-
----
-
-## 9. Ghi Chú & Limitations
-
-1. **"Pending validation với Compliance Officer"** — tất cả status "Bank X" trong document này là assumptions. Phải validate trước khi dùng cho quyết định thiết kế.
-2. **Không phải tư vấn pháp lý.** Cần legal counsel cho: retention period, DPIA nộp A05, sandbox application, liability allocation.
-3. **Dự thảo TT thay thế TT 13/2018** đang ở giai đoạn hoàn thiện. Có thể thêm yêu cầu Model Risk Management cụ thể. Follow sát.
-4. **NĐ 94/2025 sandbox mới** — chưa có tiền lệ bank nào hoàn thành sandbox credit scoring tại VN. Process có thể evolve.
-5. **Luật AI 134/2025:** NĐ hướng dẫn + Danh mục AI rủi ro cao đang soạn. Chi tiết nghĩa vụ cho AI rủi ro cao phụ thuộc vào 2 VB này. Chưa ban hành → một số yêu cầu cụ thể (mức phạt, đăng ký AI) chưa xác định.
-6. **Luật AI 134/2025:** NHNN sẽ ban hành TT riêng về AI trong banking — follow sát (xem Section 5.6). Thiết kế proactively theo yêu cầu dự kiến.
-7. **Cross-reference:** regulatory-mapping.md v1.1, compliance-gap-analysis.md, pdpd-impact-assessment.md v1.1 cho context đầy đủ.
+1. Các trạng thái và giả định về hiện trạng của Bank X trong tài liệu là giả định lập kế hoạch dựa trên thông tin công khai, được cập nhật khi có dữ liệu nội bộ của Bank X.
+2. Tài liệu không thay thế tư vấn pháp lý; các nội dung về thời hạn lưu trữ, nộp DPIA cho A05, hồ sơ sandbox và phân bổ trách nhiệm được rà soát với tư vấn pháp lý của Bank X.
+3. Thông tư thay thế TT 13/2018 có thể bổ sung yêu cầu quản lý rủi ro mô hình cụ thể và được cập nhật khi ban hành.
+4. Nghị định hướng dẫn Luật AI và Danh mục AI rủi ro cao quyết định chi tiết nghĩa vụ đối với AI rủi ro cao; các nội dung như mức phạt, đăng ký AI được cập nhật khi các văn bản này ban hành.
+5. Tham chiếu: w02-01-regulatory-mapping, w02-02-compliance-gap-analysis, w02-03-pdpd-impact-bank-x.

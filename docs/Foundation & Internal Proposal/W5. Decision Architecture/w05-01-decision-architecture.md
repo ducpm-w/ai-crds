@@ -1,15 +1,15 @@
 # Decision Architecture & States — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Thiết kế cấu trúc quyết định cho AI-CRDS: 5 decision states, entry/exit conditions, ownership, SLA, escalation, audit. Document này là blueprint cho UI design (Week 9) và workflow implementation (Week 12 MVP).
+Thiết kế cấu trúc quyết định cho AI-CRDS: 5 decision states, entry/exit conditions, ownership, SLA, escalation, audit. Tài liệu này là bản thiết kế nền cho thiết kế giao diện (w09-02-ux-wireframes-v1.md) và triển khai workflow của MVP (w12-04-mvp-build-note.md).
 
-**Nguyên tắc bất biến:**
+**Nguyên tắc cốt lõi:**
 - AI là decision support — Credit Officer ký quyết định cuối cùng (Luật TCTD 2024, Luật AI 134/2025 Điều 4)
-- AI KHÔNG ép quyết định khi data thiếu (State 5)
+- Hệ thống không đưa ra khuyến nghị khi dữ liệu thiếu (State 5)
 - Mọi quyết định phải traceable (TT 13/2018, audit trail ≥24 fields)
 - Khách hàng có quyền opt-out AI scoring → 100% manual (NĐ 356/2025 Điều 9)
 - Output phải ghi nhãn "hỗ trợ bởi AI" (Luật AI 134/2025)
@@ -71,7 +71,7 @@ Thiết kế cấu trúc quyết định cho AI-CRDS: 5 decision states, entry/e
 
 ### Definition
 
-AI confidence HIGH + risk score above high threshold + fraud flag CLEAR. Route to CO batch review queue for streamlined confirmation. **CO vẫn ký — không phải auto-approve.**
+AI confidence HIGH + risk score above high threshold + fraud flag CLEAR. Route to CO batch review queue for streamlined confirmation. Credit Officer vẫn là người ký quyết định; đây không phải phê duyệt tự động.
 
 ### Specification
 
@@ -81,11 +81,11 @@ AI confidence HIGH + risk score above high threshold + fraud flag CLEAR. Route t
 | **UI label** | "AI Recommends: APPROVE — Batch Review" |
 | **AI label (Luật AI)** | "Quyết định này được hỗ trợ bởi hệ thống trí tuệ nhân tạo" |
 
-### Entry Conditions (ALL phải TRUE)
+### Entry Conditions (tất cả phải thỏa)
 
 | # | Condition | Threshold | Source |
 |---|----------|----------|--------|
-| 1.1 | AI risk score | > `threshold_high` (ví dụ: > 0.75 trên thang 0-1 = low risk) | AI scoring model |
+| 1.1 | AI risk score | > `threshold_high` (ví dụ: > 0.75 trên thang 0-1, tương ứng rủi ro thấp) | AI scoring model |
 | 1.2 | AI confidence level | > 0.85 | Model confidence output |
 | 1.3 | Fraud flag | CLEAR (fraud score < 0.2) | Fraud detection model |
 | 1.4 | eKYC result | PASS | eKYC provider |
@@ -128,26 +128,26 @@ CO mở Batch Review Queue
     │   └── eKYC: PASS (confidence 0.96)
     │
     ├── CO action per hồ sơ:
-    │   ├── [✓ Confirm] → Approve (3-5 phút/hồ sơ)
-    │   ├── [✗ Override] → Reject (phải nhập lý do)
-    │   └── [→ Review] → Route to Standard Review
+    │   ├── [Confirm] → Approve (3-5 phút/hồ sơ)
+    │   ├── [Override] → Reject (phải nhập lý do)
+    │   └── [Review] → Route to Standard Review
     │
-    └── Batch confirm: CO có thể select nhiều hồ sơ → confirm all
-        (Giới hạn batch: max X hồ sơ/lần — Risk Committee quyết định X)
+    └── Batch confirm: CO có thể chọn nhiều hồ sơ và xác nhận cùng lúc
+        (Số hồ sơ tối đa mỗi lần do Risk Committee quy định)
 ```
 
-**Time saving:** 35 phút (full review) → 3-5 phút (batch confirm) = **~85% time reduction** per application.
+Thời gian xử lý giảm từ khoảng 35 phút (review đầy đủ) xuống 3-5 phút (batch confirm), tức giảm khoảng 85% mỗi hồ sơ. Đây là mức giả định lập kế hoạch, sẽ thay bằng số đo thực tế của Bank X khi có.
 
 ### Audit Requirements
 
 | Field | Required? | Example |
 |-------|----------|---------|
-| All 24 audit fields (sbv-requirements.md) | ✅ Yes | — |
-| `state` | ✅ | `"AUTO_ROUTE_APPROVE"` |
-| `batch_review_flag` | ✅ | `true` |
-| `batch_id` | ✅ (nếu batch confirm) | `"BATCH-2026-04-001"` |
-| `co_review_time_seconds` | ✅ | `180` (3 phút) |
-| `ai_label_displayed` | ✅ | `true` (Luật AI 134/2025) |
+| All 24 audit fields (w02-04-sbv-requirements.md) | Có | — |
+| `state` | Có | `"AUTO_ROUTE_APPROVE"` |
+| `batch_review_flag` | Có | `true` |
+| `batch_id` | Có (nếu batch confirm) | `"BATCH-2026-04-001"` |
+| `co_review_time_seconds` | Có | `180` (3 phút) |
+| `ai_label_displayed` | Có | `true` (Luật AI 134/2025) |
 
 ---
 
@@ -223,10 +223,10 @@ CO mở Individual Review Queue
     │   └── Make decision
     │
     └── CO action:
-        ├── [✓ Approve] → ký, set limit
-        ├── [✗ Reject] → ký, chọn rejection reasons, trigger adverse action
-        ├── [↑ Escalate] → chọn lý do, route to Senior CO
-        └── [? Need More Info] → chọn documents cần, notify customer
+        ├── [Approve] → ký, set limit
+        ├── [Reject] → ký, chọn rejection reasons, trigger adverse action
+        ├── [Escalate] → chọn lý do, route to Senior CO
+        └── [Need More Info] → chọn documents cần, notify customer
 ```
 
 **Review time:** 20-35 phút per application (vs 3-5 phút cho State 1).
@@ -235,12 +235,12 @@ CO mở Individual Review Queue
 
 | Field | Required? | Example |
 |-------|----------|---------|
-| All 24 audit fields | ✅ Yes | — |
-| `state` | ✅ | `"STANDARD_REVIEW"` |
-| `co_assessment_notes` | ✅ (free text) | `"DTI borderline nhưng income verified qua payroll"` |
-| `rejection_reasons` (nếu reject) | ✅ | `["DTI > 45%", "Employment < 12 months"]` |
-| `adverse_action_notice_id` (nếu reject) | ✅ | `"AAN-2026-04-001"` |
-| `co_review_time_seconds` | ✅ | `1500` (25 phút) |
+| All 24 audit fields | Có | — |
+| `state` | Có | `"STANDARD_REVIEW"` |
+| `co_assessment_notes` | Có (free text) | `"DTI borderline nhưng income verified qua payroll"` |
+| `rejection_reasons` (nếu reject) | Có | `["DTI > 45%", "Employment < 12 months"]` |
+| `adverse_action_notice_id` (nếu reject) | Có | `"AAN-2026-04-001"` |
+| `co_review_time_seconds` | Có | `1500` (25 phút) |
 
 ---
 
@@ -255,7 +255,7 @@ Fraud flag ELEVATED hoặc HIGH — regardless of credit score. Route to Senior 
 | Attribute | Detail |
 |-----------|--------|
 | **State name** | `PRIORITY_REVIEW_FRAUD` |
-| **UI label** | "⚠️ FRAUD SIGNAL — Priority Review Required" |
+| **UI label** | "FRAUD SIGNAL — Priority Review Required" |
 | **Visual indicator** | Red highlight, top of queue |
 
 ### Entry Conditions (ANY triggers)
@@ -311,25 +311,25 @@ Fraud Analyst receives PRIORITY REVIEW case
     │   └── Application pattern analysis
     │
     └── Step 4: Decision
-        ├── [✓ Clear] → Route to scoring (State 1/2)
-        ├── [✗ Fraud confirmed] → Reject + SIMO report + blacklist
-        ├── [? Inconclusive] → Reject (conservative)
-        └── [📄 Need verification] → Request branch visit (State 5)
+        ├── [Clear] → Route to scoring (State 1/2)
+        ├── [Fraud confirmed] → Reject + SIMO report + blacklist
+        ├── [Inconclusive] → Reject (conservative)
+        └── [Need verification] → Request branch visit (State 5)
 ```
 
 ### Audit Requirements
 
 | Field | Required? | Example |
 |-------|----------|---------|
-| All 24 audit fields | ✅ | — |
-| `state` | ✅ | `"PRIORITY_REVIEW_FRAUD"` |
-| `fraud_triggers` | ✅ | `["face_match_low", "velocity_flag"]` |
-| `fraud_score` | ✅ | `0.65` |
-| `edd_checklist_completed` | ✅ | `true` |
-| `fraud_analyst_id` | ✅ | `"FA-001"` |
-| `fraud_decision` | ✅ | `"cleared"` / `"confirmed_fraud"` / `"inconclusive"` |
-| `simo_report_filed` (nếu fraud) | ✅ | `true` + report ID |
-| `blacklist_action` (nếu fraud) | ✅ | `"cccd_blacklisted"` |
+| All 24 audit fields | Có | — |
+| `state` | Có | `"PRIORITY_REVIEW_FRAUD"` |
+| `fraud_triggers` | Có | `["face_match_low", "velocity_flag"]` |
+| `fraud_score` | Có | `0.65` |
+| `edd_checklist_completed` | Có | `true` |
+| `fraud_analyst_id` | Có | `"FA-001"` |
+| `fraud_decision` | Có | `"cleared"` / `"confirmed_fraud"` / `"inconclusive"` |
+| `simo_report_filed` (nếu fraud) | Có | `true` + report ID |
+| `blacklist_action` (nếu fraud) | Có | `"cccd_blacklisted"` |
 
 ---
 
@@ -380,14 +380,14 @@ AI confidence LOW — không đủ data/model uncertainty cao. Edge case hoặc 
 
 | Field | Required? | Example |
 |-------|----------|---------|
-| All 24 audit fields | ✅ | — |
-| `state` | ✅ | `"ESCALATE"` |
-| `escalation_trigger` | ✅ | `"low_confidence"` / `"anomaly"` / `"policy_exception"` |
-| `escalation_from` | ✅ | `"STATE_2"` hoặc `"AI_DIRECT"` |
-| `senior_co_id` | ✅ | `"SCO-001"` |
-| `senior_co_notes` | ✅ | `"Applicant is edge case: high income contractor, new CIC..."` |
-| `conditions_applied` (nếu có) | ✅ | `"limit_reduced_to_30M"` |
-| `committee_required` | ✅ | `true` / `false` |
+| All 24 audit fields | Có | — |
+| `state` | Có | `"ESCALATE"` |
+| `escalation_trigger` | Có | `"low_confidence"` / `"anomaly"` / `"policy_exception"` |
+| `escalation_from` | Có | `"STATE_2"` hoặc `"AI_DIRECT"` |
+| `senior_co_id` | Có | `"SCO-001"` |
+| `senior_co_notes` | Có | `"Applicant is edge case: high income contractor, new CIC..."` |
+| `conditions_applied` (nếu có) | Có | `"limit_reduced_to_30M"` |
+| `committee_required` | Có | `true` / `false` |
 
 ---
 
@@ -438,14 +438,14 @@ Data missing, inconsistent, hoặc verification failed. AI KHÔNG ép quyết đ
 
 | Field | Required? | Example |
 |-------|----------|---------|
-| All 24 audit fields | ✅ | — |
-| `state` | ✅ | `"NEED_MORE_INFO"` |
-| `info_requested` | ✅ | `["bank_statement_3m", "employer_letter"]` |
-| `request_sent_timestamp` | ✅ | `"2026-04-09T10:00:00+07:00"` |
-| `info_received_timestamp` | ✅ (khi nhận) | `"2026-04-12T14:30:00+07:00"` |
-| `days_pending` | ✅ | `3` |
-| `expiry_date` | ✅ | `"2026-04-23"` (14 days) |
-| `exit_reason` | ✅ | `"info_received"` / `"expired"` / `"withdrawn"` |
+| All 24 audit fields | Có | — |
+| `state` | Có | `"NEED_MORE_INFO"` |
+| `info_requested` | Có | `["bank_statement_3m", "employer_letter"]` |
+| `request_sent_timestamp` | Có | `"2026-04-09T10:00:00+07:00"` |
+| `info_received_timestamp` | Có (khi nhận) | `"2026-04-12T14:30:00+07:00"` |
+| `days_pending` | Có | `3` |
+| `expiry_date` | Có | `"2026-04-23"` (14 days) |
+| `exit_reason` | Có | `"info_received"` / `"expired"` / `"withdrawn"` |
 
 ---
 
@@ -459,9 +459,9 @@ Data missing, inconsistent, hoặc verification failed. AI KHÔNG ép quyết đ
 | **EXPIRED** | Customer didn't respond in 14 days | Close, notify, archive |
 | **WITHDRAWN** | Customer withdrew | Close, archive, apply data retention per below |
 
-### Data Retention per Terminal State (Tiered Data Lifecycle — ref pdpd-impact-assessment.md v1.1 Section 4.4)
+### Data Retention per Terminal State (Tiered Data Lifecycle)
 
-Áp dụng Tiered Data Lifecycle đã define tại Week 2 cho resolution xung đột SBV retention vs BVDLCN deletion:
+Áp dụng Tiered Data Lifecycle (xem w02-03-pdpd-impact-bank-x.md) để dung hòa yêu cầu lưu trữ của SBV và yêu cầu xóa dữ liệu theo luật bảo vệ dữ liệu cá nhân:
 
 | Terminal State | Tầng 1: Raw PII (CCCD, tên, SĐT, ảnh) | Tầng 2: Pseudonymized Audit (hash ID, AI score, decision, reasons) | Tầng 3: Anonymized Stats (aggregated metrics) | CIC Query Log |
 |---------------|---------------------------------------|------------------------------------------------------------------|----------------------------------------------|--------------|
@@ -471,7 +471,7 @@ Data missing, inconsistent, hoặc verification failed. AI KHÔNG ép quyết đ
 | **EXPIRED** | Xóa sau **90 ngày** (khách không respond = low value). | Giữ **2 năm** (basic audit trail — SBV có thể hỏi). | Vĩnh viễn. | Giữ 2 năm. |
 | **WITHDRAWN** | Xóa sau **30 ngày** (khách chủ động rút = respect privacy, shortest retention). Nếu khách yêu cầu xóa ngay → xóa Tầng 1 ngay, giữ Tầng 2 minimum. | Giữ **1 năm** (minimum audit trail — SBV có thể hỏi tại sao có application). Pseudonymize immediately: thay CCCD → hash, bỏ tên. | Vĩnh viễn. | Giữ 1 năm. |
 
-**⚠️ Retention periods là proposed — cần confirm với Compliance Officer + Legal counsel.** Xem pdpd-impact-assessment.md v1.1 Section 4.4 cho full resolution framework + deletion workflow 7 bước.
+Thời hạn lưu trữ nêu trên là mức áp dụng cho Bank X trong phạm vi tài liệu này. Khung xử lý đầy đủ và quy trình xóa dữ liệu 7 bước xem tại w02-03-pdpd-impact-bank-x.md.
 
 ### Deletion Trigger cho WITHDRAWN
 
@@ -494,7 +494,7 @@ Customer withdraws application
 
 ### Threshold Parameters
 
-| Parameter | Symbol | Initial Value (ước tính) | Who approves | Review cadence |
+| Parameter | Symbol | Giá trị ban đầu (giả định) | Who approves | Review cadence |
 |----------|--------|------------------------|-------------|---------------|
 | High threshold (auto-route approve) | `TH_high` | 0.75 | Risk Committee | Quarterly hoặc khi model update |
 | Low threshold (auto-route reject consideration) | `TH_low` | 0.35 | Risk Committee | Quarterly |
@@ -503,9 +503,11 @@ Customer withdraws application
 | Confidence threshold (escalate) | `TH_confidence` | 0.6 | Risk Committee | Quarterly |
 | Dead zone (borderline, → escalate) | `TH_dead_zone` | ±0.02 around TH_high | Risk Committee | Quarterly |
 
-**⚠️ PM KHÔNG được tự quyết threshold.** Risk Committee approve tất cả thresholds. Xem Week 6 (Threshold Design) cho sensitivity analysis.
+Risk Committee phê duyệt tất cả các ngưỡng. Phân tích độ nhạy xem tại w06-04-sensitivity-analysis.md. Các giá trị trên là giả định ban đầu và sẽ được hiệu chỉnh khi có dữ liệu thực của Bank X.
 
-### Expected Volume Distribution (ước tính)
+### Expected Volume Distribution
+
+Số liệu dưới đây là giả định lập kế hoạch (3,000 hồ sơ/tháng), sẽ thay bằng dữ liệu thực của Bank X khi có.
 
 | State | % Applications | Volume/tháng (3,000 apps) | CO Time/app | Total CO Time/tháng |
 |-------|---------------|--------------------------|------------|-------------------|
@@ -516,7 +518,7 @@ Customer withdraws application
 | State 5 (Need more info) | 8-15% | ~375 | 10 min (process docs) | 63 giờ |
 | **Total** | **100%** | **3,000** | | **762 giờ** (~4.3 FTE) |
 
-**So với hiện tại (100% manual):** 3,000 × 35 min = 1,750 giờ (~10 FTE). **AI saves ~56% CO capacity** (10 FTE → 4.3 FTE).
+So với hiện tại (100% xử lý thủ công): 3,000 × 35 phút = 1,750 giờ (khoảng 10 FTE). Với AI-CRDS, năng lực Credit Officer cần dùng giảm khoảng 56% (từ 10 FTE xuống 4.3 FTE).
 
 ---
 
@@ -526,8 +528,8 @@ Customer withdraws application
 
 | Type | Mô tả | Approval required | Monitoring |
 |------|-------|-------------------|-----------|
-| **CO override approve** (AI said REVIEW/REJECT → CO approve) | CO believe applicant is good despite AI flag | Standard CO authority cho limit ≤ policy max. Supervisor approval cho limit > authority. | Override rate monitored monthly. >60% → model recalibrate. |
-| **CO override reject** (AI said APPROVE → CO reject) | CO believe applicant is risky despite AI approve | CO authority. No additional approval. | Monitor để detect CO bias or training gaps. |
+| **CO override approve** (AI said REVIEW/REJECT → CO approve) | CO believe applicant is good despite AI flag | Standard CO authority cho limit ≤ policy max. Supervisor approval cho limit > authority. | Override rate được theo dõi hàng tháng; nếu vượt 60% thì hiệu chỉnh lại mô hình. |
+| **CO override reject** (AI said APPROVE → CO reject) | CO believe applicant is risky despite AI approve | CO authority. No additional approval. | Theo dõi để phát hiện thiên lệch của CO hoặc thiếu hụt đào tạo. |
 | **Threshold exception** | Approve applicant below TH_low with justification | Senior CO + Supervisor dual sign-off | Case-by-case. Logged separately. |
 
 ### Override Logging (Bắt buộc)
@@ -571,26 +573,13 @@ override_record = {
 | State 4 (Escalate) | 24 giờ (1 BD) | → Committee | Normal |
 | State 5 (Need info) | 14 calendar days (customer) + 4 giờ (CO process) | → Auto-expire (customer) / Supervisor (CO) | Low |
 
-**SLA tracking:** Dashboard show real-time: # applications per state, avg time in state, SLA breach rate. Alert khi SLA breach > 10% trong 1 tuần.
+SLA được theo dõi trên dashboard theo thời gian thực: số hồ sơ theo từng state, thời gian trung bình trong state, tỷ lệ vi phạm SLA. Hệ thống cảnh báo khi tỷ lệ vi phạm SLA vượt 10% trong 1 tuần.
 
 ---
 
-## Tracking — Tự hỏi cuối tuần
+## Tài liệu liên quan
 
-- [ ] 5 states đã được review với Credit Officers chưa? (As-is flow match?)
-- [ ] Threshold values (TH_high, TH_low) đã discuss với Risk Manager chưa?
-- [ ] SLA values realistic với CO capacity hiện tại không?
-- [ ] Override governance đã review với Compliance chưa?
-- [ ] Batch review limit (max X hồ sơ/batch) đã discuss với Risk Committee chưa?
-- [ ] Volume distribution (35-45% State 1) có hợp lý không? Cần shadow testing confirm.
-
----
-
-## Ghi Chú & Limitations
-
-1. **Threshold values (0.75, 0.35, etc.) là placeholders.** Cần tuning dựa trên shadow testing data. Xem Week 6 (Threshold Design).
-2. **Volume distribution (35-45% auto-route) là ước tính.** Actual distribution phụ thuộc model quality + threshold setting. Conservative threshold → ít State 1, nhiều State 2.
-3. **SLA chưa validated với bank ops team.** 4 giờ cho State 1 có thể quá tight nếu CO overloaded. 8 giờ cho State 2 có thể quá loose nếu customer expects same-day.
-4. **Dead zone (±0.02) cần tuning.** Quá nhỏ → ít escalation, miss edge cases. Quá lớn → quá nhiều escalation, CO overload.
-5. **State 3 (Fraud) SLA 4 giờ** — aggressive. Fraud cases cần fast resolution nhưng thorough review. Cần confirm với Fraud team capacity.
-6. **Cross-reference:** sbv-requirements.md (human-in-the-loop, audit trail), damage-model.md (cost-of-error table for threshold design), feature-availability-matrix.md (feature priority stack for AI model design).
+- w02-04-sbv-requirements.md: yêu cầu human-in-the-loop và audit trail.
+- w04-01-damage-model-bank-x.md: bảng chi phí sai sót dùng cho thiết kế ngưỡng.
+- w03-03-feature-availability-matrix.md: thứ tự ưu tiên feature cho mô hình.
+- w06-01-threshold-framework.md: khung ngưỡng và phân tích độ nhạy.

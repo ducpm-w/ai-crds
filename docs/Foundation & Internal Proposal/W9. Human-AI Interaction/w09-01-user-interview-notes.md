@@ -5,229 +5,192 @@
 
 ## Mục đích
 
-Capture insights từ CO interviews để inform UX design, override governance, và trust calibration. Target: 3-5 interviews trước khi design.
-
-**⚠️ STATUS: CHƯA INTERVIEW.** File này chứa interview guide + template. Khi interview xong → fill actual notes vào Section 3.
+Tài liệu mô tả phương pháp phỏng vấn Credit Officer (CO) của Bank X và cách kết quả phỏng vấn được đưa vào thiết kế giao diện, quy tắc override và cơ chế hiệu chỉnh niềm tin. Nhóm phỏng vấn gồm 3-5 người, thực hiện trước khi chốt thiết kế.
 
 ---
 
-## 1. INTERVIEW GUIDE — 5 Câu hỏi Core
+## 1. Bộ Câu Hỏi Phỏng Vấn
 
-### Setup (5 phút)
-
-```
-"Cảm ơn anh/chị dành thời gian. Tôi đang nghiên cứu quy trình
-xét duyệt CC để cải thiện công cụ hỗ trợ cho Credit Officers.
-Không có câu trả lời đúng/sai. Tôi muốn hiểu workflow thật
-của anh/chị. Được phép ghi chú không?"
-```
-
-### Q1 — Current Workflow (10 phút)
+### Mở đầu (5 phút)
 
 ```
-"Anh/chị mô tả 1 ngày làm việc bình thường không?
-Từ lúc nhận hồ sơ đến lúc ký quyết định?"
-
-Probes:
-- Bao nhiêu hồ sơ review/ngày?
-- Tools nào dùng? CBS, Excel, CIC portal?
-- Bao lâu per hồ sơ?
-- Bước nào mất thời gian nhất?
-- Bước nào boring/lặp lại nhất?
+"Cảm ơn anh/chị đã dành thời gian. Tôi đang nghiên cứu quy trình
+xét duyệt thẻ tín dụng để cải thiện công cụ hỗ trợ cho Credit
+Officer. Không có câu trả lời đúng hay sai, tôi muốn hiểu quy trình
+làm việc thực tế của anh/chị. Tôi xin phép ghi chú trong buổi trao đổi."
 ```
 
-**Observe:** Bao nhiêu bước thật (vs quy trình trên giấy)? Tool switching? Workarounds?
-
-### Q2 — Decision Making (10 phút)
+### Q1 — Quy trình làm việc hiện tại (10 phút)
 
 ```
-"Khi nhìn vào 1 hồ sơ, anh/chị quyết định approve/reject
-dựa trên cái gì đầu tiên?
-Top 3 factors quan trọng nhất là gì?"
+"Anh/chị mô tả giúp một ngày làm việc bình thường, từ lúc nhận
+hồ sơ đến lúc ký quyết định?"
 
-Probes:
-- CIC score quan trọng cỡ nào?
-- Thu nhập hay DTI?
-- Employer có quan trọng không?
-- Có "red flags" tức thì nào không? (nhìn vào là reject ngay)
-- Có "green flags" tức thì nào không?
+Câu hỏi gợi mở:
+- Mỗi ngày xử lý bao nhiêu hồ sơ?
+- Sử dụng những công cụ nào? CBS, Excel, cổng CIC?
+- Mỗi hồ sơ mất bao lâu?
+- Bước nào mất nhiều thời gian nhất?
+- Bước nào lặp lại nhiều nhất?
 ```
 
-**Observe:** Mental model của CO. Liệu CO có dùng informal rules không documented?
+Điểm cần quan sát: số bước thực tế so với quy trình trên giấy, việc chuyển đổi giữa các công cụ, các cách làm tắt.
 
-### Q3 — Pain Points (10 phút)
-
-```
-"Loại hồ sơ nào khó quyết định nhất?
-Tại sao? Thường mất bao lâu cho những case đó?"
-
-Probes:
-- Ví dụ cụ thể case khó gần đây?
-- Khi không chắc chắn, hỏi ai?
-- Có quy trình escalate formal không?
-- Case nào anh/chị vẫn nghĩ lại "giá mà mình quyết khác"?
-```
-
-**Observe:** Edge cases. Borderline cases. Cases where CO wished they had more information.
-
-### Q4 — Trust in AI (5 phút)
+### Q2 — Cách ra quyết định (10 phút)
 
 ```
-"Nếu có 1 hệ thống AI đưa ra score từ 0-100 và lý do
-tại sao score đó, anh/chị sẽ dùng nó như thế nào?
-Điều gì khiến anh/chị tin/không tin?"
+"Khi nhìn vào một hồ sơ, anh/chị dựa vào yếu tố nào đầu tiên để
+quyết định duyệt hay từ chối? Ba yếu tố quan trọng nhất là gì?"
 
-Probes:
-- Muốn thấy gì trên màn hình?
-- AI nói approve, anh/chị có approve theo không? Tại sao?
-- AI nói reject, anh/chị có reject theo không?
-- Nếu AI sai 1 lần, anh/chị có dùng tiếp không?
+Câu hỏi gợi mở:
+- Điểm CIC quan trọng đến mức nào?
+- Thu nhập hay DTI quan trọng hơn?
+- Nơi làm việc có ảnh hưởng không?
+- Có dấu hiệu cảnh báo khiến anh/chị từ chối ngay không?
+- Có dấu hiệu tích cực khiến anh/chị yên tâm ngay không?
 ```
 
-**Observe:** Resistance points. Trust conditions. Deal-breakers.
+Điểm cần quan sát: mô hình tư duy của CO, các quy tắc không thành văn.
+
+### Q3 — Khó khăn trong công việc (10 phút)
+
+```
+"Loại hồ sơ nào khó quyết định nhất? Vì sao? Thường mất bao lâu?"
+
+Câu hỏi gợi mở:
+- Ví dụ cụ thể về một hồ sơ khó gần đây?
+- Khi không chắc chắn, anh/chị trao đổi với ai?
+- Có quy trình chuyển cấp chính thức không?
+- Có hồ sơ nào anh/chị muốn quyết định khác đi không?
+```
+
+Điểm cần quan sát: các trường hợp biên, các trường hợp CO cần thêm thông tin.
+
+### Q4 — Mức độ tin tưởng hệ thống AI (5 phút)
+
+```
+"Nếu có một hệ thống đưa ra điểm từ 0-100 kèm lý do, anh/chị sẽ
+sử dụng như thế nào? Điều gì khiến anh/chị tin hoặc không tin?"
+
+Câu hỏi gợi mở:
+- Anh/chị muốn thấy thông tin gì trên màn hình?
+- Hệ thống đề xuất duyệt, anh/chị có duyệt theo không? Vì sao?
+- Hệ thống đề xuất từ chối, anh/chị có từ chối theo không?
+- Nếu hệ thống sai một lần, anh/chị có tiếp tục dùng không?
+```
+
+Điểm cần quan sát: các điểm e ngại, điều kiện để tin tưởng, yếu tố khiến CO ngừng sử dụng.
 
 ### Q5 — Override (5 phút)
 
 ```
-"Có bao giờ anh/chị muốn override quyết định hệ thống không?
-Ví dụ: hệ thống nói approve nhưng anh/chị muốn reject?"
+"Có khi nào anh/chị muốn thay đổi quyết định mà hệ thống đề xuất
+không? Ví dụ hệ thống đề xuất duyệt nhưng anh/chị muốn từ chối?"
 
-Probes:
-- Bao lâu 1 lần override?
-- Lý do phổ biến nhất?
-- Khi override, ai cần biết?
-- Anh/chị có ngại override không? Tại sao?
+Câu hỏi gợi mở:
+- Bao lâu xảy ra một lần?
+- Lý do phổ biến nhất là gì?
+- Khi thay đổi quyết định, ai cần được biết?
+- Anh/chị có ngại thay đổi quyết định không? Vì sao?
 ```
 
-**Observe:** Override frequency, reasons, perceived authority, fear of consequences.
+Điểm cần quan sát: tần suất, lý do, cảm nhận về thẩm quyền, mức độ e ngại hậu quả.
 
-### Closing (5 phút)
+### Kết thúc (5 phút)
 
 ```
-"Nếu anh/chị có thể thay đổi 1 thứ trong quy trình hiện tại,
-đó sẽ là gì?"
-"Cảm ơn rất nhiều. Tôi có thể quay lại hỏi thêm sau không?"
+"Nếu có thể thay đổi một điều trong quy trình hiện tại, anh/chị sẽ
+thay đổi điều gì?"
+"Cảm ơn anh/chị. Tôi có thể trao đổi thêm khi cần không?"
 ```
 
 ---
 
-## 2. INTERVIEW LOGISTICS
+## 2. Tổ Chức Phỏng Vấn
 
-| Item | Plan |
-|------|------|
-| **Target** | 3-5 Credit Officers. Mix: 1-2 Junior CO, 1-2 Senior CO, 1 Fraud Analyst (nếu có). |
-| **Duration** | 30-45 phút per interview. Informal OK. |
-| **Location** | CO workspace hoặc meeting room tại bank. Coffee OK. |
-| **Recording** | Notes only (no audio/video — CO có thể uncomfortable). Take verbatim quotes khi possible. |
-| **Consent** | Verbal: "Tôi ghi chú để thiết kế tool tốt hơn. Tên anh/chị sẽ ẩn danh." |
-| **Incentive** | None needed — inhouse advantage. Có thể buy coffee. |
+| Hạng mục | Nội dung |
+|----------|---------|
+| Đối tượng | 3-5 Credit Officer của Bank X: 1-2 CO cấp junior, 1-2 CO cấp senior, 1 Fraud Analyst |
+| Thời lượng | 30-45 phút mỗi buổi, trao đổi không chính thức |
+| Địa điểm | Khu vực làm việc của CO hoặc phòng họp tại Bank X |
+| Ghi nhận | Ghi chú tay, không ghi âm hoặc quay hình; ghi nguyên văn các câu trích dẫn có giá trị |
+| Đồng ý tham gia | Xin phép bằng lời; thông tin cá nhân được ẩn danh |
+| Khuyến khích | Không cần, do phỏng vấn nội bộ |
 
-### Scheduling
+### Cơ cấu người tham gia
 
-| # | Role | Target Date | Status |
-|---|------|-----------|--------|
-| 1 | Junior/Mid CO | Week 9 | ❌ Chưa schedule |
-| 2 | Junior/Mid CO | Week 9 | ❌ Chưa schedule |
-| 3 | Senior CO | Week 9 | ❌ Chưa schedule |
-| 4 | Senior CO / Supervisor | Week 9 | ❌ Chưa schedule |
-| 5 | Fraud Analyst (nếu có) | Week 9 | ❌ Chưa schedule |
-
----
-
-## 3. INTERVIEW NOTES — Template per Interview
-
-### Interview #1
-
-| Attribute | Value |
-|-----------|-------|
-| **Role** | ❓ Credit Officer / Senior CO / Fraud Analyst |
-| **Experience** | ❓ X năm |
-| **Date** | ❓ DD/MM/YYYY |
-| **Duration** | ❓ min |
-
-**Q1 — Workflow:**
-- ❓ Pending interview
-
-**Q2 — Decision factors (top 3):**
-1. ❓
-2. ❓
-3. ❓
-
-**Q3 — Pain points:**
-1. ❓
-2. ❓
-
-**Q4 — Trust/resistance signals:**
-- ❓
-
-**Q5 — Override behavior:**
-- ❓
-
-**Key quotes (verbatim):**
-- ❓ "..."
-
-**What surprised me:**
-- ❓
-
-**What confirmed assumptions:**
-- ❓
-
-**What contradicted assumptions:**
-- ❓
-
-**Design implications:**
-- ❓
+| # | Vai trò |
+|---|--------|
+| 1 | CO cấp junior hoặc middle |
+| 2 | CO cấp junior hoặc middle |
+| 3 | CO cấp senior |
+| 4 | CO cấp senior hoặc Supervisor |
+| 5 | Fraud Analyst |
 
 ---
 
-*(Copy template trên cho Interview #2, #3, #4, #5)*
+## 3. Mẫu Ghi Chép Mỗi Buổi Phỏng Vấn
+
+| Thuộc tính | Nội dung |
+|-----------|---------|
+| Vai trò | Credit Officer / Senior CO / Fraud Analyst |
+| Kinh nghiệm | Số năm làm việc |
+| Ngày phỏng vấn | DD/MM/YYYY |
+| Thời lượng | Số phút |
+
+Mỗi buổi phỏng vấn được ghi theo các mục sau:
+
+1. Quy trình làm việc (Q1)
+2. Ba yếu tố quyết định hàng đầu (Q2)
+3. Các khó khăn chính (Q3)
+4. Tín hiệu tin tưởng và e ngại (Q4)
+5. Hành vi override (Q5)
+6. Trích dẫn nguyên văn
+7. Điểm khác với giả định thiết kế ban đầu
+8. Hàm ý thiết kế
 
 ---
 
-## 4. SYNTHESIS — After All Interviews
+## 4. Tổng Hợp Kết Quả
 
-### 4.1 Common Patterns (across interviews)
+Kết quả của các buổi phỏng vấn được tổng hợp theo bốn bảng dưới đây và là đầu vào cho các tài liệu thiết kế liên quan.
 
-| Pattern | Evidence (how many COs mentioned) | Design implication |
-|---------|----------------------------------|-------------------|
-| ❓ | ❓/5 | ❓ |
+### 4.1 Mẫu hành vi chung
 
-### 4.2 Top Decision Factors (consensus)
+| Mẫu hành vi | Số CO đề cập | Hàm ý thiết kế |
+|-------------|-------------|----------------|
+| Mô tả mẫu hành vi | Số CO / tổng số CO | Thay đổi tương ứng trong giao diện hoặc quy trình |
 
-| Rank | Factor | Mentioned by | Align with feature-availability-matrix.md? |
-|------|--------|-------------|-------------------------------------------|
-| 1 | ❓ | ❓/5 | ❓ |
-| 2 | ❓ | ❓/5 | ❓ |
-| 3 | ❓ | ❓/5 | ❓ |
+### 4.2 Yếu tố quyết định phổ biến
 
-### 4.3 Trust Conditions (what CO needs to trust AI)
+| Thứ hạng | Yếu tố | Số CO đề cập | Đối chiếu với w03-03-feature-availability-matrix |
+|---------|--------|-------------|---------------------------------------------------|
+| 1 | Yếu tố được nhắc nhiều nhất | Số CO / tổng số CO | Có sẵn dữ liệu hay không |
+| 2 | Yếu tố thứ hai | Số CO / tổng số CO | Có sẵn dữ liệu hay không |
+| 3 | Yếu tố thứ ba | Số CO / tổng số CO | Có sẵn dữ liệu hay không |
 
-| Condition | Mentioned by | Implementation |
-|----------|-------------|---------------|
-| ❓ | ❓/5 | ❓ |
+### 4.3 Điều kiện để CO tin tưởng hệ thống
 
-### 4.4 Override Patterns
+| Điều kiện | Số CO đề cập | Cách đáp ứng |
+|----------|-------------|--------------|
+| Mô tả điều kiện | Số CO / tổng số CO | Tính năng hoặc quy trình tương ứng |
 
-| Override type | Frequency (CO estimate) | Reason | Design response |
-|-------------|----------------------|--------|----------------|
-| ❓ | ❓ | ❓ | ❓ |
+### 4.4 Mẫu hành vi override
 
----
-
-## Tracking
-
-- [ ] ⚠️ **Đã interview ≥ 3 CO chưa?** Nếu chưa → schedule NGAY tuần này. Informal 30 phút là đủ.
-- [ ] Key insights captured?
-- [ ] Synthesis done (Section 4)?
-- [ ] Design implications fed into ux-wireframes-notes.md?
-- [ ] Override insights fed into override-governance.md?
-- [ ] Trust insights fed into trust-calibration-guide.md?
+| Loại override | Tần suất theo ước tính của CO | Lý do | Phản hồi thiết kế |
+|--------------|-------------------------------|-------|-------------------|
+| Override sang duyệt hoặc từ chối | Mức độ thường xuyên | Lý do phổ biến | Cơ chế xử lý trong w09-03-override-governance |
 
 ---
 
-## Ghi Chú
+## 5. Ứng Dụng Kết Quả
 
-1. **Interviews TRƯỚC design.** Không design UX rồi mới hỏi CO — hỏi trước, design sau.
-2. **Verbatim quotes rất valuable** — dùng trong proposal Week 11 ("Credit Officers nói...").
-3. **Nếu không kịp interview Week 9** → ít nhất 1-2 informal conversations. Ghi notes. Better than nothing.
-4. **Cross-reference:** workflow-as-is.md (validate as-is flow), ux-wireframes-notes.md (design based on interviews), trust-calibration-guide.md (trust conditions from Q4).
+| Nhóm kết quả | Tài liệu sử dụng |
+|-------------|------------------|
+| Quy trình làm việc thực tế | w08-01-workflow-as-is |
+| Hàm ý về giao diện | w09-02-ux-wireframes-v1 |
+| Mẫu hành vi override và lý do | w09-03-override-governance |
+| Điều kiện tin tưởng và e ngại | w09-05-trust-calibration-guide |
+| Trích dẫn nguyên văn của CO | w11-03-proposed-solution |
+
+Phỏng vấn được thực hiện trước khi chốt thiết kế giao diện để các quyết định thiết kế dựa trên cách làm việc thực tế của CO.

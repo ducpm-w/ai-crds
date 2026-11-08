@@ -1,5 +1,5 @@
 # Market Context — Credit Card Origination tại VN
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
@@ -22,13 +22,13 @@
 
 ### 1.4. Nhận xét
 
-Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua phát hành → volume hồ sơ origination tăng nhanh → áp lực lên capacity thẩm định. Đồng thời, BNPL approve trong phút trong khi CC mất ngày → mất khách nếu chậm.
+Penetration 3% cho thấy thị trường còn nhiều dư địa. Các ngân hàng đang đẩy mạnh phát hành nên volume hồ sơ origination tăng nhanh, tạo áp lực lên năng lực thẩm định. Đồng thời BNPL phê duyệt trong vài phút trong khi thẻ tín dụng mất nhiều ngày, nên ngân hàng có nguy cơ mất khách nếu xử lý chậm.
 
 ---
 
 ## 2. Volume phát hành — Top banks
 
-### 2.1. Thẻ mới phát hành ✅ Verified
+### 2.1. Thẻ mới phát hành
 
 | Bank | Thẻ CC lưu hành | Thẻ mới phát hành (12 tháng gần nhất) | Doanh số giao dịch CC | Nguồn |
 |------|-----------------|---------------------------------------|----------------------|-------|
@@ -38,9 +38,9 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | **Sacombank** | >1 triệu (đầu 2025) | Không công bố cụ thể | Không công bố | vietnam.vn, 11/2025 |
 | **TPBank** | Không công bố | Tăng ~140% trong 2023; doanh số 29 nghìn tỷ VND | Riêng Visa >$1 tỷ/năm (2023) | TPBank website, 2024 |
 
-4 bank (VPBank, Techcombank, VIB, Sacombank) đã gia nhập "câu lạc bộ triệu thẻ" *(vietnam.vn, 11/2025)*.
+Bốn ngân hàng (VPBank, Techcombank, VIB, Sacombank) đã gia nhập "câu lạc bộ triệu thẻ" *(vietnam.vn, 11/2025)*.
 
-### 2.2. Market share tham khảo (H1/2021 — dữ liệu cũ nhất có nguồn)
+### 2.2. Market share tham khảo (H1/2021)
 
 | Bank | Market share CC quốc tế |
 |------|------------------------|
@@ -50,15 +50,15 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | VIB | 8% |
 | Sacombank | 6% |
 
-*Nguồn: VIR, 12/2021. Market share có thể đã thay đổi đáng kể đến 2025 — VPBank đã vượt lên dẫn đầu về volume.*
+*Nguồn: VIR, 12/2021. Thị phần đã thay đổi đáng kể đến 2025; VPBank hiện dẫn đầu về volume.*
 
 ### 2.3. Digital bank nổi bật
 
-**Cake by VPBank** — proof point cho AI credit scoring tại VN:
+**Cake by VPBank** — trường hợp tham chiếu cho AI credit scoring tại Việt Nam:
 - 6.2 triệu khách hàng *(VIR, 1/2026)*
 - >1 triệu đơn tín dụng/tháng (bao gồm CC + consumer loan + BNPL, không chỉ CC) *(VIR, 1/2026)*
 - 40+ AI models, bao gồm 11 cho credit scoring & fraud, 7 cho eKYC, 4 generative AI *(The Asian Banker, 2024)*
-- Total income +225% trong 9 tháng đầu 2025; lợi nhuận Q3 gấp 4x cùng kỳ. Digital bank profitable đầu tiên VN *(VIR, 1/2026)*
+- Total income +225% trong 9 tháng đầu 2025; lợi nhuận Q3 gấp 4x cùng kỳ. Digital bank có lãi đầu tiên tại Việt Nam *(VIR, 1/2026)*
 - Self-built core banking + card management system in-house. Google Vertex AI, Visa Cloud Connect *(Google Cloud case study; Visa VN, 11/2024)*
 
 **TNEX (MSB):**
@@ -91,7 +91,7 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 
 ### 3.3. NPL credit card
 
-**Chưa có nguồn public tại VN.** Không bank nào publish NPL riêng cho segment credit card. Tuy nhiên, credit card là khoản vay unsecured → LGD thường **60–80%** → NPL segment này thường cao hơn secured lending. Cần validate trực tiếp với bank partner.
+Chưa có số liệu công bố tại Việt Nam: không ngân hàng nào công bố NPL riêng cho segment credit card. Do credit card là khoản vay không có tài sản bảo đảm với LGD thường 60–80%, NPL segment này thường cao hơn các khoản vay có bảo đảm. Trong tài liệu này, NPL credit card của Bank X được lấy theo giả định tham chiếu từ NPL nhóm ngân hàng bán lẻ và sẽ được thay bằng số liệu thực của Bank X khi có.
 
 ---
 
@@ -106,7 +106,7 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | Tổng tấn công mạng nhắm vào tài chính–ngân hàng | **71%** tổng tấn công | Viettel Cyber Security Threat Report 2024, trích VietnamPlus, 4/2025 |
 | Tài khoản thanh toán/ví điện tử có dấu hiệu gian lận | **592,000** (tính đến 12/2025) | Vụ Thanh toán NHNN, trích vietnam.vn, 12/2025 |
 
-**Nhận xét:** Fraud tập trung đúng tại điểm origination (93% từ online khi phát hành thẻ). Đây chính xác là điểm AI-CRDS can thiệp — fraud detection layer tích hợp với scoring tại cùng thời điểm nộp hồ sơ.
+Nhận xét: fraud tập trung tại điểm origination (93% từ online khi phát hành thẻ). Đây là điểm AI-CRDS can thiệp, với fraud detection layer tích hợp cùng scoring tại thời điểm nộp hồ sơ.
 
 ---
 
@@ -116,10 +116,10 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 
 | Bank/Tổ chức | AI deployment | Chi tiết | Nguồn |
 |-------------|--------------|---------|-------|
-| **TPBank** | 15+ mô hình ML (IBM Watson) trong 2024 | Deploy time -17% (36→30 ngày); conversion +24%. Chủ yếu propensity model, chưa phải credit scoring tại origination | IBM Case Study, 2024 |
+| **TPBank** | 15+ mô hình ML (IBM Watson) trong 2024 | Deploy time -17% (36→30 ngày); conversion +24%. Chủ yếu là propensity model, chưa phải credit scoring tại origination | IBM Case Study, 2024 |
 | **TPBank** | 75–80% khách mới từ kênh digital | Chỉ 20–25% từ chi nhánh | The Asian Banker, 2025 |
 | **Cake by VPBank** | 40+ AI models | 11 cho credit scoring & fraud, 7 eKYC, 4 generative AI. Pipeline tích hợp scoring + fraud trong 1 flow | The Asian Banker, 2024 |
-| **CIC** | Đang áp dụng AI nâng cao hệ thống scoring | Chi tiết chưa public | Nhiều nguồn tham chiếu |
+| **CIC** | Đang áp dụng AI nâng cao hệ thống scoring | Chưa công bố chi tiết | Nhiều nguồn tham chiếu |
 
 ### 5.2. Digital transformation
 
@@ -131,7 +131,7 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 
 ## 6. Regulatory Landscape — Quy định liên quan
 
-### 6.1. Thông tư 45/2025/TT-NHNN — Quy định mới về thẻ ngân hàng ✅ Verified
+### 6.1. Thông tư 45/2025/TT-NHNN — Quy định mới về thẻ ngân hàng
 
 **Ban hành:** 19/11/2025 bởi Thống đốc NHNN  
 **Hiệu lực:** 5/1/2026  
@@ -142,16 +142,16 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 **a) Bắt buộc đối chiếu sinh trắc học khi phát hành thẻ:**
 - Tổ chức phát hành thẻ (TCPHT) phải gặp mặt trực tiếp khách hàng cá nhân để kiểm tra đối chiếu giấy tờ tùy thân và thông tin sinh trắc học *(Điều 2, Thông tư 45/2025 — luatvietnam.vn; cafef.vn, 26/11/2025)*.
 
-**b) Ngoại lệ cho kênh digital — quan trọng cho digital banks:**
+**b) Ngoại lệ cho kênh digital:**
 - Nếu khách hàng đăng ký giao dịch trên app/phần mềm ứng dụng cung cấp dịch vụ trực tuyến trong ngành ngân hàng: TCPHT **không bắt buộc gặp mặt trực tiếp** nhưng vẫn phải thực hiện đối chiếu sinh trắc học online + kiểm tra số điện thoại chính chủ *(tapsanluatsunoibo.com, 14/1/2026, trích Thông tư 45 Điều 9 sửa đổi)*.
-- Tức là: **digital banks vẫn có thể phát hành thẻ qua app**, nhưng phải có sinh trắc học online (face matching với CCCD chip/VNeID) + verify SĐT chính chủ.
+- Do đó ngân hàng vẫn có thể phát hành thẻ qua app, với điều kiện có sinh trắc học online (face matching với CCCD chip/VNeID) và xác minh số điện thoại chính chủ.
 
 **c) Thẻ chỉ được giao dịch điện tử sau khi đối chiếu sinh trắc học:**
 - Thẻ chỉ được sử dụng giao dịch bằng phương tiện điện tử khi đã hoàn thành đối chiếu giấy tờ tùy thân và sinh trắc học *(Điều 16 sửa đổi, Thông tư 45/2025 — thuvienphapluat.vn)*.
 - Khách hàng chưa hoàn tất trước 5/1/2026 sẽ bị tạm dừng giao dịch điện tử *(etime.danviet.vn, 5/1/2026)*.
 
 **d) Hạn chế sử dụng thẻ tín dụng:**
-- Thẻ tín dụng **không được chuyển khoản** vào tài khoản thanh toán, thẻ ghi nợ, thẻ trả trước, **ví điện tử** *(Điều 16 sửa đổi — thuvienphapluat.vn)*. Quy định mới này ảnh hưởng đến BNPL/fintech dùng CC funding.
+- Thẻ tín dụng **không được chuyển khoản** vào tài khoản thanh toán, thẻ ghi nợ, thẻ trả trước, **ví điện tử** *(Điều 16 sửa đổi — thuvienphapluat.vn)*. Quy định này ảnh hưởng đến BNPL/fintech dùng thẻ tín dụng làm nguồn tiền.
 - Tổng hạn mức rút tiền mặt tối đa **100 triệu VND/tháng** per BIN *(luatvietnam.vn)*.
 
 **e) Báo cáo gian lận định kỳ:**
@@ -162,21 +162,21 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | Quy định | Impact lên AI-CRDS | Cơ hội |
 |----------|-------------------|--------|
 | Sinh trắc học bắt buộc | Không ảnh hưởng trực tiếp đến AI scoring logic | Có thể tích hợp biometric matching score như fraud signal trong scoring pipeline |
-| Digital bank miễn gặp mặt nếu có sinh trắc online | Digital banks vẫn có thể dùng AI-CRDS trong full digital flow | Value prop AI-CRDS cho digital bank không bị ảnh hưởng |
-| CC không chuyển khoản vào ví điện tử | Không ảnh hưởng trực tiếp | Giảm 1 kênh abuse CC → có thể giảm fraud pattern liên quan |
-| Báo cáo gian lận qua SIMO | AI-CRDS cần log fraud flags exportable cho SIMO compliance | Thêm 1 compliance feature vào product roadmap |
+| Miễn gặp mặt trực tiếp nếu có sinh trắc online | AI-CRDS vẫn dùng được trong luồng phát hành hoàn toàn số | Giá trị của AI-CRDS không bị ảnh hưởng |
+| CC không chuyển khoản vào ví điện tử | Không ảnh hưởng trực tiếp | Giảm một kênh lạm dụng thẻ tín dụng, có thể giảm các pattern fraud liên quan |
+| Báo cáo gian lận qua SIMO | AI-CRDS cần log fraud flags có thể xuất cho báo cáo SIMO | Bổ sung một tính năng tuân thủ vào product roadmap |
 
 ### 6.2. Các quy định khác đã mapping
 
 | Quy định | Nội dung liên quan | Impact lên AI-CRDS | Nguồn |
 |----------|-------------------|-------------------|-------|
 | **Nghị định 13/2023/NĐ-CP (PDPD)** | Bảo vệ dữ liệu cá nhân, hiệu lực 1/2026 | Data residency, consent management, DSAR handling, cross-border data transfer rules | IFLR Banking & Finance Guide 2025 |
-| **Nghị định 94/2025** | Sandbox cho credit scoring, open API, P2P lending | Giảm rào cản compliance khi triển khai AI scoring — không còn vùng xám pháp lý | ainvest.com, 8/2025; IFLR, 9/2025 |
+| **Nghị định 94/2025** | Sandbox cho credit scoring, open API, P2P lending | Giảm rào cản tuân thủ khi triển khai AI scoring | ainvest.com, 8/2025; IFLR, 9/2025 |
 | **Thông tư 13/2018/TT-NHNN** | Quản lý rủi ro hệ thống thông tin trong ngân hàng | IT security requirements cho AI system tại bank | SBV |
 | **Thông tư 41/2016/TT-NHNN** | Basel II capital adequacy | Model risk management, internal rating requirements | SBV |
 | **Luật Tổ chức Tín dụng sửa đổi 2025** | Hiệu lực 15/10/2025, provisions mới về xử lý nợ xấu | Collection priority use case (Phase 4) bị ảnh hưởng | IFLR, 9/2025 |
 
-*Chi tiết regulatory mapping sẽ được thiết kế đầy đủ tại Week 2 theo roadmap.*
+Chi tiết regulatory mapping xem `w02-01-regulatory-mapping`.
 
 ---
 
@@ -189,7 +189,7 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | Glassdoor Vietnam — Credit Analyst | **18.3 triệu VND/tháng** | 15–22 triệu | 13 mẫu lương, dữ liệu đến 8/2025 |
 | SalaryExplorer Vietnam — Credit Risk Analyst | **21.7 triệu VND/tháng** | — | Khảo sát rộng hơn, 2024 |
 
-### 7.2. Productivity benchmark (global — chưa có VN specific)
+### 7.2. Productivity benchmark (quốc tế)
 
 | Metric | Benchmark | Nguồn |
 |--------|-----------|-------|
@@ -200,28 +200,26 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | AI approval time reduction (low-risk) | Tới **90%** | NeonTri, trích Autonomous Research, 9/2025 |
 | AI false positive reduction (fraud) | Giảm **50%** false positives | Fluxforce, trích McKinsey & ING case, 12/2025 |
 
-⚠️ Tất cả benchmark trên là global. VN context cần discount **30–50%** do data quality thấp hơn, CIC coverage không đồng đều, bank VN thận trọng hơn khi pilot.
+Các benchmark trên là số liệu quốc tế. Khi áp dụng cho Bank X, cần điều chỉnh giảm 30–50% do chất lượng dữ liệu thấp hơn, độ phủ CIC không đồng đều và mức thận trọng cao hơn khi pilot.
 
 ---
 
-## 8. AI Credit Scoring — Global Benchmarks (để tham chiếu, không phải VN)
+## 8. AI Credit Scoring — Benchmark quốc tế
 
 | Metric | Benchmark | Nguồn | Lưu ý |
 |--------|-----------|-------|-------|
-| Manual review reduction | Tới **60%** | NeonTri, trích Autonomous Research, 9/2025 | Target VN conservative: 20–30% |
-| Loan automation | MNT-Halan: >**50%** phê duyệt tự động | World Economic Forum, 10/2025 | Egypt market, khác VN |
+| Manual review reduction | Tới **60%** | NeonTri, trích Autonomous Research, 9/2025 | Target Bank X conservative: 20–30% |
+| Loan automation | MNT-Halan: >**50%** phê duyệt tự động | World Economic Forum, 10/2025 | Thị trường Ai Cập, khác Việt Nam |
 | Default prediction accuracy improvement | **15–25%** so với scorecard truyền thống | NeonTri, 9/2025 | Phụ thuộc data quality |
-| Credit loss reduction | Tới **30%** | NeonTri, 9/2025 | Target VN: giữ nguyên NPL đã là win |
-| Approval rate increase (giữ nguyên risk) | **+20–30%** | Netguru, trích Zest AI case studies, 1/2026 | Target VN: +5% conservative |
-| Scale reference | WeBank, MYBank: >**10 triệu** khoản vay/năm, NPL chỉ **1%** | CTO Magazine, 7/2025 | China market, infrastructure khác VN rất lớn |
+| Credit loss reduction | Tới **30%** | NeonTri, 9/2025 | Target Bank X: giữ nguyên NPL |
+| Approval rate increase (giữ nguyên risk) | **+20–30%** | Netguru, trích Zest AI case studies, 1/2026 | Target Bank X: +5% conservative |
+| Scale reference | WeBank, MYBank: >**10 triệu** khoản vay/năm, NPL chỉ **1%** | CTO Magazine, 7/2025 | Thị trường Trung Quốc, hạ tầng khác Việt Nam rất lớn |
 
-⚠️ Đây là benchmark để tham chiếu khi pitch — **KHÔNG phải target promise cho bank VN**. Khi pitch, dùng range conservative và ghi rõ "benchmark global, target VN sẽ được xác định sau pilot."
+Các benchmark này dùng để tham chiếu, không phải cam kết mục tiêu cho Bank X. Mục tiêu của Bank X được đặt theo khoảng conservative tại `w01-02-problem-brief`.
 
 ---
 
-## 9. Tổng hợp — Data có vs Data thiếu
-
-### Có (Verified)
+## 9. Tổng hợp số liệu thị trường
 
 | Metric | Data | Nguồn |
 |--------|------|-------|
@@ -238,17 +236,19 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | Nghị định 94/2025 | Sandbox credit scoring | IFLR 9/2025 |
 | BNPL | CAGR 58.3%, $2.6B 2025 | PayNXT360 |
 
-### Thiếu (Gap — cần validate với bank partner)
+### Số liệu nội bộ Bank X dùng giả định
 
-| Metric | Tại sao thiếu | Khi nào fill |
-|--------|--------------|-------------|
-| NPL riêng credit card | Không bank VN nào publish | Week 13 (Discovery) |
-| Approval / reject / manual review rate | Data operational nội bộ | Week 13 |
-| Thời gian review 1 hồ sơ CC | Data operational nội bộ | Week 13 |
-| Số Credit Officer per bank | Không có nguồn public | Week 13 |
-| Hồ sơ CC nộp/ngày (thực tế) | Chỉ có derived estimate | Week 13 |
-| Current scoring method per bank | Rules? Scorecard? ML? | Week 13 |
-| CIC API latency thực tế | Cần test integration | Week 10 |
+Các số liệu vận hành sau chưa có nguồn công bố và được dùng ở dạng giả định lập kế hoạch trong bộ tài liệu này; sẽ được thay bằng dữ liệu thực của Bank X khi có.
+
+| Metric | Cách xử lý trong tài liệu |
+|--------|---------------------------|
+| NPL riêng credit card | Giả định theo NPL nhóm ngân hàng bán lẻ |
+| Approval / reject / manual review rate | Giả định theo `w01-04-decision-frequency` |
+| Thời gian review một hồ sơ CC | Giả định 15–30 phút |
+| Số Credit Officer | Giả định theo `w01-04-decision-frequency` |
+| Số hồ sơ CC nộp mỗi ngày | Ước tính từ quy mô thị trường |
+| Phương pháp scoring hiện tại | Giả định rule-based kết hợp scorecard |
+| CIC API latency | Giả định theo mô tả kỹ thuật, xem `w10-04-api-availability-assessment` |
 
 ---
 
@@ -298,11 +298,3 @@ Penetration 3% = thị trường còn rất lớn. Các bank đang chạy đua p
 | 40 | tapsanluatsunoibo.com — Tăng tính bảo mật thẻ ngân hàng | Ngoại lệ digital: không bắt buộc gặp mặt nếu có sinh trắc online + SĐT chính chủ | 14/1/2026 |
 | 41 | thuvienphapluat.vn — Sửa đổi phạm vi sử dụng thẻ | CC không chuyển khoản vào ví điện tử; rút tiền mặt max 100M/tháng | 2025 |
 | 42 | etime.danviet.vn — Quy định mới nhất về thẻ tín dụng | Chưa hoàn tất sinh trắc trước 5/1/2026 → tạm dừng giao dịch điện tử | 5/1/2026 |
-
----
-
-## Changelog
-
-| Version | Thay đổi |
-|---------|---------|
-| v1.0 | Tổng hợp toàn bộ market data từ problem-brief.md, operational-baseline.md, target-bank-profile.md. Thêm Section 6: Thông tư 45/2025 (verified). Thêm Section 8: Global AI benchmarks tách riêng khỏi VN data. Thêm Section 9: Data có vs thiếu. |

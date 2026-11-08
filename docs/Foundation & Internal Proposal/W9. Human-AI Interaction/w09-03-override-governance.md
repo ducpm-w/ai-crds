@@ -5,115 +5,119 @@
 
 ## Mục đích
 
-Define override rights, escalation rules, monitoring, và feedback loop. Cần Compliance + Risk Manager review trước khi finalize.
+Quy định quyền override, quy tắc chuyển cấp, cơ chế giám sát và vòng phản hồi cải thiện mô hình khi Credit Officer (CO) của Bank X thay đổi đề xuất của AI-CRDS.
+
+Các ngưỡng, thời hạn xử lý và tỷ lệ trong tài liệu là giả định thiết kế ban đầu; sẽ được hiệu chỉnh bằng dữ liệu vận hành thực tế của Bank X.
 
 ---
 
-## 1. OVERRIDE RIGHTS — Who Can Override What
+## 1. QUYỀN OVERRIDE
 
-### 1.1 Core Policy
+### 1.1 Chính sách cốt lõi
 
-**Mọi CO có quyền override AI recommendation.** AI là decision support, không phải decision maker (Luật AI 134/2025 Điều 4, Luật TCTD 2024). Override = CO exercising their professional judgment.
+Mọi CO đều có quyền override đề xuất của AI. AI là công cụ hỗ trợ quyết định, không phải người ra quyết định (Luật AI 134/2025 Điều 4, Luật TCTD 2024). Override là việc CO vận dụng phán đoán chuyên môn.
 
-**Override PHẢI được log** — reason category (dropdown) + detail (free text, min 20 chars) = mandatory cho mọi override. Không có exception.
+Mọi override phải được ghi nhận: nhóm lý do (chọn từ danh sách) và chi tiết (nhập tự do, tối thiểu 20 ký tự) là bắt buộc, không có ngoại lệ.
 
-### 1.2 Override Authority Matrix
+### 1.2 Ma trận thẩm quyền override
 
-| Override type | Who can do | Supervisor approval? | Condition |
-|-------------|-----------|---------------------|----------|
-| **Confirm AI approve** (S1 batch) | Any CO | ❌ No | Agreement, not override |
-| **Reject when AI recommends approve** | Any CO | ⚠️ **Notify supervisor** (not block) | Log reason. Supervisor reviews within 24h. |
-| **Approve when AI recommends review** (S2) | Any CO | ❌ No | Normal — CO reviewed and decided. Within authority limit. |
-| **Reject when AI recommends review** (S2) | Any CO | ❌ No | Normal review outcome. |
-| **Approve when AI recommends reject** | Any CO within authority | ✅ **Yes — supervisor co-sign required** | High-risk override. Supervisor must review and co-sign within 4h. |
-| **Approve above CO authority limit** | Senior CO / Committee | ✅ Yes — per standard bank hierarchy | Not AI-specific — existing bank policy. |
-| **Approve when fraud flag > 0.3** (not cleared) | ❌ **NOT ALLOWED** for standard CO | Fraud team must clear first | Fraud flag must be resolved before credit decision. Route to State 3 first. |
-| **Clear fraud flag** | Fraud Analyst / Senior CO (fraud-trained) only | ❌ No (within fraud authority) | Log EDD checklist completion. |
+| Loại override | Người thực hiện | Cần Supervisor phê duyệt? | Điều kiện |
+|--------------|----------------|--------------------------|----------|
+| Xác nhận AI đề xuất duyệt (S1 batch) | Mọi CO | Không | Là đồng thuận, không phải override |
+| Từ chối khi AI đề xuất duyệt | Mọi CO | Thông báo Supervisor (không chặn) | Ghi lý do; Supervisor xem xét trong 24 giờ |
+| Duyệt khi AI đề xuất review (S2) | Mọi CO | Không | Kết quả bình thường sau khi CO xem xét, trong hạn mức thẩm quyền |
+| Từ chối khi AI đề xuất review (S2) | Mọi CO | Không | Kết quả review bình thường |
+| Duyệt khi AI đề xuất từ chối | Mọi CO trong thẩm quyền | Có, Supervisor đồng ký | Override rủi ro cao; Supervisor xem xét và đồng ký trong 4 giờ |
+| Duyệt vượt hạn mức thẩm quyền của CO | Senior CO hoặc Hội đồng | Có, theo phân cấp chuẩn của Bank X | Theo chính sách hiện hành của Bank X, không riêng cho AI |
+| Duyệt khi fraud flag lớn hơn 0.3 (chưa được xử lý) | Không cho phép với CO thông thường | Bộ phận fraud phải xử lý trước | Fraud flag phải được xử lý xong trước khi quyết định tín dụng; chuyển về State 3 trước |
+| Xử lý (clear) fraud flag | Chỉ Fraud Analyst hoặc Senior CO đã được đào tạo về fraud | Không (thuộc thẩm quyền fraud) | Ghi nhận hoàn tất danh mục EDD |
 
-### 1.3 Override Reason Categories
+### 1.3 Nhóm lý do override
 
-| Code | Category | When to use | Example |
-|------|---------|------------|---------|
-| `REL` | Relationship knowledge | CO knows customer personally, has info AI doesn't have | "Khách VIP 5 năm, income verify qua payroll, situation temporary" |
-| `INC` | Income verification | CO verified income through additional means | "Bank statement confirms 25M/month despite declared 18M" |
-| `EMP` | Employer verification | CO verified employer legitimacy/stability | "Employer is government agency — stable despite CIC inquiries" |
-| `TMP` | Temporary situation | DPD/NPL due to temporary event, customer recovered | "DPD 30 due to hospitalization 6M ago, fully recovered, paying on time since" |
-| `ERR` | AI error suspected | CO believes AI output is incorrect (data issue, model bug) | "AI score 0.45 but all indicators positive — possible data input error" |
-| `POL` | Policy concern | Case falls outside standard policy, needs judgment | "Limit request 80M for income 15M — high DTI but employer FDI with bonus structure" |
-| `OTH` | Other | None of above | Free text mandatory (min 50 chars for OTH) |
+| Mã | Nhóm | Khi nào dùng | Ví dụ |
+|----|------|-------------|-------|
+| `REL` | Relationship knowledge | CO biết trực tiếp khách hàng và có thông tin AI không có | "Khách hàng VIP 5 năm, thu nhập xác minh qua payroll, tình huống chỉ mang tính tạm thời" |
+| `INC` | Income verification | CO đã xác minh thu nhập bằng cách khác | "Sao kê ngân hàng xác nhận thu nhập 25M/tháng, cao hơn khai báo 18M" |
+| `EMP` | Employer verification | CO đã xác minh độ tin cậy và ổn định của nơi làm việc | "Nơi làm việc là cơ quan nhà nước, ổn định dù có nhiều truy vấn CIC" |
+| `TMP` | Temporary situation | DPD hoặc nợ xấu do sự kiện tạm thời và khách hàng đã phục hồi | "DPD 30 do nằm viện cách đây 6 tháng, đã phục hồi và thanh toán đúng hạn từ đó" |
+| `ERR` | AI error suspected | CO cho rằng kết quả AI không đúng (lỗi dữ liệu, lỗi mô hình) | "Điểm AI 0.45 nhưng mọi chỉ số đều tích cực, có thể do lỗi nhập dữ liệu" |
+| `POL` | Policy concern | Hồ sơ nằm ngoài chính sách chuẩn, cần phán đoán | "Đề nghị hạn mức 80M với thu nhập 15M: DTI cao nhưng nơi làm việc là doanh nghiệp FDI có thưởng" |
+| `OTH` | Other | Không thuộc các nhóm trên | Bắt buộc nhập chi tiết, tối thiểu 50 ký tự |
 
 ---
 
-## 2. SUPERVISOR ESCALATION
+## 2. CHUYỂN CẤP LÊN SUPERVISOR
 
-### 2.1 When Supervisor Approval Required
+### 2.1 Trường hợp cần Supervisor phê duyệt
 
-| Trigger | Supervisor action | SLA | Rationale |
-|---------|------------------|-----|----------|
-| CO override-to-approve khi AI recommends REJECT | Co-sign approval | 4 giờ | High-risk: AI said no but CO says yes. Need second opinion. |
-| CO approve with limit > 50% of CO authority | Co-sign | 4 giờ | Large exposure. Existing bank policy, not AI-specific. |
-| CO approve khi fraud score 0.2-0.3 (not elevated, but nonzero) | Review + co-sign | 4 giờ | Borderline fraud signal. Conservative approach. |
-| Pattern: CO override rate > 2x team average (sustained 2 weeks) | Review CO performance | 1 week | Possible training gap or possible CO has legitimate additional info. |
+| Điều kiện | Hành động của Supervisor | SLA | Lý do |
+|----------|-------------------------|-----|-------|
+| CO override sang duyệt khi AI đề xuất từ chối | Đồng ký phê duyệt | 4 giờ | Rủi ro cao: AI từ chối nhưng CO duyệt, cần ý kiến thứ hai |
+| CO duyệt với hạn mức trên 50% thẩm quyền của CO | Đồng ký | 4 giờ | Mức phơi nhiễm lớn; theo chính sách hiện hành của Bank X |
+| CO duyệt khi fraud score từ 0.2 đến 0.3 (chưa ở mức cao nhưng khác 0) | Xem xét và đồng ký | 4 giờ | Tín hiệu fraud ở vùng biên; áp dụng cách tiếp cận thận trọng |
+| Tỷ lệ override của CO lớn hơn 2 lần mức trung bình của nhóm, kéo dài 2 tuần | Xem xét hiệu quả làm việc của CO | 1 tuần | Có thể do khoảng trống đào tạo hoặc CO có thêm thông tin hợp lệ |
 
-### 2.2 Supervisor Override Review Process
+### 2.2 Quy trình Supervisor xem xét override
 
 ```
-CO submits override (approve when AI says reject)
+CO gửi override (duyệt khi AI đề xuất từ chối)
     │
-    ├── System: auto-notify Supervisor (push + email)
-    │   Include: Application summary, AI recommendation,
-    │   CO override reason, customer profile
+    ├── Hệ thống tự động thông báo Supervisor (push + email)
+    │   Nội dung: tóm tắt hồ sơ, đề xuất của AI,
+    │   lý do override của CO, hồ sơ khách hàng
     │
-    ├── Supervisor reviews within 4h:
-    │   ├── [✓ Approve override] → Decision final. Log supervisor co-sign.
-    │   ├── [✗ Reject override] → Revert to AI recommendation.
-    │   │   CO notified. Application re-queued for different CO or Senior CO.
-    │   └── [↑ Escalate] → To Committee. Complex case.
+    ├── Supervisor xem xét trong 4 giờ:
+    │   ├── [Chấp thuận override] → Quyết định cuối cùng. Ghi nhận đồng ký.
+    │   ├── [Bác bỏ override] → Quay lại đề xuất của AI.
+    │   │   CO được thông báo. Hồ sơ được chuyển cho CO khác hoặc Senior CO.
+    │   └── [Chuyển cấp] → Lên Hội đồng. Dành cho hồ sơ phức tạp.
     │
-    └── If Supervisor no action within 4h:
-        → Auto-escalate to next senior level.
-        → SLA breach logged.
+    └── Nếu Supervisor không xử lý trong 4 giờ:
+        → Tự động chuyển lên cấp cao hơn.
+        → Ghi nhận vi phạm SLA.
 ```
 
 ---
 
-## 3. OVERRIDE MONITORING
+## 3. GIÁM SÁT OVERRIDE
 
-### 3.1 Metrics Tracked
+### 3.1 Chỉ số theo dõi
 
-| Metric | Granularity | Frequency | Alert threshold |
-|--------|-----------|----------|----------------|
-| **Override rate (overall)** | Team-level | Weekly | > 30% → investigate. > 60% → guardrail G-O1. |
-| **Override rate (per CO)** | Individual CO | Monthly | > 2x team average → Supervisor review |
-| **Override direction** | Override-to-approve vs override-to-reject | Monthly | > 80% one direction → investigate |
-| **Override-to-approve NPL** | Cohort: overridden approvals | Quarterly (90-day lag) | NPL of overridden > 2x NPL of AI-recommended → CO training needed |
-| **Override reason distribution** | By reason category | Monthly | > 50% "Other" → reason categories insufficient, add new ones |
-| **Override + default** | CO overrides AI reject → customer defaults | Quarterly | Tracked per CO. Systematic bad overrides → training + possible authority reduction. |
+| Chỉ số | Mức chi tiết | Tần suất | Ngưỡng cảnh báo |
+|--------|-------------|----------|----------------|
+| Tỷ lệ override tổng thể | Cấp nhóm | Hàng tuần | Trên 30%: rà soát; trên 60%: kích hoạt guardrail G-O1 |
+| Tỷ lệ override theo từng CO | Từng CO | Hàng tháng | Trên 2 lần mức trung bình của nhóm: Supervisor xem xét |
+| Hướng override | Override sang duyệt so với sang từ chối | Hàng tháng | Trên 80% theo một hướng: rà soát |
+| NPL của nhóm override sang duyệt | Nhóm hồ sơ được override duyệt | Hàng quý (độ trễ 90 ngày) | NPL của nhóm override lớn hơn 2 lần NPL của nhóm AI đề xuất duyệt: cần đào tạo CO |
+| Phân bố nhóm lý do | Theo nhóm lý do | Hàng tháng | Trên 50% là "Other": nhóm lý do chưa đủ, bổ sung nhóm mới |
+| Override và vỡ nợ | CO override đề xuất từ chối của AI và khách hàng vỡ nợ | Hàng quý | Theo dõi từng CO; override sai có hệ thống thì đào tạo và có thể giảm thẩm quyền |
 
-### 3.2 Override Dashboard (Supervisor View)
+### 3.2 Dashboard override (góc nhìn Supervisor)
+
+Số liệu trong dashboard dưới đây là dữ liệu minh họa.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ OVERRIDE MONITORING — April 2026                         │
+│ OVERRIDE MONITORING — Tháng 04/2026                      │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│ Team Override Rate: 16% (target: 10-20%)    ✅ Healthy   │
+│ Tỷ lệ override của nhóm: 16% (mục tiêu: 10-20%)  Ổn định │
 │                                                         │
-│ By Direction:                                           │
-│ Override-to-approve: 62% ████████████░░░░░░             │
-│ Override-to-reject:  38% ████████░░░░░░░░░░             │
+│ Theo hướng:                                             │
+│ Override sang duyệt:    62% ████████████░░░░░░          │
+│ Override sang từ chối:  38% ████████░░░░░░░░░░          │
 │                                                         │
-│ By CO:                                                  │
-│ CO-001 (Nguyễn A): 12% ████░░░░░░  ✅                   │
-│ CO-002 (Trần B):   18% ██████░░░░  ✅                   │
-│ CO-003 (Lê C):     35% ████████████ ⚠️ HIGH             │
-│ CO-004 (Phạm D):    4% ██░░░░░░░░  ⚠️ LOW (rubber?)    │
+│ Theo CO:                                                │
+│ CO-001 (Nguyễn A): 12% ████░░░░░░  Bình thường          │
+│ CO-002 (Trần B):   18% ██████░░░░  Bình thường          │
+│ CO-003 (Lê C):     35% ████████████ CAO                 │
+│ CO-004 (Phạm D):    4% ██░░░░░░░░  THẤP (nguy cơ xác nhận máy móc)│
 │                                                         │
-│ Override Outcomes (last 90 days):                        │
-│ Override-to-approve → default: 8% (vs AI-approve: 3%)   │
-│ → CO overrides performing worse than AI ⚠️               │
+│ Kết quả override (90 ngày gần nhất):                    │
+│ Override sang duyệt → vỡ nợ: 8% (AI đề xuất duyệt: 3%) │
+│ Override của CO đang kém hơn AI                         │
 │                                                         │
-│ Top Override Reasons:                                   │
+│ Lý do override hàng đầu:                                │
 │ 1. Relationship knowledge (35%)                         │
 │ 2. Income verification (25%)                            │
 │ 3. Temporary situation (20%)                            │
@@ -124,72 +128,61 @@ CO submits override (approve when AI says reject)
 
 ---
 
-## 4. FEEDBACK LOOP — Overrides → Model Improvement
+## 4. VÒNG PHẢN HỒI: OVERRIDE ĐẾN CẢI THIỆN MÔ HÌNH
 
-### 4.1 Override as Training Signal
+### 4.1 Override là tín hiệu huấn luyện
 
 ```
-Override data collected
+Dữ liệu override được thu thập
     │
-    ├── Short-term (weekly):
-    │   PM + DS review override patterns:
-    │   - Which features do COs disagree on most?
-    │   - Are there systematic overrides? (same type repeatedly)
-    │   - Any new data CO uses that model doesn't have?
+    ├── Ngắn hạn (hàng tuần):
+    │   Quản lý dự án và Data Scientist (DS) xem xét mẫu override:
+    │   - CO bất đồng với mô hình nhiều nhất ở đặc trưng nào?
+    │   - Có override lặp lại theo hệ thống không (cùng một loại)?
+    │   - CO có sử dụng dữ liệu mới mà mô hình chưa có không?
     │
-    ├── Medium-term (monthly):
-    │   DS analyze:
-    │   - Override-to-approve cohort: what % default?
-    │   - If CO overrides perform BETTER → model missing something
-    │     → investigate: add new feature? Adjust threshold?
-    │   - If CO overrides perform WORSE → CO training issue
-    │     → provide feedback to CO
+    ├── Trung hạn (hàng tháng):
+    │   DS phân tích:
+    │   - Nhóm override sang duyệt: bao nhiêu phần trăm vỡ nợ?
+    │   - Nếu override của CO hiệu quả HƠN → mô hình đang thiếu thông tin
+    │     → xem xét bổ sung đặc trưng hoặc điều chỉnh ngưỡng
+    │   - Nếu override của CO kém hơn → vấn đề đào tạo CO
+    │     → phản hồi cho CO
     │
-    └── Long-term (quarterly):
-        Model retrain cycle:
-        - Override data feeds into retraining dataset
-        - Override reasons → potential new features
-        - Systematic overrides → threshold recalibration signal
-        - Report to Risk Committee: "Override analysis Q2 2026"
+    └── Dài hạn (hàng quý):
+        Chu kỳ huấn luyện lại mô hình:
+        - Dữ liệu override đưa vào tập huấn luyện lại
+        - Lý do override gợi ý các đặc trưng mới
+        - Override có hệ thống là tín hiệu để hiệu chỉnh lại ngưỡng
+        - Báo cáo Risk Committee: "Phân tích override Q2 2026"
 ```
 
-### 4.2 Specific Feedback Actions
+### 4.2 Hành động phản hồi theo mẫu override
 
-| Override pattern | Signal | Action |
-|-----------------|--------|--------|
-| Many overrides on "employer type" | Model underweights employer stability | DS: investigate adding employer age/revenue as feature |
-| Many overrides on "temporary DPD" | Model penalizes past DPD too heavily for recovered cases | DS: add "DPD recency" feature (recent vs old DPD) |
-| Many "AI error suspected" | Model output inconsistent with input | DS: debug specific cases. Possible data pipeline issue. |
-| CO overrides consistently outperform AI | CO has info AI doesn't | PM: interview CO → what info? → can it become a feature? |
-| CO overrides consistently underperform AI | CO judgment biased or outdated | Training: show CO outcomes data. Calibrate trust. |
-
----
-
-## 5. ANTI-GAMING RULES
-
-| Risk | Detection | Prevention |
-|------|----------|-----------|
-| CO always overrides to approve (boost approval numbers) | Override-to-approve rate > 80% for individual CO | Monitor per-CO override direction. Flag > 80% one direction. |
-| CO never overrides (rubber-stamping AI) | Override rate < 3% AND review time < 2 min | Spot audit. Check co_review_time_seconds. Rubber-stamping alert (metric-definitions.md L3-W2). |
-| CO overrides only for "friends/VIPs" | Override-to-approve concentrated on specific customer segment or relationship | Monitor: override rate by customer type. Flag if override rate for "VIP/relationship" > 3x other segments. |
-| CO and Supervisor collude on overrides | Both always co-sign without real review | Quarterly: random audit of supervisor co-signed overrides by Internal Audit. |
+| Mẫu override | Tín hiệu | Hành động |
+|-------------|---------|----------|
+| Nhiều override về "loại nơi làm việc" | Mô hình đánh giá thấp mức ổn định của nơi làm việc | DS xem xét bổ sung tuổi doanh nghiệp hoặc doanh thu làm đặc trưng |
+| Nhiều override về "DPD tạm thời" | Mô hình phạt quá nặng DPD trong quá khứ với trường hợp đã phục hồi | DS bổ sung đặc trưng "mức gần đây của DPD" (DPD gần so với DPD cũ) |
+| Nhiều override "AI error suspected" | Kết quả mô hình không nhất quán với dữ liệu đầu vào | DS kiểm tra từng hồ sơ; có thể do lỗi pipeline dữ liệu |
+| Override của CO liên tục hiệu quả hơn AI | CO có thông tin mà AI không có | Quản lý dự án trao đổi với CO về thông tin đó và khả năng đưa thành đặc trưng |
+| Override của CO liên tục kém hơn AI | Phán đoán của CO bị lệch hoặc lỗi thời | Đào tạo: cung cấp dữ liệu kết quả cho CO để hiệu chỉnh niềm tin |
 
 ---
 
-## Tracking
+## 5. QUY TẮC CHỐNG LẠM DỤNG
 
-- [ ] Override policy reviewed with Compliance?
-- [ ] Supervisor escalation triggers reviewed with Risk Manager?
-- [ ] Override reason categories validated with CO (from interviews)?
-- [ ] Anti-gaming rules reviewed with Internal Audit?
-- [ ] Feedback loop process reviewed with DS team?
-- [ ] Override monitoring dashboard spec shared with dev team?
+| Rủi ro | Cách phát hiện | Biện pháp phòng ngừa |
+|--------|---------------|---------------------|
+| CO luôn override sang duyệt để tăng số hồ sơ duyệt | Tỷ lệ override sang duyệt của từng CO trên 80% | Theo dõi hướng override theo từng CO; cảnh báo khi trên 80% theo một hướng |
+| CO không bao giờ override (xác nhận máy móc theo AI) | Tỷ lệ override dưới 3% và thời gian review dưới 2 phút | Kiểm tra ngẫu nhiên; kiểm tra co_review_time_seconds; cảnh báo xác nhận máy móc (w07-02-metric-definitions, L3-W2) |
+| CO chỉ override cho người quen hoặc khách VIP | Override sang duyệt tập trung ở một nhóm khách hàng hoặc quan hệ nhất định | Theo dõi tỷ lệ override theo loại khách hàng; cảnh báo nếu tỷ lệ cho nhóm VIP hoặc quan hệ lớn hơn 3 lần các nhóm khác |
+| CO và Supervisor thông đồng khi override | Cả hai luôn đồng ký mà không xem xét thực chất | Hàng quý, Internal Audit kiểm tra ngẫu nhiên các override có Supervisor đồng ký |
 
 ---
 
-## Ghi Chú
+## 6. NGUYÊN TẮC TRIỂN KHAI
 
-1. **"Override is a right, not a violation."** Frame carefully in CO training. Override = CO adding value. Not = CO defying system.
-2. **Override-to-approve when AI says reject is highest-risk** → requires supervisor co-sign. This may slow down some approvals by 4h. Acceptable trade-off for risk control.
-3. **Per-CO override tracking** may feel like surveillance. Frame: "performance data to help you improve, not to punish." Show CO their override outcomes (good and bad) as learning tool.
-4. **Cross-reference:** decision-architecture.md (override section), metric-definitions.md (L3-W2 override rate), guardrail-definitions.md (G-O1, G-O2 override guardrails), trust-calibration-guide.md (calibrated trust zone), escalation-tree.md (L1→L2 escalation triggers).
+1. Override là quyền của CO, không phải vi phạm. Trong đào tạo, override được trình bày là việc CO bổ sung giá trị chuyên môn.
+2. Override sang duyệt khi AI đề xuất từ chối có rủi ro cao nhất nên cần Supervisor đồng ký; chấp nhận việc một số hồ sơ chậm tối đa 4 giờ để kiểm soát rủi ro.
+3. Theo dõi override theo từng CO là dữ liệu hỗ trợ cải thiện hiệu quả công việc, không nhằm xử phạt; CO được xem kết quả override của chính mình (cả tốt và chưa tốt) như công cụ học tập.
+4. Tài liệu liên quan: w05-01-decision-architecture (phần override), w07-02-metric-definitions (L3-W2 tỷ lệ override), w07-04-guardrail-definitions (G-O1, G-O2), w09-05-trust-calibration-guide (vùng niềm tin được hiệu chỉnh), w05-03-escalation-tree-v1 (điều kiện chuyển cấp L1 sang L2).

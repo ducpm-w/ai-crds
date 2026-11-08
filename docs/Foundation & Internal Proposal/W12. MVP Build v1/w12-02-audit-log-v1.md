@@ -1,11 +1,11 @@
 # Audit Log Schema — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Define audit trail schema: 28 fields, immutable, SBV inspection ready. Bắt buộc cho mọi decision trong AI-CRDS (Luật AI 134/2025, SBV TT 13, NĐ 356).
+Tài liệu định nghĩa schema nhật ký kiểm toán (audit trail) của AI-CRDS tại Bank X: 28 trường, bất biến, sẵn sàng cho thanh tra của NHNN. Nhật ký bắt buộc đối với mọi quyết định (Luật AI 134/2025, TT 13 của NHNN, NĐ 356).
 
 ---
 
@@ -19,7 +19,7 @@ AUDIT_RECORD = {
     "decision_id":           str,    # "DEC-2026-04-000001" (PK, auto-generated)
     "application_id":        str,    # "APP-2026-04-000001" (FK to applications)
     "customer_id":           str,    # Pseudonymized hash (NOT raw CCCD)
-    "tenant_id":             str,    # "BANK-X" (multi-tenant ready for future SaaS)
+    "tenant_id":             str,    # "BANK-X" (sẵn sàng đa đơn vị)
 
     # === TIMING (5 fields) ===
     "application_received":  datetime,  # When app entered system
@@ -136,10 +136,10 @@ REVOKE UPDATE ON audit_log FROM PUBLIC;
 REVOKE DELETE ON audit_log FROM PUBLIC;
 REVOKE TRUNCATE ON audit_log FROM PUBLIC;
 
--- Only the application service account can INSERT
+-- Chỉ tài khoản dịch vụ của ứng dụng được INSERT
 GRANT INSERT ON audit_log TO aicrds_app;
 GRANT SELECT ON audit_log TO aicrds_app;
-GRANT SELECT ON audit_log TO aicrds_readonly;  -- For CO, auditors, dashboard
+GRANT SELECT ON audit_log TO aicrds_readonly;  -- Dành cho Credit Officer, kiểm toán, dashboard
 ```
 
 ### 2.2 Record Hash Calculation
@@ -163,11 +163,11 @@ def calculate_record_hash(record: dict) -> str:
     return hashlib.sha256(canonical.encode('utf-8')).hexdigest()
 ```
 
-### 2.3 Hash Chain (Production Enhancement)
+### 2.3 Hash chain (nâng cấp cho bản vận hành)
 
 ```python
-# MVP: Individual record hash only
-# Production: Hash chain (each record references previous hash)
+# MVP: chỉ dùng hash từng bản ghi
+# Bản vận hành: hash chain (mỗi bản ghi tham chiếu hash của bản ghi trước)
 
 def calculate_chain_hash(record: dict, previous_hash: str) -> str:
     """
@@ -297,7 +297,7 @@ ORDER BY decision_timestamp DESC;
 -- Application recalculates hash for each record, compares with stored hash
 SELECT decision_id, record_hash,
        -- Application calculates expected_hash from fields
-       CASE WHEN record_hash = expected_hash THEN 'VALID' ELSE '⚠️ TAMPERED' END
+       CASE WHEN record_hash = expected_hash THEN 'VALID' ELSE 'TAMPERED' END
 FROM audit_log
 WHERE decision_timestamp >= '2026-04-01';
 ```
@@ -336,7 +336,7 @@ def pseudonymize_customer(cccd: str, salt: str) -> str:
 
 ## 6. RETENTION & LIFECYCLE
 
-Aligned with decision-architecture.md terminal state retention:
+Thời hạn lưu trữ thống nhất với trạng thái kết thúc trong w05-01-decision-architecture.md:
 
 | Terminal State | Audit Record Retention | PII Tier | Justification |
 |---------------|----------------------|---------|--------------|
@@ -348,9 +348,9 @@ Aligned with decision-architecture.md terminal state retention:
 
 ---
 
-## 7. MVP vs PRODUCTION
+## 7. MVP và bản vận hành
 
-| Feature | MVP (Week 12) | Production (Week 37+) |
+| Hạng mục | MVP | Bản vận hành |
 |---------|-------------|---------------------|
 | Database | PostgreSQL single instance | PostgreSQL replicated + read replicas |
 | Immutability | REVOKE UPDATE/DELETE | REVOKE + hash chain + WAL archiving |
@@ -363,22 +363,9 @@ Aligned with decision-architecture.md terminal state retention:
 
 ---
 
-## Tracking
+## 8. Ghi chú thiết kế
 
-- [ ] Audit log table created in PostgreSQL/Supabase?
-- [ ] REVOKE UPDATE/DELETE applied?
-- [ ] Record hash calculation working?
-- [ ] Write API returns decision_id?
-- [ ] Write failure → HALT decision (tested)?
-- [ ] SBV inspection queries working (<1 second)?
-- [ ] Pseudonymization of customer_id working?
-- [ ] All 28 fields populated in demo scenarios?
-
----
-
-## Ghi Chú
-
-1. **28 fields, not 24** — expanded from sbv-requirements.md (24) to include batch_review_flag, batch_id, approved_limit, tenant_id. More fields = more traceability.
-2. **record_hash is critical** — mỗi record tự verify integrity. Nếu bất kỳ field nào bị sửa → hash mismatch → tampering detected.
-3. **Pseudonymization = reversible** (with salt). Khác anonymization (irreversible). Audit trail cần pseudonymized (not anonymous) vì SBV cần trace back to specific customer if inspected.
-4. **Cross-reference:** sbv-requirements.md (SBV audit requirements), pdpd-impact-assessment.md (data lifecycle), decision-architecture.md (terminal states + retention), security-policy-alignment.md (access control).
+1. Schema gồm 28 trường, mở rộng so với 24 trường tối thiểu trong w02-04-sbv-requirements.md, bổ sung batch_review_flag, batch_id, approved_limit và tenant_id để tăng khả năng truy vết.
+2. record_hash giúp mỗi bản ghi tự kiểm tra tính toàn vẹn: nếu bất kỳ trường nào bị sửa thì hash không khớp và việc can thiệp được phát hiện.
+3. Giả danh hóa (pseudonymization) có thể đảo ngược khi có salt, khác với ẩn danh hóa (anonymization) không thể đảo ngược. Nhật ký kiểm toán dùng giả danh hóa vì NHNN có thể cần truy về khách hàng cụ thể khi thanh tra.
+4. Tài liệu liên quan: w02-04-sbv-requirements.md (yêu cầu kiểm toán của NHNN), w02-03-pdpd-impact-bank-x.md (vòng đời dữ liệu), w05-01-decision-architecture.md (trạng thái kết thúc và thời hạn lưu trữ), w10-05-securty-policy-alignment.md (kiểm soát truy cập).

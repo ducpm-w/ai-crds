@@ -1,11 +1,11 @@
 # Escalation Tree — AI-CRDS
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Define rõ: ai xử lý gì, khi nào escalate, escalate cho ai, SLA mỗi cấp. Dùng cho CO training (Week 34), UI design (Week 9), và incident response (Week 14).
+Xác định rõ ai xử lý gì, khi nào escalate, escalate cho ai và SLA của từng cấp. Tài liệu dùng cho đào tạo Credit Officer, thiết kế giao diện (w09-02-ux-wireframes-v1.md) và ứng phó sự cố.
 
 ---
 
@@ -31,7 +31,7 @@ Define rõ: ai xử lý gì, khi nào escalate, escalate cho ai, SLA mỗi cấp
 │ │  Limit > threshold + Override disputes                   │ │
 │ └─────────────────────────────────────────────────────────┘ │
 │  System-level: threshold changes, model issues, compliance   │
-│  Không xử lý individual cases thường ngày                    │
+│  Không xử lý các hồ sơ cá nhân thường ngày                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -39,14 +39,16 @@ Define rõ: ai xử lý gì, khi nào escalate, escalate cho ai, SLA mỗi cấp
 
 ## 2. LEVEL 1 — JUNIOR / MID CREDIT OFFICER
 
+Các mức thẩm quyền (100M / 200M VND), quy mô đội ngũ và các ngưỡng auto-escalation trong tài liệu là giả định lập kế hoạch cho Bank X, sẽ thay bằng quy định thực tế khi có.
+
 ### Scope
 
 | Attribute | Detail |
 |-----------|--------|
 | **Handles** | State 1 (batch confirm) + State 2 (standard review) |
-| **Authority** | Approve/reject applications with limit ≤ standard policy max (❓ cần confirm, ước tính ≤ 100M VND) |
+| **Authority** | Approve/reject applications with limit ≤ standard policy max (giả định ≤ 100M VND) |
 | **Volume** | ~70-80% of all applications |
-| **Team size** | 3-4 FTE (ước tính từ capacity model) |
+| **Team size** | 3-4 FTE (giả định từ mô hình năng lực) |
 
 ### Escalate TO Level 2 khi
 
@@ -65,10 +67,10 @@ Define rõ: ai xử lý gì, khi nào escalate, escalate cho ai, SLA mỗi cấp
 ```
 CO đang review hồ sơ State 2
     │
-    ├── [✓ Approve] — trong thẩm quyền → ký, done
-    ├── [✗ Reject] — trong thẩm quyền → ký, adverse action, done
+    ├── [Approve] — trong thẩm quyền → ký, done
+    ├── [Reject] — trong thẩm quyền → ký, adverse action, done
     │
-    └── [↑ Escalate to Senior CO]
+    └── [Escalate to Senior CO]
         │
         ├── Chọn lý do (dropdown, bắt buộc):
         │   ├── "Uncertain — cần senior opinion"
@@ -78,7 +80,7 @@ CO đang review hồ sơ State 2
         │   ├── "Limit exceeds authority"
         │   └── "Other — [free text bắt buộc]"
         │
-        ├── Ghi note (free text, optional nhưng recommended):
+        ├── Ghi note (free text, không bắt buộc nhưng khuyến nghị):
         │   "Applicant income declared 80M nhưng employer là startup 6 tháng tuổi..."
         │
         └── Submit → Route to Level 2 queue
@@ -94,7 +96,7 @@ CO đang review hồ sơ State 2
 | Attribute | Detail |
 |-----------|--------|
 | **Handles** | State 3 (fraud priority) + State 4 (escalated from L1/AI) + Override review |
-| **Authority** | Approve/reject limit ≤ elevated threshold (❓ ước tính ≤ 200M VND). Approve policy exceptions within pre-approved framework. Clear/confirm fraud. |
+| **Authority** | Approve/reject limit ≤ elevated threshold (giả định ≤ 200M VND). Approve policy exceptions within pre-approved framework. Clear/confirm fraud. |
 | **Volume** | ~15-25% of all applications (S3 + S4 + escalations from L1) |
 | **Team size** | 1-2 Senior CO + 0.5-1 Fraud Analyst |
 
@@ -107,7 +109,7 @@ Tất cả triggers E1.1-E1.7 ở trên.
 | # | Trigger | Type | Detection | SLA before escalate |
 |---|---------|------|----------|-------------------|
 | E2.1 | **SLA expired** — State 3 quá 4h, State 4 quá 24h | Auto | System | Immediate (auto) |
-| E2.2 | **Limit > Senior CO authority** — ước tính > 200M VND | Auto | System check | Immediate |
+| E2.2 | **Limit > Senior CO authority** — giả định > 200M VND | Auto | System check | Immediate |
 | E2.3 | **Policy exception** — case ngoài pre-approved exception framework | Manual | Senior CO judgment | Anytime |
 | E2.4 | **VIP / relationship customer** — cần committee awareness | Manual | VIP flag hoặc Senior CO judgment | Anytime |
 | E2.5 | **Override dispute** — L1 CO và Senior CO disagree về decision | Manual | Discussion outcome | After review |
@@ -134,8 +136,8 @@ Tất cả triggers E1.1-E1.7 ở trên.
 |-----------|--------|
 | **Handles** | Large limit approvals, VIP cases, policy exceptions, override disputes |
 | **Authority** | Approve/reject all limits. Set/change policy exceptions. Override any lower-level decision. |
-| **Composition** | ❓ Cần confirm — typically: Head of Cards (chair) + Risk Manager + 1-2 Senior COs. Quorum: ≥3 members. |
-| **Meeting cadence** | ❓ Cần confirm — weekly fixed meeting + ad-hoc for urgent cases |
+| **Composition** | Head of Cards (chủ tọa), Risk Manager và 1-2 Senior CO. Quorum: tối thiểu 3 thành viên. |
+| **Meeting cadence** | Họp cố định hàng tuần, họp đột xuất cho các trường hợp khẩn. |
 | **Volume** | ~2-5% of applications (only elevated cases) |
 
 ### Receives escalation FROM Level 2 khi
@@ -170,10 +172,10 @@ Committee receives escalated case
     │   └── Discussion
     │
     └── Committee decision (vote)
-        ├── [✓ Approve] — with/without conditions
+        ├── [Approve] — with/without conditions
         │   Conditions ví dụ: lower limit, shorter review cycle, additional monitoring
-        ├── [✗ Reject] — with documented reasons
-        └── [↩ Return to L2] — need more info
+        ├── [Reject] — with documented reasons
+        └── [Return to L2] — need more info
         
     All decisions logged with:
     ├── committee_members_present: ["HoC-001", "RM-001", "SCO-001"]
@@ -190,8 +192,8 @@ Committee receives escalated case
 
 | Attribute | Detail |
 |-----------|--------|
-| **Handles** | System-level issues ONLY — threshold changes, model concerns, compliance escalations, strategic decisions |
-| **KHÔNG handles** | Individual application decisions (trừ khi committee escalate) |
+| **Handles** | Chỉ các vấn đề cấp hệ thống — threshold changes, model concerns, compliance escalations, strategic decisions |
+| **Không xử lý** | Individual application decisions (trừ khi committee escalate) |
 | **Authority** | Approve threshold changes, mandate model retraining, pause/resume AI system, escalate to C-level |
 
 ### Receives escalation FROM Level 3 / Direct system alerts
@@ -267,12 +269,12 @@ Committee receives escalated case
 
 | CO Action | AI Recommendation | Escalation needed? | Rule |
 |----------|------------------|-------------------|------|
-| CO approve | AI: APPROVE (State 1) | ❌ No | Normal confirm |
-| CO approve | AI: REVIEW (State 2) | ❌ No | CO reviewed and approved — normal |
-| CO reject | AI: APPROVE (State 1) | ⚠️ **Yes — notify Supervisor** | Unusual override. Log reason mandatory. Supervisor reviews within 24h. Nếu pattern (>3 overrides/tuần từ 1 CO) → L4 investigate. |
-| CO reject | AI: REVIEW (State 2) | ❌ No | CO reviewed and rejected — normal |
-| CO approve | AI: ESCALATE (State 4) | ⚠️ **Yes — Senior CO co-sign** | Case was escalated for reason. L1 CO cannot single-handedly approve — needs Senior CO co-sign. |
-| CO approve | AI: REJECT recommendation | ⚠️ **Yes — Senior CO co-sign** | Override reject → approve is high-risk. Needs L2 confirmation. |
+| CO approve | AI: APPROVE (State 1) | Không | Normal confirm |
+| CO approve | AI: REVIEW (State 2) | Không | CO reviewed and approved — normal |
+| CO reject | AI: APPROVE (State 1) | Có: thông báo Supervisor | Unusual override. Log reason mandatory. Supervisor reviews within 24h. Nếu pattern (>3 overrides/tuần từ 1 CO) → L4 investigate. |
+| CO reject | AI: REVIEW (State 2) | Không | CO reviewed and rejected — normal |
+| CO approve | AI: ESCALATE (State 4) | Có: Senior CO đồng ký | Case was escalated for reason. L1 CO cannot single-handedly approve — needs Senior CO co-sign. |
+| CO approve | AI: REJECT recommendation | Có: Senior CO đồng ký | Override reject → approve is high-risk. Needs L2 confirmation. |
 
 ### 7.2 Customer Complaint Escalation
 
@@ -354,6 +356,8 @@ Customer complaint about AI decision received
 
 ## 9. ESCALATION METRICS — KPIs
 
+Các ngưỡng dưới đây là giả định ban đầu, sẽ hiệu chỉnh theo dữ liệu vận hành thực tế của Bank X.
+
 | KPI | Target | Warning | Critical |
 |-----|--------|---------|---------|
 | L1 → L2 escalation rate | 10-15% | > 20% | > 30% (L1 không confident / model issue) |
@@ -366,21 +370,8 @@ Customer complaint about AI decision received
 
 ---
 
-## Tracking — Tự hỏi cuối tuần
+## Tài liệu liên quan
 
-- [ ] Escalation levels match Bank X org structure? (❓ validate job titles, authority thresholds)
-- [ ] CO authority threshold (100M / 200M) — confirm với Head of Cards?
-- [ ] Committee composition + meeting cadence — confirm?
-- [ ] Auto-escalation thresholds (confidence < 0.3, fraud > 0.8) — Risk Manager review?
-- [ ] Override escalation rules — Compliance review?
-- [ ] Customer complaint flow — align with bank's existing complaint process?
-
----
-
-## Ghi Chú & Limitations
-
-1. **Authority thresholds (100M / 200M)** là ước tính — mỗi bank khác nhau. SOE banks thường có authority thấp hơn. Private banks linh hoạt hơn.
-2. **Committee composition chưa validate** — cần confirm với bank HR/governance.
-3. **Auto-escalation thresholds** (confidence < 0.3, fraud > 0.8) là placeholders — tuning dựa trên shadow testing data.
-4. **Override escalation "CO reject AI approve → notify Supervisor"** có thể controversial — CO có thể cảm thấy bị giám sát. Cần frame carefully trong training: "Đây là safety net, không phải đánh giá CO."
-5. **Cross-reference:** decision-architecture.md (5 states detail), decision-state-spec.md (SLA, transitions), sbv-requirements.md (human-in-the-loop governance).
+- w05-01-decision-architecture.md: chi tiết 5 state.
+- w05-02-decision-state-spec.md: SLA và chuyển trạng thái.
+- w02-04-sbv-requirements.md: yêu cầu human-in-the-loop.

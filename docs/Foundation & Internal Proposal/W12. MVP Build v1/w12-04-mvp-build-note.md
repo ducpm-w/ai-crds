@@ -1,11 +1,11 @@
 # MVP Build Notes — AI-CRDS v0.1.0
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Technical spec cho MVP build. Input cho Claude Code / dev team. Scope: internal demo only, synthetic data, end-to-end flow.
+Đặc tả kỹ thuật cho bản MVP của AI-CRDS tại Bank X, dùng làm đầu vào cho đội phát triển. Phạm vi: demo nội bộ, dữ liệu tổng hợp, luồng xử lý end-to-end.
 
 ---
 
@@ -17,7 +17,7 @@ Technical spec cho MVP build. Input cho Claude Code / dev team. Scope: internal 
 | **Backend** | Next.js API routes hoặc FastAPI | Scoring engine, audit write, routing logic |
 | **Database** | Supabase (PostgreSQL) | Applications, audit_log, overrides |
 | **Styling** | Tailwind CSS | Dark tech aesthetic (Linear-inspired) |
-| **Deployment** | Vercel (frontend) + Supabase (DB) | Demo only, no production security |
+| **Deployment** | Vercel (frontend) + Supabase (DB) | Chỉ phục vụ demo, chưa áp dụng bảo mật vận hành |
 | **Data** | CSV/JSON synthetic dataset (10K) | Pre-loaded into Supabase |
 
 ---
@@ -98,9 +98,9 @@ CREATE TABLE decisions (
 ### Table: `audit_log`
 
 ```sql
--- Full 28-field schema from audit-log-schema.md
--- Append-only: REVOKE UPDATE, DELETE, TRUNCATE
--- See audit-log-schema.md for complete DDL
+-- Schema đầy đủ 28 trường theo w12-02-audit-log-v1.md
+-- Chỉ ghi thêm: REVOKE UPDATE, DELETE, TRUNCATE
+-- Xem DDL đầy đủ tại w12-02-audit-log-v1.md
 ```
 
 ---
@@ -270,7 +270,7 @@ def calculate_fraud_score(app: dict) -> dict:
 def route_to_state(risk_score, fraud_score, confidence, opt_out_ai=False) -> str:
     """
     Route application to decision state based on thresholds.
-    Thresholds from threshold-framework.md.
+    Ngưỡng lấy từ w06-01-threshold-framework.md.
     """
     TH_HIGH = 0.75
     TH_LOW = 0.35
@@ -384,13 +384,13 @@ def route_to_state(risk_score, fraud_score, confidence, opt_out_ai=False) -> str
 | **Font** | Inter (body), JetBrains Mono (scores/numbers) |
 | **AI label** | Light blue banner (#DBEAFE bg, #1D4ED8 text), not dismissible |
 | **Watermark** | "SYNTHETIC DATA — DEMO ONLY" — semi-transparent, top-right corner, every page |
-| **Risk colors** | Low risk: green. Medium: yellow/amber. High: red. Matches ux-wireframes-notes.md. |
+| **Risk colors** | Low risk: green. Medium: yellow/amber. High: red. Thống nhất với w09-02-ux-wireframes-v1.md. |
 
 ---
 
-## 6. BUILD TIMELINE
+## 6. Kế hoạch xây dựng
 
-| Day | Task | Deliverable |
+| Ngày | Công việc | Kết quả bàn giao |
 |-----|------|------------|
 | **1** | Database schema + Supabase setup. Load 10K synthetic data. | Tables created, data loaded |
 | **2** | Scoring engine (risk + fraud + routing). Unit tests for 3 scenarios. | Scoring returns correct results |
@@ -402,39 +402,25 @@ def route_to_state(risk_score, fraud_score, confidence, opt_out_ai=False) -> str
 
 ---
 
-## 7. TEST SCENARIOS — Must Pass
+## 7. Kịch bản kiểm thử bắt buộc đạt
 
-| # | Scenario | Input | Expected output | Pass? |
-|---|---------|-------|-----------------|-------|
-| 1 | High-score → State 1 | CIC 740, DTI 22%, 36M employment, eKYC pass | Score ≥0.75, confidence ≥0.85, State 1 | ❓ |
-| 2 | Borderline → State 2 | CIC 650, DTI 42%, 8M employment | Score 0.45-0.70, State 2 | ❓ |
-| 3 | Fraud signals → State 3 | Face match 0.58, velocity 3, thin file, income 30M | Fraud score ≥0.40, State 3 | ❓ |
-| 4 | Low confidence → State 4 | CIC 0 (thin file), income 12M, 3M employment | Confidence <0.60, State 4 | ❓ |
-| 5 | Override approve→reject | State 1 app, CO clicks Reject | Override pop-up, reason required, audit logged | ❓ |
-| 6 | Adverse action generation | State 2 reject | Notice with top 3 reasons + AI label + rights | ❓ |
-| 7 | Audit completeness | Any decision | 28 fields in audit_log, hash correct | ❓ |
-| 8 | Batch confirm | Select 5 from State 1 queue | 5 records updated, audit logged × 5 | ❓ |
-
----
-
-## Tracking
-
-- [ ] Supabase project created?
-- [ ] Synthetic data (10K) loaded into Supabase?
-- [ ] Scoring engine passes 8 test scenarios?
-- [ ] All 6 pages functional?
-- [ ] AI label visible on EVERY screen?
-- [ ] "SYNTHETIC DATA" watermark on every page?
-- [ ] Audit log writes 28 fields per decision?
-- [ ] Adverse action notice generates with top 3 reasons?
-- [ ] Demo 3 scenarios end-to-end without errors?
-- [ ] Backup screenshots captured?
+| # | Kịch bản | Đầu vào | Kết quả kỳ vọng |
+|---|---------|-------|-----------------|
+| 1 | High-score → State 1 | CIC 740, DTI 22%, 36M employment, eKYC pass | Score ≥0.75, confidence ≥0.85, State 1 |
+| 2 | Borderline → State 2 | CIC 650, DTI 42%, 8M employment | Score 0.45-0.70, State 2 |
+| 3 | Fraud signals → State 3 | Face match 0.58, velocity 3, thin file, income 30M | Fraud score ≥0.40, State 3 |
+| 4 | Low confidence → State 4 | CIC 0 (thin file), income 12M, 3M employment | Confidence <0.60, State 4 |
+| 5 | Override approve→reject | State 1 app, CO clicks Reject | Override pop-up, reason required, audit logged |
+| 6 | Adverse action generation | State 2 reject | Notice with top 3 reasons + AI label + rights |
+| 7 | Audit completeness | Any decision | 28 fields in audit_log, hash correct |
+| 8 | Batch confirm | Select 5 from State 1 queue | 5 records updated, audit logged × 5 |
 
 ---
 
-## Ghi Chú
+## 8. Ghi chú thiết kế
 
-1. **MVP scoring = rule-based, NOT ML.** Production sẽ dùng logistic regression → gradient boosting trained trên real data. Rule-based MVP demonstrates concept + routing logic.
-2. **"SYNTHETIC DATA — DEMO ONLY" watermark = mandatory.** PDPD violation nếu ai tưởng nhầm là real data.
-3. **End-to-end flow > feature completeness.** Demo phải chạy từ đầu đến cuối. Từng feature có thể rough. Flow phải smooth.
-4. **Cross-reference:** feature-availability-matrix.md (fields), threshold-framework.md (thresholds), ux-wireframes-notes.md (screen design), audit-log-schema.md (28 fields), adverse-action-template.md (notice templates), demo-script.md (3 scenarios).
+1. Chấm điểm của MVP dựa trên luật, không dùng mô hình học máy. Bản vận hành dùng hồi quy logistic rồi gradient boosting, huấn luyện trên dữ liệu thực của Bank X. Bản dựa trên luật minh họa khái niệm và logic định tuyến.
+2. Watermark "SYNTHETIC DATA — DEMO ONLY" là bắt buộc trên mọi trang, tránh việc nhầm với dữ liệu thật gây vi phạm quy định bảo vệ dữ liệu cá nhân.
+3. Ưu tiên luồng end-to-end hơn mức độ hoàn thiện của từng tính năng: demo chạy liền mạch từ đầu đến cuối, từng tính năng có thể ở mức cơ bản.
+4. Điểm, trọng số và ngưỡng trong bộ chấm điểm là giả định cho MVP, sẽ được hiệu chỉnh bằng dữ liệu thực của Bank X.
+5. Tài liệu liên quan: w03-03-feature-availability-matrix.md (các trường dữ liệu), w06-01-threshold-framework.md (ngưỡng), w09-02-ux-wireframes-v1.md (thiết kế màn hình), w12-02-audit-log-v1.md (28 trường nhật ký), w09-04-adverse-action-template.md (mẫu thông báo từ chối), w12-01-demo-script.md (3 tình huống demo).

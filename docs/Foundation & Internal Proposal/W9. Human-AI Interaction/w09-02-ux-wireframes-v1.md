@@ -1,18 +1,20 @@
-# UX Wireframes Notes — CO Review Interface
+# UX Wireframes — CO Review Interface
 > **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
 
 ---
 
 ## Mục đích
 
-Low-fidelity wireframes cho 3 core screens + design decisions. Text/ASCII — pixel-perfect design sau khi interview data confirms assumptions.
+Wireframe mức low-fidelity (dạng text/ASCII) cho 3 màn hình chính của giao diện xét duyệt dành cho Credit Officer (CO) của Bank X, kèm các quyết định thiết kế. Thiết kế chi tiết đến từng pixel được thực hiện trên cơ sở các wireframe này.
 
-**Design principles:**
-1. **AI explains, CO decides** — AI panel informative, không prescriptive
-2. **Không ẩn information** — CO thấy full data + AI reasoning
-3. **Override luôn accessible** — không cần nhiều clicks
-4. **Luật AI 134/2025 label** hiển thị rõ ràng
-5. **Speed matters** — batch review phải nhanh, individual review phải comprehensive
+Số liệu, tên khách hàng và ngưỡng hiển thị trong wireframe là dữ liệu minh họa và giả định thiết kế; sẽ được thay bằng dữ liệu thực của Bank X khi có.
+
+**Nguyên tắc thiết kế:**
+1. AI giải thích, CO quyết định: bảng AI mang tính cung cấp thông tin, không áp đặt.
+2. Không ẩn thông tin: CO thấy đầy đủ dữ liệu hồ sơ và lập luận của AI.
+3. Override luôn dễ truy cập, không cần nhiều thao tác.
+4. Nhãn theo Luật AI 134/2025 hiển thị rõ ràng.
+5. Tốc độ: duyệt hàng loạt phải nhanh, duyệt từng hồ sơ phải đầy đủ.
 
 ---
 
@@ -22,52 +24,53 @@ Low-fidelity wireframes cho 3 core screens + design decisions. Text/ASCII — pi
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 🏦 AI-CRDS — Batch Review Queue                    CO: NVA  │
-│ ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo    │
+│ AI-CRDS — Batch Review Queue                       CO: NVA  │
+│ (i) Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo    │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│ 📋 12 hồ sơ chờ xác nhận — AI recommends: APPROVE          │
+│ 12 hồ sơ chờ xác nhận — AI đề xuất: APPROVE                 │
 │                                                             │
 │ ┌─ Filter: [Tất cả ▼] Sort: [Score cao→thấp ▼] Search: [___]│
 │ │                                                           │
-│ │ [☐] # │ Họ tên      │ Score │ Conf │ Top Factor        │ Limit   │
+│ │ [_] # │ Họ tên      │ Score │ Conf │ Top Factor    │ Limit│
 │ │ ────────────────────────────────────────────────────────── │
-│ │ [☑] 1 │ Nguyễn V.A  │ 0.88  │ 94%  │ CIC 740, DTI 22% │ 50M     │
-│ │ [☑] 2 │ Trần T.B    │ 0.84  │ 91%  │ 5yr employ, CIC 710│ 40M    │
-│ │ [☑] 3 │ Lê V.C      │ 0.82  │ 89%  │ CIC 720, exist 3yr │ 60M    │
-│ │ [☐] 4 │ Phạm T.D    │ 0.79  │ 87%  │ 3yr employ, DTI 28%│ 50M    │
-│ │ [☑] 5 │ Hoàng V.E   │ 0.78  │ 86%  │ CIC 690, exist 5yr │ 40M    │
-│ │ ... (7 more)                                              │
+│ │ [x] 1 │ Nguyễn V.A  │ 0.88  │ 94%  │ CIC 740, DTI 22%│ 50M│
+│ │ [x] 2 │ Trần T.B    │ 0.84  │ 91%  │ 5yr employ, CIC 710│ 40M│
+│ │ [x] 3 │ Lê V.C      │ 0.82  │ 89%  │ CIC 720, exist 3yr │ 60M│
+│ │ [_] 4 │ Phạm T.D    │ 0.79  │ 87%  │ 3yr employ, DTI 28%│ 50M│
+│ │ [x] 5 │ Hoàng V.E   │ 0.78  │ 86%  │ CIC 690, exist 5yr │ 40M│
+│ │ ... (7 hồ sơ khác)                                        │
 │ │                                                           │
-│ │ Click row → expand detail panel (below)                   │
+│ │ Click vào dòng để mở rộng chi tiết (bên dưới)             │
 │ └───────────────────────────────────────────────────────────│
 │                                                             │
-│ ── Expanded Detail (row 4 — Phạm T.D) ─────────────────── │
+│ ── Chi tiết mở rộng (dòng 4 — Phạm T.D) ─────────────────── │
 │ │ Age: 29 │ Income: 22M │ Employer: FPT (FDI) │ 8M employ │
 │ │ CIC: 680 │ Debt: 85M │ DTI: 28% │ DPD: 0 │ Inquiries: 1│
-│ │ eKYC: ✓ PASS (0.96) │ Fraud: CLEAR (0.08)             │
-│ │ AI explains: CIC adequate, stable employment, low DTI    │
+│ │ eKYC: PASS (0.96) │ Fraud: CLEAR (0.08)                 │
+│ │ AI giải thích: CIC đạt, việc làm ổn định, DTI thấp       │
 │ └───────────────────────────────────────────────────────── │
 │                                                             │
-│ Selected: 4/12                                              │
-│ [✓ Confirm Selected (4)] [✗ Override Selected] [→ Move to Review] │
+│ Đã chọn: 4/12                                               │
+│ [Xác nhận hồ sơ đã chọn (4)] [Override] [Chuyển sang Review]│
 │                                                             │
-│ ⚠️ Max batch confirm: 10 hồ sơ/lần (Risk Committee policy) │
+│ Giới hạn: tối đa 10 hồ sơ mỗi lần xác nhận (chính sách      │
+│ Risk Committee)                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Design Decisions
+### Quyết định thiết kế
 
-| Question | Decision | Rationale |
-|---------|---------|----------|
-| **Bao nhiêu hồ sơ per page?** | 10-15 per page, paginated | More than 15 → CO scroll fatigue → rubber-stamping risk |
-| **Max batch confirm?** | Max 10 per confirm action | Risk Committee policy (guardrail G-O2). Force CO to process in manageable chunks. ❓ Cần Risk Committee confirm con số. |
-| **Sort/filter?** | Yes: sort by score, confidence, limit, date. Filter by limit range, score range. | CO may want to review highest-limit first (most risk). |
-| **Expand row?** | Click row → inline expand (không new page). Show: demographics + CIC summary + AI explanation. | Speed: CO không muốn navigate away. Expand = quick glance. |
-| **Override 1 hồ sơ?** | Uncheck from batch → click "Override Selected" → override pop-up (Screen 3) | Minimal friction. Override phải dễ — không discourage CO from overriding when needed. |
-| **Select all?** | NO "select all" button | Prevent rubber-stamping. CO phải check each row individually. Force at least 1 interaction per record. |
-| **AI label placement** | Top of screen, persistent. Not per-row (too noisy). | Luật AI 134/2025: must be visible. Top-level = always visible without scroll. |
-| **Time tracking** | Hidden counter: `co_review_time_seconds` starts when screen loads, stops when confirm clicked. Per-record: time between expand and collapse/next. | Monitoring L3-W6 (avg review time). CO doesn't need to see timer (pressure → worse decisions). |
+| Câu hỏi | Quyết định | Lý do |
+|---------|-----------|-------|
+| Số hồ sơ mỗi trang | 10-15 hồ sơ, có phân trang | Trên 15 hồ sơ, CO dễ mệt khi cuộn và có nguy cơ xác nhận máy móc. |
+| Số hồ sơ tối đa mỗi lần xác nhận | Tối đa 10 hồ sơ | Theo chính sách của Risk Committee (guardrail G-O2); buộc CO xử lý theo từng nhóm vừa phải. |
+| Sắp xếp và lọc | Sắp xếp theo score, confidence, hạn mức, ngày; lọc theo khoảng hạn mức và khoảng score | CO có thể ưu tiên xem các hồ sơ hạn mức cao nhất, là nhóm rủi ro lớn nhất. |
+| Mở rộng dòng | Click vào dòng để mở rộng tại chỗ, không chuyển trang; hiển thị thông tin nhân khẩu, tóm tắt CIC và giải thích của AI | Tốc độ: CO không phải rời khỏi danh sách. |
+| Override một hồ sơ | Bỏ chọn khỏi lô, nhấn "Override" để mở cửa sổ override (Screen 3) | Ít thao tác nhất. Override cần dễ thực hiện để không làm CO ngại khi cần dùng. |
+| Chọn tất cả | Không có nút "chọn tất cả" | Ngăn việc xác nhận máy móc; CO phải đánh dấu từng dòng, bảo đảm có ít nhất một thao tác cho mỗi hồ sơ. |
+| Vị trí nhãn AI | Cố định ở đầu màn hình, không đặt theo từng dòng | Luật AI 134/2025 yêu cầu hiển thị rõ; ở đầu màn hình thì luôn nhìn thấy mà không cần cuộn. |
+| Theo dõi thời gian | Bộ đếm ẩn `co_review_time_seconds`, bắt đầu khi màn hình tải và dừng khi nhấn xác nhận; theo từng hồ sơ là thời gian giữa lúc mở rộng và lúc thu gọn hoặc chuyển hồ sơ | Phục vụ chỉ số thời gian duyệt trung bình (L3-W6). CO không thấy bộ đếm để tránh áp lực dẫn tới quyết định kém hơn. |
 
 ---
 
@@ -77,218 +80,209 @@ Low-fidelity wireframes cho 3 core screens + design decisions. Text/ASCII — pi
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ 🏦 AI-CRDS — Standard Review                          CO: NVA  │
-│ ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo       │
-│ Hồ sơ: APP-2026-04-001 │ Phạm Thị D │ Nộp: 09/04/2026        │
-│ SLA: ██████░░░░ 4h/8h remaining                                │
+│ AI-CRDS — Standard Review                             CO: NVA  │
+│ (i) Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo       │
+│ Hồ sơ: APP-2026-04-001 │ Phạm Thị D │ Nộp: 09/04/2026         │
+│ SLA: ██████░░░░ còn 4h/8h                                      │
 ├──────────────────────────┬──────────────────────────────────────┤
 │                          │                                      │
 │ ┌── AI ASSESSMENT ─────┐ │ ┌── APPLICANT PROFILE ────────────┐ │
 │ │                      │ │ │                                  │ │
-│ │ Risk Score: 0.52     │ │ │ Tuổi: 32    Gender: Nữ           │ │
-│ │ ████████░░ MEDIUM    │ │ │ Thu nhập: 18M (declared)         │ │
-│ │                      │ │ │ Thu nhập verified: 15M ✓(payroll)│ │
+│ │ Risk Score: 0.52     │ │ │ Tuổi: 32    Giới tính: Nữ        │ │
+│ │ ████████░░ MEDIUM    │ │ │ Thu nhập: 18M (khai báo)         │ │
+│ │                      │ │ │ Thu nhập đã xác minh: 15M (payroll)│ │
 │ │ Confidence: 72%      │ │ │ Employer: Công ty ABC (SOE)     │ │
-│ │ ████████░░           │ │ │ Employment: 8 tháng              │ │
-│ │                      │ │ │ Address: Quận 1, TP.HCM         │ │
-│ │ Recommendation:      │ │ │                                  │ │
-│ │ ⚠️ REVIEW NEEDED     │ │ │ Existing customer: ✓ 2 năm      │ │
-│ │                      │ │ │ Products: Savings, Debit card    │ │
-│ │ Fraud: CLEAR (0.12)  │ │ │ Avg balance 3M: 25M             │ │
+│ │ ████████░░           │ │ │ Thời gian làm việc: 8 tháng      │ │
+│ │                      │ │ │ Địa chỉ: Quận 1, TP.HCM         │ │
+│ │ Đề xuất:             │ │ │                                  │ │
+│ │ CẦN REVIEW           │ │ │ Khách hàng hiện hữu: 2 năm      │ │
+│ │                      │ │ │ Sản phẩm: Savings, Debit card    │ │
+│ │ Fraud: CLEAR (0.12)  │ │ │ Số dư bình quân 3 tháng: 25M     │ │
 │ ├──────────────────────┤ │ └──────────────────────────────────┘ │
 │ │                      │ │                                      │
-│ │ ⚠️ TOP 3 RISK        │ │ ┌── CIC REPORT ──────────────────┐ │
-│ │ ❶ DTI 42% (border.)  │ │ │ CIC Score: 650                  │ │
-│ │ ❷ Employment 8M      │ │ │ Outstanding: 120M               │ │
-│ │ ❸ 2 inquiries/6M     │ │ │ Active loans: 3                 │ │
-│ │                      │ │ │ Max DPD 12M: 0 ✓                │ │
-│ │ ✅ TOP 3 POSITIVE     │ │ │ Max DPD ever: 0 ✓               │ │
-│ │ ❶ CIC 650 (adequate) │ │ │ Inquiries 6M: 2                 │ │
-│ │ ❷ No DPD history     │ │ │ Debt group: 1 (standard)        │ │
-│ │ ❸ Existing cust 2yr  │ │ │ Credit history: 48 months       │ │
-│ │                      │ │ │ [View full CIC report →]        │ │
+│ │ 3 YẾU TỐ RỦI RO      │ │ ┌── CIC REPORT ──────────────────┐ │
+│ │ 1. DTI 42% (sát ngưỡng)│ │ │ CIC Score: 650                  │ │
+│ │ 2. Làm việc 8 tháng  │ │ │ Dư nợ: 120M                     │ │
+│ │ 3. 2 truy vấn/6 tháng│ │ │ Khoản vay đang hoạt động: 3     │ │
+│ │                      │ │ │ DPD tối đa 12 tháng: 0          │ │
+│ │ 3 YẾU TỐ TÍCH CỰC    │ │ │ DPD tối đa từ trước đến nay: 0  │ │
+│ │ 1. CIC 650 (đạt)     │ │ │ Truy vấn 6 tháng: 2             │ │
+│ │ 2. Không có DPD      │ │ │ Nhóm nợ: 1 (đủ tiêu chuẩn)      │ │
+│ │ 3. Khách hiện hữu 2 năm│ │ │ Lịch sử tín dụng: 48 tháng      │ │
+│ │                      │ │ │ [Xem đầy đủ báo cáo CIC]        │ │
 │ └──────────────────────┘ │ └──────────────────────────────────┘ │
 │                          │                                      │
 │ ┌── SIMILAR CASES ─────┐ │ ┌── eKYC DETAILS ────────────────┐ │
-│ │ Cases with similar    │ │ │ Identity: ✓ PASS               │ │
-│ │ profile (last 6M):   │ │ │ Face match: 0.94               │ │
-│ │ 23 cases → 87% good  │ │ │ Liveness: ✓ PASS               │ │
-│ │ 3 cases → default    │ │ │ Document: ✓ Authentic          │ │
-│ │ [View details →]     │ │ │ CCCD: ✓ Verified               │ │
+│ │ Hồ sơ có đặc điểm    │ │ │ Danh tính: PASS                 │ │
+│ │ tương tự (6 tháng):  │ │ │ Khớp khuôn mặt: 0.94            │ │
+│ │ 23 hồ sơ → 87% tốt   │ │ │ Liveness: PASS                  │ │
+│ │ 3 hồ sơ → vỡ nợ      │ │ │ Giấy tờ: xác thực               │ │
+│ │ [Xem chi tiết]       │ │ │ CCCD: đã xác minh               │ │
 │ └──────────────────────┘ │ └──────────────────────────────────┘ │
 │                          │                                      │
 ├──────────────────────────┴──────────────────────────────────────┤
 │                                                                  │
-│ CO Notes: [                                                    ] │
-│           [  Free text area for CO assessment notes            ] │
+│ Ghi chú CO: [                                                  ] │
+│             [  Vùng nhập tự do cho nhận định của CO            ] │
 │                                                                  │
 │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌────────────┐ │
-│ │ ✓ APPROVE   │ │ ✗ REJECT    │ │ ↑ ESCALATE  │ │ ? NEED     │ │
-│ │ Set limit:  │ │             │ │ to Senior   │ │ MORE INFO  │ │
+│ │ APPROVE     │ │ REJECT      │ │ ESCALATE    │ │ NEED       │ │
+│ │ Hạn mức:    │ │             │ │ lên Senior  │ │ MORE INFO  │ │
 │ │ [50M ▼]     │ │             │ │             │ │            │ │
 │ └─────────────┘ └─────────────┘ └─────────────┘ └────────────┘ │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-### Design Decisions
+### Quyết định thiết kế
 
-| Question | Decision | Rationale |
-|---------|---------|----------|
-| **Layout** | 2-column: AI panel (left) + Applicant data (right) | CO can compare AI assessment with raw data side-by-side. |
-| **AI score display** | Score number + progress bar + label (LOW/MEDIUM/HIGH) + color | CO needs quick visual read. Color: green (low risk) / yellow (medium) / red (high). |
-| **Explanation display** | Top 3 risk factors + Top 3 positive factors, always visible | CO needs balanced view — not just "why reject" but also "why might approve." Prevents confirmation bias. |
-| **Similar cases** | Show: X similar cases, Y% performed well | CO builds calibrated trust over time. "87% of similar cases → good" = confidence booster. ❓ Feasibility depends on historical data. |
-| **CIC report** | Summary inline + "View full report" link | Most COs don't need full CIC for every case. Summary sufficient for 80% decisions. Full report 1 click away. |
-| **Income verified indicator** | Green check + "(payroll)" label if verified | Highlight verified vs declared income — CO knows which to trust. |
-| **SLA bar** | Top of screen, progress bar with time remaining | CO aware of time pressure without explicit countdown (less stressful than timer). |
-| **CO notes** | Optional free text. Saved with audit trail. | CO can document reasoning. Not mandatory for approve (speed). Mandatory for reject (adverse action). |
-| **Action buttons** | 4 buttons always visible at bottom. Large touch targets. | Approve has limit dropdown. Reject triggers adverse action flow. Escalate + Need-Info available. |
-| **Approve limit** | Dropdown with suggested limit (AI-calculated based on income/DTI) + manual override | CO can accept AI suggestion or adjust. |
+| Câu hỏi | Quyết định | Lý do |
+|---------|-----------|-------|
+| Bố cục | 2 cột: bảng AI (trái) và dữ liệu khách hàng (phải) | CO đối chiếu đánh giá của AI với dữ liệu gốc cạnh nhau. |
+| Hiển thị điểm AI | Con số, thanh tiến độ, nhãn (LOW/MEDIUM/HIGH) và màu | CO cần đọc nhanh bằng mắt. Màu: xanh (rủi ro thấp), vàng (trung bình), đỏ (cao). |
+| Hiển thị giải thích | 3 yếu tố rủi ro và 3 yếu tố tích cực, luôn hiển thị | CO có cái nhìn cân bằng, không chỉ lý do từ chối mà cả lý do có thể duyệt; hạn chế thiên kiến xác nhận. |
+| Hồ sơ tương tự | Hiển thị số hồ sơ tương tự và tỷ lệ hiệu quả tốt | CO xây dựng niềm tin được hiệu chỉnh theo thời gian; "87% hồ sơ tương tự có kết quả tốt" giúp tăng độ tin cậy. Tính năng dựa trên dữ liệu lịch sử của Bank X nên triển khai theo mức sẵn có của dữ liệu. |
+| Báo cáo CIC | Tóm tắt hiển thị sẵn, có liên kết xem đầy đủ | Phần lớn hồ sơ chỉ cần phần tóm tắt; báo cáo đầy đủ cách một lần nhấn. |
+| Thu nhập đã xác minh | Dấu kiểm xanh kèm nhãn "(payroll)" khi đã xác minh | Phân biệt thu nhập đã xác minh với thu nhập khai báo. |
+| Thanh SLA | Ở đầu màn hình, thể hiện thời gian còn lại bằng thanh tiến độ | CO nắm được áp lực thời gian mà không có đồng hồ đếm ngược gây căng thẳng. |
+| Ghi chú CO | Nhập tự do, lưu cùng audit trail; bắt buộc khi từ chối (phục vụ thông báo adverse action), không bắt buộc khi duyệt | CO ghi lại lập luận; không bắt buộc khi duyệt để giữ tốc độ. |
+| Nút hành động | 4 nút luôn hiển thị ở cuối màn hình, kích thước lớn | Approve có danh sách hạn mức. Reject kích hoạt quy trình adverse action. Escalate và Need More Info luôn khả dụng. |
+| Hạn mức khi duyệt | Danh sách hạn mức với giá trị gợi ý do AI tính từ thu nhập và DTI, cho phép CO nhập tay | CO chấp nhận gợi ý của AI hoặc điều chỉnh. |
 
 ---
 
 ## SCREEN 3 — OVERRIDE FLOW
 
-### Wireframe (Pop-up when CO clicks action that contradicts AI)
+### Wireframe (cửa sổ hiện ra khi CO chọn hành động trái với đề xuất của AI)
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ ⚠️ Override: REJECT                                  │
-│ AI recommended: APPROVE (score 0.82, confidence 91%) │
+│ Override: REJECT                                    │
+│ AI đề xuất: APPROVE (score 0.82, confidence 91%)    │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│ Reason category (required): [dropdown ▼]            │
+│ Nhóm lý do (bắt buộc): [danh sách ▼]                │
 │ ┌─────────────────────────────────────────────┐     │
-│ │ ○ Relationship knowledge — tôi biết thêm    │     │
-│ │   thông tin AI không có                     │     │
-│ │ ○ Income verification — income thực tế      │     │
-│ │   khác declared                             │     │
-│ │ ○ Employer verification — employer có vấn đề│     │
-│ │ ○ Temporary situation — DPD do tình huống   │     │
-│ │   tạm thời                                  │     │
-│ │ ● AI error suspected — AI output có vẻ sai  │     │
-│ │ ○ Policy concern — case ngoài policy        │     │
-│ │ ○ Other                                     │     │
+│ │ ( ) Relationship knowledge — CO biết thêm   │     │
+│ │     thông tin AI không có                   │     │
+│ │ ( ) Income verification — thu nhập thực tế  │     │
+│ │     khác với khai báo                       │     │
+│ │ ( ) Employer verification — nơi làm việc có │     │
+│ │     vấn đề                                  │     │
+│ │ ( ) Temporary situation — DPD do tình huống │     │
+│ │     tạm thời                                │     │
+│ │ (o) AI error suspected — kết quả AI có vẻ sai│    │
+│ │ ( ) Policy concern — hồ sơ nằm ngoài chính sách│   │
+│ │ ( ) Other                                   │     │
 │ └─────────────────────────────────────────────┘     │
 │                                                     │
-│ Detail (required, min 20 chars):                    │
+│ Chi tiết (bắt buộc, tối thiểu 20 ký tự):            │
 │ ┌─────────────────────────────────────────────┐     │
 │ │ Employer mới thành lập 3 tháng, chưa có     │     │
-│ │ revenue. Rủi ro cao dù CIC score OK.        │     │
-│ │                                    42/20 ✓  │     │
+│ │ doanh thu. Rủi ro cao dù CIC score đạt.     │     │
+│ │                                    42/20    │     │
 │ └─────────────────────────────────────────────┘     │
 │                                                     │
-│ ⚠️ Override này sẽ được log trong audit trail       │
-│    và review bởi Supervisor.                        │
+│ Override này được ghi vào audit trail và được       │
+│ Supervisor xem xét.                                 │
 │                                                     │
-│ Supervisor approval needed?                         │
-│ ● No — within my authority                          │
-│ ○ Yes — notify supervisor (auto nếu limit > 50M)   │
+│ Cần Supervisor phê duyệt?                           │
+│ (o) Không — thuộc thẩm quyền của tôi                │
+│ ( ) Có — thông báo Supervisor (tự động nếu          │
+│     hạn mức trên 50M)                               │
 │                                                     │
-│        [Cancel]        [Submit Override]             │
+│        [Hủy]        [Gửi Override]                  │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Override Trigger Rules
+### Quy tắc kích hoạt cửa sổ override
 
-| CO Action | AI Recommendation | Override pop-up? | Supervisor notify? |
-|----------|------------------|-----------------|-------------------|
-| Approve | APPROVE (S1/S2) | ❌ No pop-up (agreement) | No |
-| Approve | REVIEW (S2) | ❌ No pop-up (CO reviewed, agrees to approve) | No |
-| Approve | REJECT recommendation | ✅ **Yes — override pop-up** | Yes (auto) |
-| Reject | REJECT recommendation | ❌ No pop-up (agreement) | No |
-| Reject | APPROVE (S1) | ✅ **Yes — override pop-up** | Yes (notify) |
-| Reject | REVIEW (S2) | ❌ No pop-up (CO reviewed, decides reject = normal) | No |
-| Escalate | Any | ❌ No pop-up (escalation reason required in escalate flow) | Auto (goes to Senior) |
+| Hành động của CO | Đề xuất của AI | Hiện cửa sổ override? | Thông báo Supervisor? |
+|-----------------|---------------|----------------------|----------------------|
+| Approve | APPROVE (S1/S2) | Không (đồng thuận) | Không |
+| Approve | REVIEW (S2) | Không (CO đã xem xét và đồng ý duyệt) | Không |
+| Approve | REJECT | Có | Có (tự động) |
+| Reject | REJECT | Không (đồng thuận) | Không |
+| Reject | APPROVE (S1) | Có | Có (thông báo) |
+| Reject | REVIEW (S2) | Không (CO đã xem xét, từ chối là kết quả bình thường) | Không |
+| Escalate | Bất kỳ | Không (lý do chuyển cấp được nhập trong quy trình escalate) | Tự động (chuyển lên Senior) |
 
 ---
 
-## 4. ADDITIONAL UI ELEMENTS
+## 4. CÁC THÀNH PHẦN GIAO DIỆN BỔ SUNG
 
-### 4.1 AI Confidence Indicator
+### 4.1 Chỉ báo độ tin cậy của AI
 
 ```
-Confidence styles:
+Kiểu hiển thị:
 
-HIGH (>85%):  ██████████ 92%  [green]   "AI highly confident"
-MEDIUM (60-85%): ████████░░ 72%  [yellow]  "AI moderately confident"
-LOW (<60%):   ████░░░░░░ 45%  [red]     "AI uncertain — senior review recommended"
+HIGH (>85%):     ██████████ 92%  [xanh]  "AI có độ tin cậy cao"
+MEDIUM (60-85%): ████████░░ 72%  [vàng]  "AI có độ tin cậy trung bình"
+LOW (<60%):      ████░░░░░░ 45%  [đỏ]    "AI chưa chắc chắn — nên chuyển Senior review"
 ```
 
-### 4.2 Fraud Alert Banner (State 3)
+### 4.2 Banner cảnh báo gian lận (State 3)
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ 🔴 FRAUD SIGNAL DETECTED — Priority Review Required  │
+│ PHÁT HIỆN TÍN HIỆU GIAN LẬN — Cần xử lý ưu tiên     │
 │                                                     │
 │ Fraud Score: 0.65 (ELEVATED)                        │
-│ Triggers:                                           │
-│ ├── Face match score: 0.58 (below threshold)        │
-│ ├── Application velocity: 3 apps same device/24h    │
-│ └── Employer not found in ĐKKD                      │
+│ Nguyên nhân kích hoạt:                              │
+│ ├── Điểm khớp khuôn mặt: 0.58 (dưới ngưỡng)         │
+│ ├── Tần suất nộp hồ sơ: 3 hồ sơ cùng thiết bị/24h   │
+│ └── Employer không có trong đăng ký kinh doanh      │
 │                                                     │
-│ EDD Checklist: [Start Enhanced Due Diligence →]     │
+│ Danh mục EDD: [Bắt đầu thẩm định tăng cường]        │
 └─────────────────────────────────────────────────────┘
 ```
 
-### 4.3 State 5 — Need More Info Screen
+### 4.3 State 5 — Màn hình yêu cầu bổ sung thông tin
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ 📄 Request Additional Information                    │
+│ Yêu cầu bổ sung thông tin                           │
 │                                                     │
-│ Missing / needed:                                    │
-│ [☑] Bank statement (3 months)                       │
-│ [☑] Employment contract                             │
-│ [☐] Tax return                                      │
-│ [☐] Utility bill (address verification)             │
-│ [☐] Other: [________________]                       │
+│ Hồ sơ cần bổ sung:                                  │
+│ [x] Sao kê ngân hàng (3 tháng)                      │
+│ [x] Hợp đồng lao động                               │
+│ [_] Tờ khai thuế                                    │
+│ [_] Hóa đơn tiện ích (xác minh địa chỉ)             │
+│ [_] Khác: [________________]                        │
 │                                                     │
-│ Message to customer:                                │
+│ Nội dung gửi khách hàng:                            │
 │ ┌─────────────────────────────────────────────┐     │
-│ │ [Auto-generated from selections above]      │     │
-│ │ "Để hoàn tất xét duyệt, vui lòng bổ sung: │     │
-│ │  - Sao kê ngân hàng 3 tháng gần nhất       │     │
-│ │  - Hợp đồng lao động"                      │     │
-│ │                              [Edit message] │     │
+│ │ [Tự động tạo từ các mục đã chọn]            │     │
+│ │ "Để hoàn tất xét duyệt, vui lòng bổ sung:   │     │
+│ │  - Sao kê ngân hàng 3 tháng gần nhất        │     │
+│ │  - Hợp đồng lao động"                       │     │
+│ │                              [Sửa nội dung] │     │
 │ └─────────────────────────────────────────────┘     │
 │                                                     │
-│ Deadline: 14 calendar days (23/04/2026)             │
+│ Hạn bổ sung: 14 ngày (23/04/2026)                   │
 │                                                     │
-│ Send via: [☑] App  [☑] SMS  [☑] Email              │
+│ Gửi qua: [x] App  [x] SMS  [x] Email                │
 │                                                     │
-│        [Cancel]        [Send Request]               │
+│        [Hủy]        [Gửi yêu cầu]                   │
 └─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. DESIGN SYSTEM NOTES
+## 5. QUY ĐỊNH HỆ THỐNG THIẾT KẾ
 
-| Element | Specification |
-|---------|-------------|
-| **Colors** | Risk: Green (#22C55E) / Yellow (#EAB308) / Red (#EF4444). Bank brand colors for chrome. |
-| **Typography** | Vietnamese-friendly font (Inter, Noto Sans). Score numbers: monospace. |
-| **AI label** | Persistent top bar: "ⓘ Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo" — light blue background, not dismissible. |
-| **Accessibility** | Color-blind safe (add icons alongside colors). Vietnamese text: proper diacritics. Font size ≥ 14px body. |
-| **Responsive** | Desktop-first (CO dùng desktop). Tablet support nice-to-have. Mobile: view-only dashboard. |
-
----
-
-## Tracking
-
-- [ ] Batch review UX validated với ≥ 1 CO?
-- [ ] Max batch size confirmed với Risk Committee?
-- [ ] "No select all" decision — Risk Manager comfortable?
-- [ ] Override flow realistic? (CO feedback)
-- [ ] AI label placement complies Luật AI 134/2025? (Legal review)
-- [ ] Similar cases panel feasible? (DS confirm data availability)
+| Thành phần | Quy định |
+|-----------|---------|
+| Màu sắc | Rủi ro: xanh (#22C55E), vàng (#EAB308), đỏ (#EF4444); màu thương hiệu của Bank X cho khung giao diện |
+| Kiểu chữ | Font hỗ trợ tiếng Việt (Inter, Noto Sans); số điểm dùng font monospace |
+| Nhãn AI | Thanh cố định ở đầu màn hình: "Quyết định được hỗ trợ bởi hệ thống trí tuệ nhân tạo", nền xanh nhạt, không thể đóng |
+| Khả năng tiếp cận | Phù hợp người mù màu (thêm biểu tượng bên cạnh màu); hiển thị đúng dấu tiếng Việt; cỡ chữ nội dung từ 14px |
+| Responsive | Ưu tiên desktop vì CO làm việc trên máy tính; hỗ trợ tablet ở mức bổ sung; mobile chỉ xem dashboard |
 
 ---
 
-## Ghi Chú
+## 6. LƯU Ý THIẾT KẾ
 
-1. **Low-fidelity only.** Pixel-perfect design after interview validation. These wireframes may change significantly.
-2. **"No select all"** in batch review is intentional anti-rubber-stamping measure. May cause CO friction. Need to validate with CO interviews.
-3. **Similar cases panel (Screen 2)** requires historical data + similarity search. May not be available for MVP. Mark as nice-to-have.
-4. **Cross-reference:** decision-architecture.md (state routing), override-governance.md (override rules), adverse-action-flow.md (rejection flow), trust-calibration-guide.md (trust design).
+1. Wireframe ở mức low-fidelity; bản thiết kế chi tiết có thể điều chỉnh theo kết quả phỏng vấn trong w09-01-user-interview-notes.
+2. Việc không có nút "chọn tất cả" trong duyệt hàng loạt là biện pháp chủ động chống xác nhận máy móc.
+3. Bảng hồ sơ tương tự (Screen 2) cần dữ liệu lịch sử và tìm kiếm theo mức độ tương đồng; được triển khai ở mức bổ sung cho MVP.
+4. Tài liệu liên quan: w05-01-decision-architecture (định tuyến trạng thái), w09-03-override-governance (quy tắc override), w05-04-adverse-action-flow (quy trình từ chối), w09-05-trust-calibration-guide (thiết kế niềm tin).

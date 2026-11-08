@@ -1,109 +1,100 @@
-# Synthetic Dataset Spec — Week 12 Confirmation
-> **Dự án:** AI-CRDS (AI Credit Risk Decision Support)
+# Synthetic Dataset Spec — AI-CRDS MVP v1
+> **Dự án:** AI-CRDS (AI Credit Risk Decision Support) — Bank X
 
 ---
 
 ## Mục đích
 
-Confirmation checklist cho synthetic dataset trước MVP demo. Full spec: `synthetic-data-plan.md` (Week 3 Task 4).
+Đặc tả bộ dữ liệu tổng hợp (synthetic) dùng cho MVP demo của Bank X, gồm yêu cầu, danh mục kiểm tra chất lượng và cách nạp dữ liệu. Đặc tả chi tiết xem w03-04-synthetic-data-plan.md.
+
+Các tham số phân phối dưới đây là giả định lập kế hoạch, mô phỏng cấu trúc dữ liệu của Bank X; chưa phải số liệu thực của Bank X.
 
 ---
 
-## 1. DATASET REQUIREMENTS
+## 1. Yêu cầu bộ dữ liệu
 
-| Parameter | Target | Source |
-|----------|--------|--------|
-| Records | 10,000 | synthetic-data-plan.md §3 |
-| Default rate | 4-6% (target 5%) | synthetic-data-plan.md §4 |
-| CIC coverage | 82% (18% thin file) | feature-availability-matrix.md |
-| Existing customer rate | 55% | synthetic-data-plan.md §4.2 |
-| Age distribution | Truncated normal, mean=32, std=8, min=21, max=65 | synthetic-data-plan.md §4.1 |
-| CCCD prefix | **"SYN"** + 9 digits | Mandatory — prevent confusion with real data |
-| File header | "SYNTHETIC DATA — NOT REAL CUSTOMERS" | Mandatory — PDPD protection |
-| Formats | CSV + JSON | Both required for flexibility |
-
----
-
-## 2. GENERATION CHECKLIST
-
-| # | Item | Status | Action if ❌ |
-|---|------|--------|-------------|
-| 1 | 10,000 records generated? | ❓ | Run generation script per synthetic-data-plan.md |
-| 2 | CCCD prefix "SYN" on all records? | ❓ | Verify: `grep -v "SYN" data.csv | wc -l` should be 0 (header only) |
-| 3 | File header "SYNTHETIC DATA"? | ❓ | Verify: `head -1 data.csv` |
-| 4 | Default rate 4-6%? | ❓ | Verify: count `default_flag=1` ÷ total |
-| 5 | CIC coverage ~82%? | ❓ | Verify: count `cic_score > 0` ÷ total |
-| 6 | Age min ≥ 21, max ≤ 65? | ❓ | Verify: `min(age)`, `max(age)` |
-| 7 | Income distribution realistic? | ❓ | Verify: mean ~15-20M, no negatives, no > 200M |
-| 8 | DTI calculated correctly? | ❓ | Verify: `dti = cic_total_debt / monthly_income` |
-| 9 | Employer type distribution? | ❓ | SOE 30%, FDI 25%, Private 25%, SME 15%, Startup 5% |
-| 10 | Gender distribution? | ❓ | ~50/50 (±5%) |
-| 11 | Province distribution? | ❓ | HCM 35%, HN 25%, Other 40% |
-| 12 | Correlation pairs correct (9 pairs)? | ❓ | Income↔CIC, Age↔Employment, DTI↔default, etc. |
-| 13 | Edge cases included (10 types)? | ❓ | Thin file, max DPD, very young, very old, max DTI, etc. |
-| 14 | No real PII in any field? | ❓ | Manual spot check 20 random records |
-| 15 | CSV + JSON formats available? | ❓ | Both files exist and parseable |
+| Tham số | Mục tiêu | Nguồn |
+|--------|---------|-------|
+| Số bản ghi | 10.000 | w03-04-synthetic-data-plan.md, mục 3 |
+| Tỷ lệ vỡ nợ | 4-6% (mục tiêu 5%) | w03-04-synthetic-data-plan.md, mục 4 |
+| Độ phủ CIC | 82% (18% thin file) | w03-03-feature-availability-matrix.md |
+| Tỷ lệ khách hàng hiện hữu | 55% | w03-04-synthetic-data-plan.md, mục 4.2 |
+| Phân phối độ tuổi | Chuẩn cắt cụt, trung bình 32, độ lệch chuẩn 8, tối thiểu 21, tối đa 65 | w03-04-synthetic-data-plan.md, mục 4.1 |
+| Tiền tố CCCD | "SYN" + 9 chữ số | Bắt buộc, tránh nhầm với dữ liệu thật |
+| Tiêu đề tệp | "SYNTHETIC DATA — NOT REAL CUSTOMERS" | Bắt buộc, bảo vệ dữ liệu cá nhân |
+| Định dạng | CSV và JSON | Cả hai định dạng để dùng linh hoạt |
 
 ---
 
-## 3. DEMO SCENARIO TEST RECORDS
+## 2. Danh mục kiểm tra chất lượng
 
-Pre-create 3 specific records for demo scenarios (demo-script.md):
+| # | Hạng mục | Cách kiểm tra |
+|---|---------|---------------|
+| 1 | Đủ 10.000 bản ghi | Chạy script sinh dữ liệu theo w03-04-synthetic-data-plan.md và đếm số dòng |
+| 2 | Tất cả bản ghi có tiền tố CCCD "SYN" | `grep -v "SYN" data.csv \| wc -l` cho kết quả 0 (chỉ còn dòng tiêu đề) |
+| 3 | Tệp có dòng tiêu đề "SYNTHETIC DATA" | `head -1 data.csv` |
+| 4 | Tỷ lệ vỡ nợ trong khoảng 4-6% | Đếm `default_flag=1` chia tổng số bản ghi |
+| 5 | Độ phủ CIC xấp xỉ 82% | Đếm `cic_score > 0` chia tổng số bản ghi |
+| 6 | Tuổi tối thiểu từ 21, tối đa đến 65 | `min(age)`, `max(age)` |
+| 7 | Phân phối thu nhập hợp lý | Trung bình khoảng 15-20 triệu, không có giá trị âm, không vượt 200 triệu |
+| 8 | DTI tính đúng | `dti = cic_total_debt / monthly_income` |
+| 9 | Phân phối loại hình đơn vị công tác | SOE 30%, FDI 25%, Private 25%, SME 15%, Startup 5% |
+| 10 | Phân phối giới tính | Khoảng 50/50 (sai lệch trong 5%) |
+| 11 | Phân phối tỉnh/thành | TP.HCM 35%, Hà Nội 25%, địa phương khác 40% |
+| 12 | 9 cặp tương quan đúng chiều | Thu nhập và CIC, tuổi và thâm niên, DTI và vỡ nợ, v.v. |
+| 13 | Có 10 loại trường hợp biên | Thin file, DPD cao nhất, rất trẻ, rất lớn tuổi, DTI cao nhất, v.v. |
+| 14 | Không có thông tin cá nhân thật ở bất kỳ trường nào | Kiểm tra thủ công 20 bản ghi ngẫu nhiên |
+| 15 | Có đủ hai định dạng CSV và JSON | Cả hai tệp tồn tại và đọc được |
 
-| Scenario | Record ID | Key attributes | Expected AI output |
-|---------|----------|---------------|-------------------|
-| **A: Happy path** | SYN-DEMO-001 | CIC 740, DTI 22%, 36M employment, eKYC 0.96 | Score ≥0.82, State 1 |
-| **B: Borderline** | SYN-DEMO-002 | CIC 650, DTI 42%, 8M employment, 2 inquiries | Score ~0.52, State 2 |
-| **C: Fraud** | SYN-DEMO-003 | Face match 0.58, velocity 3, thin file, income 30M | Fraud ≥0.70, State 3 |
+Bộ dữ liệu chỉ được chấp nhận khi đạt cả 15 hạng mục.
 
 ---
 
-## 4. GENERATION PROMPT (cho Claude Code / Script)
+## 3. Bản ghi kiểm thử cho kịch bản demo
+
+Ba bản ghi cố định được tạo sẵn cho ba tình huống trong w12-01-demo-script.md:
+
+| Tình huống | Mã bản ghi | Thuộc tính chính | Kết quả kỳ vọng |
+|-----------|-----------|-----------------|-----------------|
+| A: Hồ sơ tốt | SYN-DEMO-001 | CIC 740, DTI 22%, thâm niên 36 tháng, eKYC 0,96 | Điểm từ 0,82, State 1 |
+| B: Hồ sơ biên | SYN-DEMO-002 | CIC 650, DTI 42%, thâm niên 8 tháng, 2 truy vấn tín dụng | Điểm khoảng 0,52, State 2 |
+| C: Gian lận | SYN-DEMO-003 | Face match 0,58, tần suất nộp 3 hồ sơ, thin file, thu nhập 30 triệu | Fraud score từ 0,70, State 3 |
+
+---
+
+## 4. Tham số sinh dữ liệu
 
 ```
-Tạo synthetic dataset 10,000 records cho AI-CRDS demo
-theo schema và distributions trong synthetic-data-plan.md.
+Sinh bộ dữ liệu tổng hợp 10.000 bản ghi cho AI-CRDS demo tại Bank X
+theo schema và phân phối trong w03-04-synthetic-data-plan.md.
 
-Requirements:
-- Default rate: 5% (±1%)
-- CIC coverage: 82%
-- Existing customer rate: 55%
-- Age: truncated normal, mean=32, std=8, min=21, max=65
-- CCCD: prefix "SYN" + 9 random digits
-- File header row 1: "SYNTHETIC DATA — NOT REAL CUSTOMERS"
-- Include 3 pre-defined demo records (SYN-DEMO-001/002/003)
-- Include 10 edge case records
-- Run 15 validation checks
-- Output: CSV + JSON
-- Save to: data/synthetic/ai-crds-synthetic-10k-v1.0.csv
-
-Validation must pass ALL 15 checks before dataset accepted.
+Yêu cầu:
+- Tỷ lệ vỡ nợ: 5% (sai lệch 1%)
+- Độ phủ CIC: 82%
+- Tỷ lệ khách hàng hiện hữu: 55%
+- Tuổi: chuẩn cắt cụt, trung bình 32, độ lệch chuẩn 8, tối thiểu 21, tối đa 65
+- CCCD: tiền tố "SYN" + 9 chữ số ngẫu nhiên
+- Dòng đầu tệp: "SYNTHETIC DATA — NOT REAL CUSTOMERS"
+- Gồm 3 bản ghi demo định sẵn (SYN-DEMO-001/002/003)
+- Gồm 10 bản ghi trường hợp biên
+- Chạy 15 hạng mục kiểm tra chất lượng
+- Đầu ra: CSV và JSON
+- Lưu tại: data/synthetic/ai-crds-synthetic-10k-v1.0.csv
 ```
 
 ---
 
-## 5. AFTER GENERATION — Load into Supabase
+## 5. Nạp dữ liệu vào Supabase
 
 ```sql
--- Load CSV into Supabase applications table
--- Use Supabase Dashboard → Table Editor → Import CSV
--- OR use psql COPY command:
+-- Nạp CSV vào bảng applications của Supabase
+-- Dùng Supabase Dashboard, mục Table Editor, chọn Import CSV
+-- hoặc dùng lệnh COPY của psql:
 
 \COPY applications FROM 'ai-crds-synthetic-10k-v1.0.csv'
 WITH (FORMAT csv, HEADER true);
 
--- Verify load
-SELECT COUNT(*) FROM applications;  -- Should be 10,000
-SELECT COUNT(*) FROM applications WHERE cccd NOT LIKE 'SYN%';  -- Should be 0
+-- Kiểm tra sau khi nạp
+SELECT COUNT(*) FROM applications;  -- Kết quả phải là 10.000
+SELECT COUNT(*) FROM applications WHERE cccd NOT LIKE 'SYN%';  -- Kết quả phải là 0
 ```
-
----
-
-## Tracking
-
-- [ ] Dataset generated (10K records)?
-- [ ] All 15 validation checks pass?
-- [ ] 3 demo records (SYN-DEMO-001/002/003) included?
-- [ ] Loaded into Supabase?
-- [ ] Record count verified (10,000)?
-- [ ] No real PII confirmed?

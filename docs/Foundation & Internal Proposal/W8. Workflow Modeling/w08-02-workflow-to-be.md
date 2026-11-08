@@ -5,106 +5,110 @@
 
 ## Mục đích
 
-Map quy trình CC origination với AI-CRDS. Tham chiếu W5 decision states (S1-S5) + W6 thresholds + W7 KPIs. Document này là blueprint cho MVP build (Week 12).
+Mô tả quy trình phát hành thẻ tín dụng (CC origination) tại Bank X khi có AI-CRDS. Tài liệu tham chiếu các trạng thái quyết định S1-S5 (`w05-01-decision-architecture.md`), các ngưỡng (`w06-01-threshold-framework.md`) và hệ thống KPI (`w07-01-kpi-tree.md`), và là bản thiết kế nền tảng cho MVP.
+
+Các số liệu về thời gian, tỷ lệ và khối lượng trong tài liệu là giả định lập kế hoạch, sẽ được thay bằng dữ liệu thực của Bank X khi có.
 
 ---
 
-## 1. END-TO-END FLOW — 5 STAGES
+## 1. LUỒNG END-TO-END — 5 STAGE
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│            TO-BE: CC ORIGINATION WITH AI-CRDS                 │
-│            AI-assisted, Human-in-the-loop                     │
-│            Est. end-to-end: 1-8 giờ (State 1) to 1-3 ngày    │
+│            TO-BE: CC ORIGINATION WITH AI-CRDS                │
+│            AI hỗ trợ, con người quyết định                   │
+│            Thời gian end-to-end ước tính:                    │
+│            1-8 giờ (State 1) đến 1-3 ngày                    │
 └──────────────────────────────────────────────────────────────┘
 
   STAGE 1          STAGE 2           STAGE 3         STAGE 4        STAGE 5
 ┌──────────┐   ┌─────────────┐   ┌───────────┐   ┌──────────┐   ┌──────────┐
 │ Data     │──▶│ Identity &  │──▶│ AI        │──▶│ Human    │──▶│ Post-    │
 │ Collect  │   │ Fraud Gate  │   │ Scoring & │   │ Decision │   │ Decision │
-│ & Valid. │   │ (parallel)  │   │ Routing   │   │          │   │          │
+│ & Valid. │   │ (song song) │   │ Routing   │   │          │   │          │
 │          │   │             │   │           │   │          │   │          │
-│ 1-5 sec  │   │ 5-30 sec    │   │ 2-5 sec   │   │ 3-35 min │   │ <1 min   │
+│ 1-5 giây │   │ 5-30 giây   │   │ 2-5 giây  │   │ 3-35 phút│   │ <1 phút  │
 └──────────┘   └─────────────┘   └───────────┘   └──────────┘   └──────────┘
       │               │                │                │              │
-  Auto-fill       eKYC fail        Fraud flag      CO ký quyết    Adverse action
-  from app        CIC down         AI route to     định cuối      Audit trail
-  + eKYC OCR      Data missing     S1/S2/S3/S4/S5 cùng           CC issuance
-                  → State 5                        Override OK     Notification
+  Tự điền từ      eKYC fail        Fraud flag      CO ký quyết    Thông báo từ chối
+  app + eKYC      CIC down         AI định tuyến   định cuối      Audit trail
+  OCR             Thiếu dữ liệu    S1/S2/S3/S4/S5  cùng           Phát hành thẻ
+                  → State 5                        Cho phép       Thông báo khách
+                                                   override
 ```
 
 ---
 
-## 2. STAGE DETAILS
+## 2. CHI TIẾT TỪNG STAGE
 
-### STAGE 1 — Data Collection & Validation (1-5 giây)
+### Stage 1 — Thu thập và kiểm tra dữ liệu (1-5 giây)
 
-| Attribute | As-Is | To-Be | Improvement |
-|-----------|-------|-------|------------|
-| **Data entry** | Manual by staff (10-20 min) | Auto-ingest from online form/app. Branch: staff enters, eKYC OCR assists. | **-80% time** |
-| **Validation** | Manual check by back-office | **Real-time automated validation:** required fields, format check, age ≥ 21, income > 0, CCCD format. | Instant feedback, no downstream errors |
-| **Duplicate check** | Manual/none | **Automated:** same CCCD + same product within 30 days → flag | Prevent duplicate processing |
-| **Customer opt-out** | N/A | **New:** Customer can choose "Tôi muốn review thủ công" → bypass AI, route to State 2 (NĐ 356 compliance) | Regulatory compliance |
-| **System** | CBS manual entry | AI-CRDS application gateway → CBS | Seamless |
+| Thuộc tính | As-Is | To-Be | Cải thiện |
+|-----------|-------|-------|-----------|
+| Nhập liệu | Nhân viên nhập tay (10-20 phút) | Tự động nhận từ form online/app. Tại chi nhánh, nhân viên nhập và eKYC OCR hỗ trợ. | Giảm khoảng 80% thời gian |
+| Kiểm tra dữ liệu | Back-office kiểm tra thủ công | Kiểm tra tự động theo thời gian thực: trường bắt buộc, định dạng, tuổi từ 21, thu nhập > 0, định dạng CCCD. | Phản hồi tức thì, không để lỗi lan xuống các bước sau |
+| Kiểm tra trùng | Thủ công hoặc không có | Tự động: cùng CCCD và cùng sản phẩm trong 30 ngày thì gắn cờ. | Tránh xử lý trùng hồ sơ |
+| Quyền từ chối của khách | Không có | Khách có thể chọn "Tôi muốn review thủ công": bỏ qua AI, chuyển State 2 (tuân thủ NĐ 356). | Tuân thủ quy định |
+| Hệ thống | Nhập CBS thủ công | AI-CRDS application gateway ghi vào CBS | Liền mạch |
 
-**Output:** Validated application record, ready for Stage 2.
+Đầu ra: bản ghi hồ sơ đã được kiểm tra, sẵn sàng cho Stage 2.
 
-### STAGE 2 — Identity & Fraud Gate (5-30 giây, parallel)
+### Stage 2 — Cổng danh tính và gian lận (5-30 giây, chạy song song)
 
-**Key design: tất cả checks chạy PARALLEL, không sequential.**
+Thiết kế cốt lõi: toàn bộ kiểm tra chạy song song, không chạy tuần tự.
 
 ```
-Application validated
+Hồ sơ đã kiểm tra
     │
-    ├──[PARALLEL]──┬──────────────┬────────────────┬───────────────┐
-    │              │              │                │               │
-    ▼              ▼              ▼                ▼               ▼
- eKYC           CIC API       Blacklist        Device          Velocity
- verify         query         check            fingerprint     check
- (VNPT/FPT)    (H2H)         (internal+SIMO)  (online only)   (same CCCD
-                                                                30 days)
-    │              │              │                │               │
-    └──────────────┴──────────────┴────────────────┴───────────────┘
+    ├──[SONG SONG]──┬──────────────┬────────────────┬───────────────┐
+    │               │              │                │               │
+    ▼               ▼              ▼                ▼               ▼
+ eKYC            CIC API       Blacklist        Device          Velocity
+ verify          query         check            fingerprint     check
+ (VNPT/FPT)     (H2H)         (nội bộ+SIMO)    (chỉ online)    (cùng CCCD
+                                                                 30 ngày)
+    │               │              │                │               │
+    └───────────────┴──────────────┴────────────────┴───────────────┘
                               │
                     ┌─────────┤
                     │         │
-               ANY FAIL    ALL PASS
-               or FLAG         │
-                    │          │
-                    ▼          ▼
-              Route to     → Stage 3
-              S3 or S5     (AI Scoring)
+               BẤT KỲ LỖI    TẤT CẢ ĐẠT
+               hoặc CỜ           │
+                    │            │
+                    ▼            ▼
+              Chuyển        → Stage 3
+              S3 hoặc S5    (AI Scoring)
 ```
 
-| Check | Latency | Fallback if fail | Blocking for MVP? |
-|-------|---------|-----------------|-------------------|
-| eKYC | 5-15 sec | State 5 (retry/branch visit) | ✅ Yes |
-| CIC API | 5-30 sec | State 5 (retry/manual query) | ✅ Yes |
-| Blacklist (internal) | < 1 sec | State 3 if match | ✅ Yes |
-| SIMO | ❓ sec | ❓ Cần confirm integration | ⚠️ Nice-to-have for MVP |
-| Device fingerprint | < 1 sec | Skip (online only feature) | ❌ No (Phase 1+) |
-| Velocity check | < 1 sec | State 3 if triggered | ✅ Yes (simple logic) |
+| Kiểm tra | Độ trễ | Xử lý khi lỗi | Bắt buộc cho MVP |
+|----------|--------|---------------|------------------|
+| eKYC | 5-15 giây | State 5 (thử lại / đến chi nhánh) | Có |
+| CIC API | 5-30 giây | State 5 (thử lại / truy vấn thủ công) | Có |
+| Blacklist nội bộ | < 1 giây | State 3 nếu trùng khớp | Có |
+| SIMO | Vài giây | Bỏ qua và ghi nhận trong audit trail | Không (bổ sung ở giai đoạn sau) |
+| Device fingerprint | < 1 giây | Bỏ qua (chỉ áp dụng kênh online) | Không (giai đoạn sau MVP) |
+| Velocity check | < 1 giây | State 3 nếu kích hoạt | Có (logic đơn giản) |
 
-**Output:** eKYC results, CIC data, fraud signals → feed into Stage 3.
+Đầu ra: kết quả eKYC, dữ liệu CIC và tín hiệu gian lận, làm đầu vào cho Stage 3.
 
-### STAGE 3 — AI Scoring & Routing (2-5 giây)
+### Stage 3 — AI chấm điểm và định tuyến (2-5 giây)
 
 ```
-Inputs from Stage 2:
-├── Customer demographics (CBS/application)
-├── CIC data (score, debt, DPD, inquiries)
-├── eKYC results (confidence, face match)
-├── Fraud signals (blacklist, velocity)
-└── Behavioral data (CBS, if existing customer)
+Đầu vào từ Stage 2:
+├── Nhân khẩu học khách hàng (CBS/hồ sơ)
+├── Dữ liệu CIC (score, dư nợ, DPD, số lần truy vấn)
+├── Kết quả eKYC (confidence, face match)
+├── Tín hiệu gian lận (blacklist, velocity)
+└── Dữ liệu hành vi (CBS, nếu là khách hiện hữu)
     │
     ▼
 ┌─────────────────────────────┐
 │     FEATURE ENGINE          │
-│ Pre-process + derive:       │
-│ - DTI = debt / income       │
-│ - Age from DOB              │
-│ - Income verified flag      │
-│ - Thin file flag            │
+│ Tiền xử lý và tạo đặc trưng:│
+│ - DTI = nợ / thu nhập       │
+│ - Tuổi từ ngày sinh         │
+│ - Cờ thu nhập đã xác minh   │
+│ - Cờ thin file              │
 └─────────────┬───────────────┘
               │
     ┌─────────┼──────────┐
@@ -114,11 +118,12 @@ Inputs from Stage 2:
 │ CREDIT │ │ FRAUD  │ │ BIAS   │
 │ SCORING│ │ SCORING│ │ MONITOR│
 │ MODEL  │ │ MODEL  │ │        │
-│        │ │        │ │ Gender │
-│ Output:│ │ Output:│ │ Geo    │
-│ score  │ │ fraud  │ │ Age    │
-│ conf.  │ │ score  │ │ → log  │
-│ explain│ │ flag   │ │ only   │
+│        │ │        │ │ Giới   │
+│ Đầu ra:│ │ Đầu ra:│ │ tính   │
+│ score  │ │ fraud  │ │ Địa lý │
+│ conf.  │ │ score  │ │ Tuổi   │
+│ explain│ │ flag   │ │ → chỉ  │
+│        │ │        │ │ ghi log│
 └───┬────┘ └───┬────┘ └───┬────┘
     │          │          │
     └──────────┼──────────┘
@@ -126,7 +131,7 @@ Inputs from Stage 2:
     ┌──────────┴──────────┐
     │   ROUTING ENGINE    │
     │                     │
-    │ Apply thresholds:   │
+    │ Áp dụng ngưỡng:     │
     │ TH_high = 0.75      │
     │ TH_low = 0.35       │
     │ TH_fraud = 0.40     │
@@ -139,163 +144,161 @@ Inputs from Stage 2:
    S1   S2    S3    S4   S5
 ```
 
-| Output field | Type | Used by |
-|-------------|------|---------|
-| `risk_score` | float 0.0-1.0 | Routing, CO display, audit trail |
-| `confidence` | float 0.0-1.0 | Routing (< 0.60 → S4), CO display |
-| `fraud_score` | float 0.0-1.0 | Routing (> 0.40 → S3), fraud team |
-| `recommendation` | enum | CO display: APPROVE / REVIEW / ESCALATE |
-| `explanation` | list of strings | CO display: top 3-5 factors. Adverse action: top 3. |
+| Trường đầu ra | Kiểu | Sử dụng bởi |
+|---------------|------|-------------|
+| `risk_score` | float 0.0-1.0 | Định tuyến, hiển thị cho CO, audit trail |
+| `confidence` | float 0.0-1.0 | Định tuyến (< 0.60 chuyển S4), hiển thị cho CO |
+| `fraud_score` | float 0.0-1.0 | Định tuyến (> 0.40 chuyển S3), đội fraud |
+| `recommendation` | enum | Hiển thị cho CO: APPROVE / REVIEW / ESCALATE |
+| `explanation` | danh sách chuỗi | Hiển thị cho CO: 3-5 yếu tố chính. Thông báo từ chối: 3 yếu tố chính. |
 | `segment` | enum | existing_customer / new_to_bank / thin_file |
-| `ai_label` | boolean | Luật AI 134/2025: "hỗ trợ bởi AI" |
-| `bias_log` | object | Gender, geography, age → monitoring only |
+| `ai_label` | boolean | Luật AI 134/2025: nhãn "hỗ trợ bởi AI" |
+| `bias_log` | object | Giới tính, địa lý, tuổi: chỉ phục vụ giám sát |
 
-### STAGE 4 — Human Decision (time varies by state)
+### Stage 4 — Quyết định của con người (thời gian tùy trạng thái)
 
-**Same authority structure as as-is. Key difference: CO has AI context.**
+Cấu trúc thẩm quyền giữ nguyên như hiện tại. Khác biệt chính là CO có sẵn thông tin hỗ trợ từ AI.
 
-| State | CO Action | AI provides | Time | Ref |
-|-------|----------|------------|------|-----|
-| **S1** (Auto-route approve) | Batch confirm. Review summary, confirm/override. | Risk score, confidence, top 3 positive factors, CIC summary. | **3-5 min** | decision-architecture.md |
-| **S2** (Standard review) | Full individual review. Approve/reject/escalate. | Score, confidence, top 3 risk + positive factors, full CIC, AI recommendation. | **20-35 min** | decision-architecture.md |
-| **S3** (Priority fraud) | Enhanced due diligence. Clear/confirm fraud. | Fraud score, fraud triggers list, EDD checklist, cross-check results. | **30-60 min** | decision-architecture.md |
-| **S4** (Escalate) | Senior CO full underwriting. | Score, confidence (low), anomaly flags, conflicting signals. | **30-60 min** | decision-architecture.md |
-| **S5** (Need more info) | System requests docs from customer. CO processes when received. | Missing data list, request template. | **10 min CO** + customer wait (14 days max) | decision-architecture.md |
+| State | Hành động của CO | AI cung cấp | Thời gian | Tham chiếu |
+|-------|-----------------|-------------|-----------|-----------|
+| S1 (tự động định tuyến duyệt) | Xác nhận theo lô: xem tóm tắt, xác nhận hoặc override. | Risk score, confidence, 3 yếu tố tích cực chính, tóm tắt CIC. | 3-5 phút | `w05-01-decision-architecture.md` |
+| S2 (thẩm định tiêu chuẩn) | Thẩm định đầy đủ từng hồ sơ: duyệt, từ chối hoặc leo thang. | Score, confidence, 3 yếu tố rủi ro và 3 yếu tố tích cực chính, CIC đầy đủ, khuyến nghị AI. | 20-35 phút | `w05-01-decision-architecture.md` |
+| S3 (ưu tiên gian lận) | Thẩm định tăng cường (EDD): xác nhận hoặc loại trừ gian lận. | Fraud score, danh sách tín hiệu kích hoạt, checklist EDD, kết quả đối chiếu chéo. | 30-60 phút | `w05-01-decision-architecture.md` |
+| S4 (leo thang) | CO cấp cao thẩm định toàn diện. | Score, confidence (thấp), cờ bất thường, tín hiệu mâu thuẫn. | 30-60 phút | `w05-01-decision-architecture.md` |
+| S5 (cần bổ sung thông tin) | Hệ thống yêu cầu khách bổ sung giấy tờ; CO xử lý khi nhận đủ. | Danh sách dữ liệu thiếu, mẫu yêu cầu. | 10 phút CO, cộng thời gian chờ khách (tối đa 14 ngày) | `w05-01-decision-architecture.md` |
 
-**Unchanged principle:** CO ký quyết định cuối cùng. AI là decision support. Human-in-the-loop = non-negotiable (Luật TCTD 2024, Luật AI 134/2025).
+Nguyên tắc không đổi: CO ký quyết định cuối cùng, AI chỉ hỗ trợ ra quyết định. Con người luôn nằm trong vòng quyết định theo Luật TCTD 2024 và Luật AI 134/2025.
 
-### STAGE 5 — Post-Decision (< 1 phút, automated)
+### Stage 5 — Sau quyết định (< 1 phút, tự động)
 
 ```
-CO decision signed
+CO ký quyết định
     │
-    ├── IF APPROVED:
-    │   ├── Generate approval notification (app/SMS/email)
-    │   │   Include: "Quyết định được hỗ trợ bởi AI" (Luật AI label)
-    │   ├── Trigger CC issuance queue
-    │   ├── Write audit trail (24 fields, immutable)
-    │   ├── Start post-approval monitoring
-    │   └── Feed outcome to model training pipeline (future ground truth)
+    ├── NẾU DUYỆT:
+    │   ├── Tạo thông báo duyệt (app/SMS/email)
+    │   │   Kèm nhãn: "Quyết định được hỗ trợ bởi AI" (Luật AI)
+    │   ├── Kích hoạt hàng đợi phát hành thẻ
+    │   ├── Ghi audit trail (24 trường, bất biến)
+    │   ├── Bắt đầu giám sát sau phê duyệt
+    │   └── Đưa kết quả vào pipeline huấn luyện mô hình (ground truth)
     │
-    ├── IF REJECTED:
-    │   ├── Generate adverse action notice (adverse-action-flow.md)
-    │   │   Include: top 3 reasons (plain language) + AI label + rights info
-    │   ├── Send via: app + email + SMS (multi-channel)
-    │   ├── Write audit trail (24 fields)
-    │   ├── Start PII retention timer per terminal state
-    │   └── Enable complaint/human review request channel
+    ├── NẾU TỪ CHỐI:
+    │   ├── Tạo thông báo từ chối (`w05-04-adverse-action-flow.md`)
+    │   │   Kèm 3 lý do chính (ngôn ngữ dễ hiểu), nhãn AI và thông tin quyền của khách
+    │   ├── Gửi đa kênh: app, email, SMS
+    │   ├── Ghi audit trail (24 trường)
+    │   ├── Bắt đầu bộ đếm lưu trữ PII theo trạng thái cuối
+    │   └── Mở kênh khiếu nại / yêu cầu review bởi con người
     │
-    └── IF REJECTED_FRAUD:
-        ├── All REJECTED actions above +
-        ├── SIMO report (TT 45/2025)
-        ├── Internal blacklist update
-        └── Law enforcement referral (if applicable)
+    └── NẾU TỪ CHỐI DO GIAN LẬN:
+        ├── Toàn bộ hành động của nhánh từ chối, cộng thêm:
+        ├── Báo cáo SIMO (TT 45/2025)
+        ├── Cập nhật blacklist nội bộ
+        └── Chuyển cơ quan chức năng (nếu áp dụng)
 ```
 
 ---
 
-## 3. IMPROVEMENT SUMMARY — AS-IS vs TO-BE
+## 3. TỔNG HỢP CẢI THIỆN — AS-IS VS TO-BE
 
-| Metric | As-Is | To-Be | Improvement | Source |
-|--------|-------|-------|------------|--------|
-| **Time-to-decision (S1)** | 20-45 min review + queue | 3-5 min batch confirm | **-85%** | decision-architecture.md |
-| **Time-to-decision (overall median)** | 2-4 ngày | 4-8 giờ | **-80%** | Calculated |
-| **CO capacity needed** | ~10 FTE | ~4.3 FTE | **-56%** | decision-architecture.md |
-| **Consistency** | CO-dependent (high variance) | AI baseline + CO judgment | Standardized | Core value proposition |
-| **CIC query** | Manual/batch (min to hours) | Real-time API (5-30 sec) | **-99% time** | Integration design |
-| **Fraud detection** | eKYC pass/fail only | Multi-signal AI scoring | **+30% detection** (A22) | damage-model.md |
-| **Explainability** | "Không đủ điều kiện" | Top 3 factors + right to human review | **NĐ 356 + Luật AI compliant** | adverse-action-flow.md |
-| **Audit trail** | ~5-8 fields, manual | 24 fields, automated, immutable | **SBV inspection ready** | sbv-requirements.md |
-| **Adverse action** | Vague generic notice | Specific reasons + AI label + rights | **Regulatory compliant** | adverse-action-flow.md |
-| **Bias monitoring** | None | Gender/geography/age monitored | **Luật AI 134/2025 compliant** | guardrail-definitions.md |
+| Chỉ số | As-Is | To-Be | Cải thiện | Nguồn |
+|--------|-------|-------|-----------|-------|
+| Thời gian ra quyết định (S1) | 20-45 phút thẩm định cộng hàng đợi | 3-5 phút xác nhận theo lô | Giảm khoảng 85% | `w05-01-decision-architecture.md` |
+| Thời gian ra quyết định (trung vị tổng thể) | 2-4 ngày | 4-8 giờ | Giảm khoảng 80% | Tính toán |
+| Năng lực CO cần có | ~10 FTE | ~4,3 FTE | Giảm khoảng 56% | `w05-01-decision-architecture.md` |
+| Tính nhất quán | Phụ thuộc từng CO (biến thiên cao) | Mức nền AI cộng nhận định của CO | Được chuẩn hóa | Giá trị cốt lõi của AI-CRDS |
+| Truy vấn CIC | Thủ công/batch (vài phút đến vài giờ) | API thời gian thực (5-30 giây) | Giảm khoảng 99% thời gian | Thiết kế tích hợp |
+| Phát hiện gian lận | eKYC đạt/không đạt | AI chấm điểm đa tín hiệu | Tăng khoảng 30% khả năng phát hiện (giả định) | `w04-01-damage-model-bank-x.md` |
+| Khả năng giải thích | "Không đủ điều kiện" | 3 yếu tố chính và quyền yêu cầu review bởi con người | Phù hợp NĐ 356 và Luật AI | `w05-04-adverse-action-flow.md` |
+| Audit trail | ~5-8 trường, thủ công | 24 trường, tự động, bất biến | Sẵn sàng cho thanh tra SBV | `w02-04-sbv-requirements.md` |
+| Thông báo từ chối | Thông báo chung chung | Lý do cụ thể, nhãn AI và thông tin quyền | Tuân thủ quy định | `w05-04-adverse-action-flow.md` |
+| Giám sát thiên lệch | Không có | Giám sát giới tính, địa lý, tuổi | Phù hợp Luật AI 134/2025 | `w07-04-guardrail-definitions.md` |
 
 ---
 
-## 4. DATA FLOW DIAGRAM
+## 4. SƠ ĐỒ LUỒNG DỮ LIỆU
 
 ```
 ┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-│  CUSTOMER   │         │  AI-CRDS    │         │  BANK X     │
-│  CHANNELS   │         │  SYSTEM     │         │  SYSTEMS    │
+│  KÊNH       │         │  AI-CRDS    │         │  BANK X     │
+│  KHÁCH HÀNG │         │  SYSTEM     │         │  SYSTEMS    │
 │             │         │             │         │             │
-│ Online form ├────────▶│ Application ├────────▶│ CBS         │
-│ Mobile app  │ submit  │ Gateway     │ write   │ (customer   │
-│ Branch      │         │             │         │  record)    │
+│ Form online ├────────▶│ Application ├────────▶│ CBS         │
+│ Mobile app  │ gửi     │ Gateway     │ ghi     │ (hồ sơ      │
+│ Chi nhánh   │         │             │         │  khách hàng)│
 └─────────────┘         │      │      │         └──────┬──────┘
-                        │      │      │                │ read
+                        │      │      │                │ đọc
                         │      ▼      │                ▼
                         │ ┌──────────┐│         ┌─────────────┐
                         │ │Validation││         │ CIC API     │
                         │ │Engine    ││◀────────│ (H2H)       │
-                        │ └────┬─────┘│ query   └─────────────┘
+                        │ └────┬─────┘│ truy vấn└─────────────┘
                         │      │      │
                         │      ▼      │         ┌─────────────┐
                         │ ┌──────────┐│         │ eKYC        │
                         │ │ Feature  ││◀────────│ Provider    │
-                        │ │ Engine   ││ verify  │ (VNPT/FPT)  │
+                        │ │ Engine   ││ xác thực│ (VNPT/FPT)  │
                         │ └────┬─────┘│         └─────────────┘
                         │      │      │
                         │      ▼      │         ┌─────────────┐
                         │ ┌──────────┐│         │ SIMO        │
                         │ │ Scoring  ││◀────────│ (TT 45)     │
-                        │ │ + Routing││ check   └─────────────┘
+                        │ │ + Routing││ kiểm tra└─────────────┘
                         │ └────┬─────┘│
                         │      │      │
-                        │      ▼      │
-                        │ ┌──────────┐│         ┌─────────────┐
-                        │ │ CO       ││         │ Notification│
-                        │ │ Review   ││────────▶│ System      │
-                        │ │ UI       ││ trigger │ (SMS/Email/ │
-                        │ └────┬─────┘│         │  Push)      │
-                        │      │      │         └─────────────┘
-                        │      ▼      │
-                        │ ┌──────────┐│         ┌─────────────┐
-                        │ │ Audit    ││         │ Card Ops    │
-                        │ │ Trail DB ││────────▶│ (Issuance)  │
-                        │ └──────────┘│ trigger └─────────────┘
+                        │      ▼      │         ┌─────────────┐
+                        │ ┌──────────┐│         │ Notification│
+                        │ │ CO       ││         │ System      │
+                        │ │ Review   ││────────▶│ (SMS/Email/ │
+                        │ │ UI       ││ kích hoạt│ Push)      │
+                        │ └────┬─────┘│         └─────────────┘
+                        │      │      │
+                        │      ▼      │         ┌─────────────┐
+                        │ ┌──────────┐│         │ Card Ops    │
+                        │ │ Audit    ││         │ (Phát hành) │
+                        │ │ Trail DB ││────────▶│             │
+                        │ └──────────┘│ kích hoạt└────────────┘
                         └─────────────┘
 ```
 
 ---
 
-## 5. STATE DISTRIBUTION & VOLUME
+## 5. PHÂN BỔ TRẠNG THÁI VÀ KHỐI LƯỢNG
 
-Ref: decision-architecture.md, approval-rate-curve.md (TH_high = 0.75)
+Tham chiếu: `w05-01-decision-architecture.md`, `w06-03-approval-rate-curve.md` (TH_high = 0.75). Khối lượng 3.000 hồ sơ mỗi tháng là giả định lập kế hoạch.
 
-| State | % Volume | Apps/tháng | CO Time/app | CO Hours/tháng | Key metric |
-|-------|---------|-----------|------------|---------------|-----------|
-| S1 Auto-route | 35-45% | ~1,200 | 4 min (batch) | 80h | Batch confirm ratio |
-| S2 Standard | 25-35% | ~900 | 25 min (full) | 375h | Override rate |
-| S3 Fraud | 2-5% | ~100 | 45 min (EDD) | 75h | Fraud detection rate |
-| S4 Escalate | 5-10% | ~225 | 45 min (senior) | 169h | Escalation rate |
-| S5 Need-info | 8-15% | ~375 | 10 min (process) | 63h | Conversion rate |
-| **Total** | **100%** | **3,000** | **~15 min avg** | **762h (4.3 FTE)** | RARPA |
-
----
-
-## 6. IMPLEMENTATION PHASING
-
-| Phase | Scope | Timeline | What's live |
-|-------|-------|---------|-----------|
-| **MVP (Week 12)** | Synthetic data. S1/S2 only. Basic UI. Logistic regression. | Week 12 | Demo end-to-end flow |
-| **Shadow (Week 37-40)** | Real data. All 5 states. AI chạy parallel, không ảnh hưởng decision. | Week 37 | AI vs manual comparison |
-| **Limited (Week 41-43)** | AI recommend, CO review all. Low-risk subset only. | Week 41 | Subset live |
-| **Full (Week 45+)** | All applications, all states, full monitoring. | Week 45 | Production |
+| State | % khối lượng | Hồ sơ/tháng | Thời gian CO/hồ sơ | Giờ CO/tháng | Chỉ số chính |
+|-------|-------------|------------|--------------------|--------------|--------------|
+| S1 Auto-route | 35-45% | ~1.200 | 4 phút (theo lô) | 80 giờ | Tỷ lệ xác nhận theo lô |
+| S2 Standard | 25-35% | ~900 | 25 phút (đầy đủ) | 375 giờ | Tỷ lệ override |
+| S3 Fraud | 2-5% | ~100 | 45 phút (EDD) | 75 giờ | Tỷ lệ phát hiện gian lận |
+| S4 Escalate | 5-10% | ~225 | 45 phút (CO cấp cao) | 169 giờ | Tỷ lệ leo thang |
+| S5 Need-info | 8-15% | ~375 | 10 phút (xử lý) | 63 giờ | Tỷ lệ chuyển đổi |
+| Tổng | 100% | 3.000 | ~15 phút trung bình | 762 giờ (4,3 FTE) | RARPA |
 
 ---
 
-## Tracking
+## 6. LỘ TRÌNH TRIỂN KHAI
 
-- [ ] To-be flow đã review với IT (integration feasibility)?
-- [ ] Parallel processing (Stage 2) — IT confirm all APIs can run parallel?
-- [ ] Feature engine design — DS confirm feature pipeline feasible?
-- [ ] CO review UI — UX designer assigned? (Week 9)
-- [ ] Audit trail write — IT confirm immutable DB design?
+| Giai đoạn | Phạm vi | Trạng thái vận hành |
+|-----------|---------|---------------------|
+| MVP | Dữ liệu tổng hợp. Chỉ S1/S2. Giao diện cơ bản. Logistic regression. | Demo luồng end-to-end |
+| Shadow | Dữ liệu thực. Đủ 5 trạng thái. AI chạy song song, không ảnh hưởng quyết định. | So sánh AI với quy trình thủ công |
+| Limited | AI khuyến nghị, CO thẩm định toàn bộ. Chỉ áp dụng cho nhóm hồ sơ rủi ro thấp. | Vận hành trên một nhóm hồ sơ |
+| Full | Toàn bộ hồ sơ, đủ các trạng thái, giám sát đầy đủ. | Vận hành chính thức |
 
 ---
 
-## Ghi Chú
+## 7. GIẢ ĐỊNH THIẾT KẾ
 
-1. **To-be flow assumes CIC H2H API available.** Nếu chỉ manual portal → Stage 2 sẽ khác đáng kể (async CIC query + State 5 wait).
-2. **Parallel processing (Stage 2)** là key performance driver. Nếu sequential → latency tăng gấp 3-5x.
-3. **Cross-reference:** decision-architecture.md (5 states detail), threshold-framework.md (routing logic), feature-availability-matrix.md (feature inputs), adverse-action-flow.md (Stage 5 reject flow).
+1. Luồng to-be dựa trên việc Bank X có CIC H2H API. Nếu chỉ truy vấn qua portal thủ công, Stage 2 sẽ chuyển sang truy vấn CIC bất đồng bộ kết hợp State 5.
+2. Xử lý song song ở Stage 2 là yếu tố quyết định hiệu năng. Nếu chạy tuần tự, độ trễ tăng 3-5 lần.
+
+---
+
+## 8. THAM CHIẾU
+
+- `w05-01-decision-architecture.md`: chi tiết 5 trạng thái quyết định.
+- `w06-01-threshold-framework.md`: logic định tuyến theo ngưỡng.
+- `w03-03-feature-availability-matrix.md`: đặc trưng đầu vào.
+- `w05-04-adverse-action-flow.md`: luồng thông báo từ chối ở Stage 5.
